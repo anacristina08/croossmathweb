@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crossmath - Desafío de Números</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636"
+      crossorigin="anonymous"></script>
+    
     <style>
         :root {
             --bg-color: #f0f0f0;
@@ -184,6 +187,7 @@
             width: 100%;
         }
 
+        /* Estilo para la capa de anuncio real */
         .ad-screen {
             position: fixed;
             top: 0;
@@ -200,6 +204,21 @@
             gap: 20px;
             font-size: 1.5rem;
             text-align: center;
+        }
+
+        #real-ad-container {
+            /* Contenedor donde se inyectará el banner publicitario */
+            background: white;
+            padding: 10px;
+            max-width: 90%;
+            width: 320px; /* Tamaño típico de banner móvil */
+            min-height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         .ad-button {
@@ -303,6 +322,8 @@
 
 <div id="ad-popup" class="ad-screen" style="display: none;">
     <p id="ad-message"></p>
+    <div id="real-ad-container">
+        </div>
     <button class="ad-button" id="skip-ad-button"></button>
 </div>
 
@@ -322,12 +343,12 @@
             perfectionist: 'Perfeccionista', perfectionistDesc: 'Completa 5 niveles sin usar pistas',
             mathematician: 'Matemático', mathematicianDesc: 'Completa 10 niveles',
             backToMenu: 'Volver al Menú', language: 'Idioma', selectLevel: 'Selecciona un Nivel',
-            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', expert: 'Experto',
+            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', experto: 'Experto',
             threeDigitNumbers: 'Números de 3 Cifras', infinite: 'Infinito',
             check: 'Comprobar',
             removeAds: 'Eliminar Anuncios', 
             premiumPrice: 'USD $174.00', 
-            adMessage: 'Anuncio: ¡Gracias por jugar! Ayudas a mantener el juego. (Simulación de anuncio)',
+            adMessage: 'Patrocinado: Espera unos segundos mientras cargamos el siguiente puzzle.',
             adSkip: 'Continuar al Siguiente Puzzle',
             premiumPurchased: '¡Premium Activo! Disfruta sin anuncios.',
             premiumPurchaseFailed: 'Compra no registrada. Si ya pagaste, haz clic en el enlace de activación que recibiste en Gumroad.',
@@ -371,7 +392,7 @@
             check: 'Check',
             removeAds: 'Remove Ads', 
             premiumPrice: 'USD $174.00', 
-            adMessage: 'Ad: Thanks for playing! You help support the game. (Ad Simulation)',
+            adMessage: 'Sponsored: Please wait while we load the next puzzle.',
             adSkip: 'Continue to Next Puzzle',
             premiumPurchased: 'Premium Active! Enjoy ad-free playing.',
             premiumPurchaseFailed: 'Purchase not registered. If you already paid, please click the activation link you received from Gumroad.',
@@ -461,7 +482,8 @@
         premiumStatus: document.getElementById('premium-status'),
         adPopup: document.getElementById('ad-popup'),
         adMessage: document.getElementById('ad-message'),
-        skipAdButton: document.getElementById('skip-ad-button')
+        skipAdButton: document.getElementById('skip-ad-button'),
+        realAdContainer: document.getElementById('real-ad-container') // Nuevo elemento
     };
 
     let boardState = [];
@@ -763,8 +785,22 @@
         elements.skipAdButton.textContent = translations[currentLang].adSkip;
         elements.adPopup.style.display = 'flex';
 
+        // 🛑 Lógica para cargar el anuncio real
+        elements.realAdContainer.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-6018346455368636"
+                 data-ad-slot="1234567890" 
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        `;
+        // Ejecutar el script de AdSense para que cargue el anuncio
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+
+
         elements.skipAdButton.onclick = () => {
             elements.adPopup.style.display = 'none';
+            elements.realAdContainer.innerHTML = ''; // Limpiar el contenedor del anuncio
             generatePuzzle();
             elements.resultMessage.textContent = '';
             screens['game-screen'].classList.add('active');
@@ -877,7 +913,7 @@
                     // Celdas de operadores y vacías (para operadores verticales)
                     row.push({ type: 'op', val: cellValue }); 
                 } else {
-                    // Esto maneja los espacios vacíos ('') en las filas de operadores (para el centro)
+                    // Celdas invisibles para el layout
                      row.push({ type: 'empty-space', val: '' }); 
                 }
             }
