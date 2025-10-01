@@ -305,6 +305,7 @@
 
 <script>
     // 🛑 TU ENLACE REAL DE GUMROAD
+    // Este es el enlace de compra del producto.
     const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
 
     const translations = {
@@ -314,12 +315,16 @@
             fillAllFields: 'Por favor, rellena todas las casillas.',
             gamesCompleted: 'Juegos Completados: {count}', successRate: 'Tasa de Éxito: {rate}', averageTime: 'Tiempo Promedio: {time}',
             badges: 'Insignias', unlocked: 'Desbloqueadas',
+            firstTriumph: 'Primer Triunfo', firstTriumphDesc: 'Completa tu primer nivel',
+            speedDemon: 'Demonio de la Velocidad', speedDemonDesc: 'Completa un nivel en menos de 30 segundos',
+            perfectionist: 'Perfeccionista', perfectionistDesc: 'Completa 5 niveles sin usar pistas',
+            mathematician: 'Matemático', mathematicianDesc: 'Completa 10 niveles',
             backToMenu: 'Volver al Menú', language: 'Idioma', selectLevel: 'Selecciona un Nivel',
             easy: 'Fácil', medium: 'Medio', hard: 'Difícil', expert: 'Experto',
             threeDigitNumbers: 'Números de 3 Cifras', infinite: 'Infinito',
             check: 'Comprobar',
             removeAds: 'Eliminar Anuncios', 
-            premiumPrice: 'USD $174.00', // PRECIO AJUSTADO
+            premiumPrice: 'USD $174.00', 
             adMessage: 'Anuncio: ¡Gracias por jugar! Ayudas a mantener el juego. (Simulación de anuncio)',
             adSkip: 'Continuar al Siguiente Puzzle',
             premiumPurchased: '¡Premium Activo! Disfruta sin anuncios.',
@@ -354,12 +359,16 @@
             fillAllFields: 'Please fill all fields.',
             gamesCompleted: 'Games Completed: {count}', successRate: 'Success Rate: {rate}', averageTime: 'Average Time: {time}',
             badges: 'Badges', unlocked: 'Unlocked',
+            firstTriumph: 'First Triumph', firstTriumphDesc: 'Complete your first level',
+            speedDemon: 'Speed Demon', speedDemonDesc: 'Complete a level in less than 30 seconds',
+            perfectionist: 'Perfectionist', perfectionistDesc: 'Complete 5 levels without using hints',
+            mathematician: 'Mathematician', mathematicianDesc: 'Complete 10 levels',
             backToMenu: 'Back to Menu', language: 'Language', selectLevel: 'Select a Level',
             easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert',
             threeDigitNumbers: '3-Digit Numbers', infinite: 'Infinite',
             check: 'Check',
             removeAds: 'Remove Ads', 
-            premiumPrice: 'USD $174.00', // PRECIO AJUSTADO
+            premiumPrice: 'USD $174.00', 
             adMessage: 'Ad: Thanks for playing! You help support the game. (Ad Simulation)',
             adSkip: 'Continue to Next Puzzle',
             premiumPurchased: 'Premium Active! Enjoy ad-free playing.',
@@ -1000,7 +1009,7 @@
                 alert(t.premiumPurchased); 
             } else if (!currentUserID) {
                 // Si la persona hace clic en el enlace antes de loguearse
-                alert("Por favor, inicia sesión para que se registre el Premium.");
+                alert("¡Compra exitosa! Por favor, inicia sesión para que se registre el Premium en tu cuenta.");
             } else {
                 console.log("Gumroad Redirection: Premium status already active.");
             }
