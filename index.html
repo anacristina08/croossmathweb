@@ -121,15 +121,18 @@
             border: 1px solid var(--border-color);
         }
 
+        /* --- CSS CORREGIDO DEL TABLERO (Móvil) --- */
         #game-board {
             display: grid;
-            gap: 5px;
+            gap: 5px; /* Espacio entre celdas */
             margin-bottom: 1rem;
             justify-content: center;
             transition: all 0.3s ease;
+            /* gridTemplateColumns se define en el JS para 5 columnas */
         }
         
         .cell {
+            /* Tamaños fijos para el aspecto cuadrado tipo móvil */
             width: 45px;
             height: 45px;
             display: flex;
@@ -305,7 +308,6 @@
 
 <script>
     // 🛑 TU ENLACE REAL DE GUMROAD
-    // Este es el enlace de compra del producto.
     const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
 
     const translations = {
@@ -1002,16 +1004,25 @@
         const t = translations[currentLang];
 
         if (paymentConfirmed === 'true') {
-             // Si hay un usuario activo, se activa el Premium
-            if (currentUserID && !isPremium) {
-                isPremium = true;
-                saveGameState(); 
-                alert(t.premiumPurchased); 
-            } else if (!currentUserID) {
-                // Si la persona hace clic en el enlace antes de loguearse
-                alert("¡Compra exitosa! Por favor, inicia sesión para que se registre el Premium en tu cuenta.");
+            console.log("DEBUG: Parámetro 'premium=true' detectado en la URL.");
+            
+            const savedUserID = localStorage.getItem('crossmath_active_user');
+
+            if (savedUserID) {
+                // 1. Cargamos el estado del usuario logueado
+                loadCurrentUserState(savedUserID); 
+                
+                if (!isPremium) {
+                    // 2. Activamos y guardamos el Premium
+                    isPremium = true;
+                    saveGameState(); 
+                    
+                    alert(t.premiumPurchased); 
+                    console.log("DEBUG: Premium activado para el usuario logueado: " + savedUserID);
+                }
             } else {
-                console.log("Gumroad Redirection: Premium status already active.");
+                // Si la persona hace clic en el enlace antes de loguearse
+                alert("¡Compra detectada! Por favor, inicia sesión ahora para que se registre el Premium en tu cuenta.");
             }
             
             // Limpiar la URL para evitar recargas que parezcan un nuevo pago
@@ -1045,14 +1056,17 @@
             const userData = getLocalAccountData(email);
             if (userData && userData.password === password) {
                 localStorage.setItem('crossmath_active_user', email);
+                
+                // Cargar el estado del usuario después de loguear
                 loadCurrentUserState(email);
+                
                 elements.authStatusMessage.textContent = t.authSuccess;
                 elements.authStatusMessage.style.color = 'green';
                 
                 // Redirigir al menú principal DESPUÉS de loguear
                 switchScreen('main-menu');
 
-                // Si el usuario acaba de loguearse después de la compra, verificar si falta activar
+                // Verificar si se acaba de comprar el Premium antes de loguear
                 checkPaymentStatus(); 
 
             } else {
