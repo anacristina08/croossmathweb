@@ -873,10 +873,12 @@
                     row.push({ type: 'given', val: cellValue });
                 } else if (cellValue === '=') {
                     row.push({ type: 'equals', val: '=' });
-                } else if (cellValue === 'string' && cellValue.trim() !== '') {
-                    row.push({ type: 'op', val: cellValue });
+                } else if (typeof cellValue === 'string' && cellValue.trim() !== '') {
+                    // Celdas de operadores y vacías (para operadores verticales)
+                    row.push({ type: 'op', val: cellValue }); 
                 } else {
-                    row.push({ type: 'empty', val: '' });
+                    // Esto maneja los espacios vacíos ('') en las filas de operadores (para el centro)
+                     row.push({ type: 'empty-space', val: '' }); 
                 }
             }
             boardData.push(row);
@@ -915,10 +917,14 @@
                     cellElement.classList.add('equals');
                     cellElement.textContent = cell.val;
                 } else if (cell.type === 'op') {
+                    // Los operadores se ven igual que los signos de igual
                     cellElement.classList.add('operand');
                     cellElement.textContent = cell.val;
-                } else if (cell.type === 'empty') {
+                } else if (cell.type === 'empty-space') {
+                    // Las celdas vacías necesarias para el layout 5x5 deben ser invisibles
                     cellElement.style.visibility = 'hidden';
+                    cellElement.style.border = 'none';
+                    cellElement.style.boxShadow = 'none';
                 }
                 elements.gameBoard.appendChild(cellElement);
             });
