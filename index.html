@@ -125,22 +125,25 @@
             max-width: 80%;
             text-align: center;
         }
-        #sync-data-output {
-            width: 80%;
-            min-height: 50px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background: #f9f9f9;
-            word-break: break-all;
-            text-align: left;
-            font-size: 0.8em;
-        }
 
         #language-select {
             margin-bottom: 1rem;
             padding: 8px;
             border-radius: 5px;
             border: 1px solid var(--border-color);
+        }
+        
+        /* Estilos de Sincronización */
+        #sync-data-output {
+            width: 80%;
+            min-height: 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            word-break: break-all;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
         }
 
         /* --- CSS CORREGIDO DEL TABLERO (Móvil) --- */
@@ -323,11 +326,11 @@
         
         <div id="sync-data-section">
             <h3 id="sync-title">Sincronización Multi-Dispositivo</h3>
-            <p style="font-size: 0.9em; text-align: center;">Usa el código de sincronización para abrir tu cuenta en cualquier otro dispositivo.</p>
-            <button class="menu-button" id="export-button">Exportar Cuenta (Generar Código)</button>
-            <div id="sync-data-output"></div>
-            <input type="text" id="import-input" placeholder="Pega el código aquí...">
-            <button class="menu-button secondary-button" id="import-button">Importar Cuenta (Cargar)</button>
+            <p style="font-size: 0.9em; text-align: center;">Ingresa tu PIN de 6 dígitos para guardar o cargar tu progreso y Premium.</p>
+            <input type="number" id="sync-input" placeholder="Introduce tu PIN de 6 dígitos" maxlength="6" pattern="[0-9]{6}">
+            <button class="menu-button" id="export-button">1. Exportar (Guardar)</button>
+            <button class="menu-button secondary-button" id="import-button">2. Importar (Cargar)</button>
+            <div id="sync-message" class="warning-note" style="display: none;"></div>
         </div>
         
         <div id="reset-data-section">
@@ -357,8 +360,34 @@
     <button class="ad-button" id="skip-ad-button"></button>
 </div>
 
-<script>
-    // 🛑 TU ENLACE REAL DE GUMROAD
+<script type="module">
+    // -----------------------------------------------------------
+    // 🛑 CONFIGURACIÓN DE FIREBASE (TU BASE DE DATOS EN LA NUBE) 🛑
+    // -----------------------------------------------------------
+    
+    // 1. IMPORTAR LIBRERÍAS DE FIREBASE
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    // 2. TUS CREDENCIALES (Copiadas del archivo que enviaste)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
+        authDomain: "crossmath-sync-db.firebaseapp.com",
+        projectId: "crossmath-sync-db",
+        storageBucket: "crossmath-sync-db.firebasestorage.app",
+        messagingSenderId: "170459630175",
+        appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",
+        measurementId: "G-BBJKKN96SV"
+    };
+
+    // 3. Inicializar Firebase y Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app); 
+
+    // -----------------------------------------------------------
+    // 🛑 LÓGICA PRINCIPAL DEL JUEGO
+    // -----------------------------------------------------------
+
     const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
 
     const translations = {
@@ -407,9 +436,11 @@
             resetAllNote: 'Al borrar tus datos y tu estado Premium, el beneficio de no tener anuncios se perderá. ESTE JUEGO NO OFRECE REEMBOLSOS por membresías ya compradas.',
             progressCleared: 'Progreso de juego (estadísticas y puzzles) borrado.',
             allDataReset: 'Todos los datos (progreso y estado Premium) han sido borrados.',
-            syncExport: 'Código de sincronización copiado al portapapeles. ¡Pégalo en tu otro dispositivo!',
-            syncImportSuccess: '¡Datos importados y cargados con éxito!',
-            syncImportError: 'ERROR: Código de sincronización inválido o corrupto.'
+            syncError: 'Error: El PIN debe tener 6 dígitos y la cuenta debe estar activa.',
+            syncSuccessExport: 'ÉXITO: Progreso guardado en la nube con PIN {pin}.',
+            syncSuccessImport: 'ÉXITO: Datos cargados. La página se actualizará.',
+            syncErrorNotFound: 'ERROR: No se encontraron datos para ese PIN o el PIN es incorrecto.',
+            syncErrorUserMismatch: 'ERROR: Los datos de este PIN no corresponden a tu usuario actual.'
         },
         en: {
             mainMenu: 'Main Menu', play: 'Play', viewStats: 'View Statistics', settings: 'Settings',
@@ -456,9 +487,11 @@
             resetAllNote: 'Clearing all data, including your Premium status, means you will lose the ad-free benefit. THIS GAME DOES NOT OFFER REFUNDS for memberships already purchased.',
             progressCleared: 'Game progress (stats and puzzles) cleared.',
             allDataReset: 'All data (progress and Premium status) has been reset.',
-            syncExport: 'Sync code copied to clipboard. Paste it on your other device!',
-            syncImportSuccess: 'Data imported and loaded successfully!',
-            syncImportError: 'ERROR: Invalid or corrupt sync code.'
+            syncError: 'Error: PIN must be 6 digits and account must be active.',
+            syncSuccessExport: 'SUCCESS: Progress saved in the cloud with PIN {pin}.',
+            syncSuccessImport: 'SUCCESS: Data loaded. The page will update.',
+            syncErrorNotFound: 'ERROR: No data found for that PIN or PIN is incorrect.',
+            syncErrorUserMismatch: 'ERROR: This PIN data does not belong to your current user.'
         },
         // (Otros idiomas omitidos por brevedad)
     };
@@ -502,11 +535,10 @@
         resetAllButton: document.getElementById('reset-all-button'),
         resetAllNote: document.getElementById('reset-all-note'),
         // Sincronización (NUEVO)
-        syncTitle: document.getElementById('sync-title'),
+        syncInput: document.getElementById('sync-input'),
         exportButton: document.getElementById('export-button'),
-        importInput: document.getElementById('import-input'),
         importButton: document.getElementById('import-button'),
-        syncDataOutput: document.getElementById('sync-data-output'),
+        syncMessage: document.getElementById('sync-message'),
         // Otros elementos
         levelSelectTitle: document.getElementById('level-select-title'),
         levelButtons: document.querySelectorAll('.level-button'),
@@ -655,90 +687,105 @@
     }
     // --- FIN FUNCIONES DE BORRADO DE DATOS ---
     
-    // --- FUNCIONES DE SINCRONIZACIÓN (NUEVAS) ---
+    // --- FUNCIONES DE SINCRONIZACIÓN POR PIN (PREPARADO PARA LA NUBE) ---
 
-    function exportUserData() {
-        if (!currentUserID) {
-            alert("Debes iniciar sesión para exportar tu cuenta.");
-            return;
-        }
-
-        const userData = getLocalAccountData(currentUserID);
-        if (!userData) {
-            alert("Error: No se encontraron datos para exportar.");
-            return;
-        }
-
-        // Crear una copia de los datos, excluyendo la contraseña
-        const dataToExport = {
-            email: currentUserID,
-            stats: stats,
-            isPremium: isPremium,
-            boardState: boardState,
-            solution: solution,
-            difficultySettings: difficultySettings
-        };
-
-        // Codificar los datos en Base64 para crear un código de sincronización
-        const syncCode = btoa(JSON.stringify(dataToExport));
-        
-        // Mostrar y copiar al portapapeles
-        elements.syncDataOutput.textContent = syncCode;
-        navigator.clipboard.writeText(syncCode);
-        alert(translations[currentLang].syncExport);
+    // Función que simula guardar datos en la 'nube' usando el PIN como clave
+    // NOTA: EL SISTEMA REAL DE FIREBASE ESTÁ ABAJO. ESTA FUNCIÓN ES SOLO EL MARCADOR.
+    async function saveToExternalDB(pin, data) {
+        // En una aplicación real, esto haría una llamada API segura a tu servidor.
+        // Usamos setDoc para guardar el documento con ID=PIN en la colección SyncCodes
+        await setDoc(doc(db, "SyncCodes", pin), data);
     }
 
-    function importUserData() {
-        const syncCode = elements.importInput.value.trim();
-        if (!syncCode) {
-            alert(translations[currentLang].syncImportError);
+    // Función que simula cargar datos de la 'nube'
+    async function loadFromExternalDB(pin) {
+        // Usamos getDoc para obtener el documento con ID=PIN de la colección SyncCodes
+        const docRef = doc(db, "SyncCodes", pin);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            return docSnap.data();
+        } else {
+            return null;
+        }
+    }
+    
+    async function exportUserData() {
+        const pin = elements.syncInput.value.trim();
+        if (!currentUserID || pin.length !== 6 || isNaN(pin)) {
+            elements.syncMessage.textContent = translations[currentLang].syncError;
+            elements.syncMessage.style.display = 'block';
             return;
         }
 
-        try {
-            // Decodificar Base64
-            const decodedString = atob(syncCode);
-            const importedData = JSON.parse(decodedString);
+        elements.syncMessage.textContent = 'Guardando en la nube...';
+        elements.syncMessage.style.display = 'block';
 
-            // Validación mínima de estructura y que el email esté presente
-            if (!importedData.email || !importedData.stats) {
-                alert(translations[currentLang].syncImportError);
+        try {
+            const dataToSync = {
+                userId: currentUserID,
+                stats: stats,
+                isPremium: isPremium,
+                difficultySettings: difficultySettings
+            };
+
+            // 2. Guardar en la 'nube' (USANDO FIREBASE)
+            await saveToExternalDB(pin, dataToSync);
+
+            // 3. Mostrar confirmación
+            elements.syncMessage.textContent = translations[currentLang].syncSuccessExport.replace('{pin}', pin);
+            elements.syncInput.value = '';
+        } catch (e) {
+            elements.syncMessage.textContent = "Error de exportación: " + e.message;
+            elements.syncMessage.style.display = 'block';
+        }
+    }
+
+    async function importUserData() {
+        const pin = elements.syncInput.value.trim();
+        if (pin.length !== 6 || isNaN(pin)) {
+            elements.syncMessage.textContent = translations[currentLang].syncError;
+            elements.syncMessage.style.display = 'block';
+            return;
+        }
+
+        elements.syncMessage.textContent = 'Cargando datos...';
+        elements.syncMessage.style.display = 'block';
+        
+        try {
+            // 1. Cargar datos de la 'nube' (USANDO FIREBASE)
+            const importedData = await loadFromExternalDB(pin);
+
+            if (!importedData) {
+                elements.syncMessage.textContent = translations[currentLang].syncErrorNotFound;
                 return;
             }
 
-            const importedEmail = importedData.email;
-
-            // 1. Sobrescribir los datos locales de la cuenta importada
-            const currentLocalData = getLocalAccountData(importedEmail) || {};
-            
-            saveLocalAccountData(importedEmail, {
-                // Mantener la contraseña local (el código no la contiene)
-                password: currentLocalData.password || "password_necesaria_para_login", 
-                stats: importedData.stats,
-                isPremium: importedData.isPremium,
-                boardState: importedData.boardState,
-                solution: importedData.solution,
-                difficultySettings: importedData.difficultySettings
-            });
-
-            // 2. Forzar el inicio de sesión con la cuenta importada (opcional: requiere contraseña)
-            // Para simplificar, forzaremos la carga del estado y la obligamos a usar la contraseña local
-            
-            // Si el usuario no estaba logueado, lo logueamos con el nuevo estado
-            if (!currentUserID) {
-                localStorage.setItem('crossmath_active_user', importedEmail);
+            // Verificar que los datos le pertenecen al usuario logueado
+            if (importedData.userId !== currentUserID) {
+                 elements.syncMessage.textContent = translations[currentLang].syncErrorUserMismatch;
+                 return;
             }
+
+            // 2. Aplicar los datos al estado actual del usuario
+            stats = importedData.stats;
+            isPremium = importedData.isPremium;
+            difficultySettings = importedData.difficultySettings;
             
-            loadCurrentUserState(importedEmail);
-            switchScreen('settings-screen'); // Vuelve a settings para ver la confirmación
-            alert(translations[currentLang].syncImportSuccess);
+            // 3. Guardar el nuevo estado localmente y forzar actualización
+            saveCurrentUserState();
+            
+            elements.syncMessage.textContent = translations[currentLang].syncSuccessImport;
+            
+            setTimeout(() => {
+                window.location.reload(); 
+            }, 500);
 
         } catch (e) {
-            console.error("Error de importación:", e);
-            alert(translations[currentLang].syncImportError);
+            elements.syncMessage.textContent = "Error de importación: " + e.message;
+            elements.syncMessage.style.display = 'block';
         }
     }
-
     // --- FIN FUNCIONES DE SINCRONIZACIÓN ---
 
 
@@ -788,9 +835,8 @@
         elements.resetAllButton.textContent = t.resetAll;
         elements.resetAllNote.textContent = t.resetAllNote;
         
-        // Sincronización
-        elements.exportButton.textContent = t.exportButton; // Esto no existe en la traducción, usaré el valor del HTML
-        elements.importButton.textContent = t.importButton; // Esto no existe en la traducción, usaré el valor del HTML
+        // Ocultar mensaje de sincronización al abrir
+        elements.syncMessage.style.display = 'none';
     }
 
     function setLanguage(lang) {
@@ -1320,7 +1366,7 @@
     
     elements.resetAllButton.addEventListener('click', resetAllData);
 
-    // --- Sincronización de Datos ---
+    // --- Sincronización de Datos (PIN de 6 dígitos) ---
     elements.exportButton.addEventListener('click', exportUserData);
     elements.importButton.addEventListener('click', importUserData);
 
