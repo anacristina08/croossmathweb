@@ -1,4 +1,3 @@
-alert("VERSIÓN DE PRUEBA - 2 DE OCTUBRE");
 document.addEventListener('DOMContentLoaded', () => {
 
     const firebaseConfig = {
@@ -172,4 +171,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadInitialState();
 });
+
 
