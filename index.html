@@ -329,7 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let validSolutionFound = false;
         let finalSolution;
-        while (!validSolutionFound) {
+        let attempts = 0;
+        while (!validSolutionFound && attempts < 500) {
+            attempts++;
             try {
                 let h1_n1 = getRandomInt(numberRange[0], numberRange[1]);
                 let h1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
@@ -369,6 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     validSolutionFound = true;
                 }
             } catch(e) { /* ignore and retry */ }
+        }
+        
+        if (!validSolutionFound) {
+             finalSolution = [
+                [1, '+', 2, '=', 3], ['+', '', '+', '', '+'], [4, '+', 5, '=', 9],
+                ['=', '', '=', '', '='], [5, '+', 7, '=', 12]
+            ];
         }
         gameState.solution = finalSolution;
 
@@ -426,35 +435,43 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkSolution() {
         const t = translations[currentLang];
         let allFilled = true;
-        const userBoard = gameState.boardState.map(row => row.map(cell => cell.type === 'input' ? cell.val : cell.val));
+        let userSolution = [];
 
-        for(const row of gameState.boardState) {
-            for(const cell of row) {
-                if (cell.type === 'input' && cell.val === '') {
-                    allFilled = false;
-                    break;
+        gameState.boardState.forEach((row, r) => {
+            let userRow = [];
+            row.forEach((cell, c) => {
+                let val = cell.val;
+                if (cell.type === 'input') {
+                    if(cell.val === '') allFilled = false;
+                    val = Number(cell.val);
                 }
-            }
-            if(!allFilled) break;
-        }
+                userRow.push(val);
+            });
+            userSolution.push(userRow);
+        });
 
         if (!allFilled) {
             elements.resultMessage.textContent = t.fillAllFields;
             return;
         }
-        
-        // This is a simplified check. A full check would validate all 6 equations.
-        elements.resultMessage.textContent = t.levelCompleted;
-        gameState.stats.gamesCompleted++;
-        gameState.stats.gamesCorrect++;
-        gameState.boardState = [];
-        gameState.solution = [];
-        saveGameState();
-        updateUI();
-        setTimeout(() => {
-            elements.resultMessage.textContent = '';
-            showAd();
-        }, 1500);
+
+        const isCorrect = JSON.stringify(userSolution) === JSON.stringify(gameState.solution);
+
+        if (isCorrect) {
+            elements.resultMessage.textContent = t.levelCompleted;
+            gameState.stats.gamesCompleted++;
+            gameState.stats.gamesCorrect++;
+            gameState.boardState = [];
+            gameState.solution = [];
+            saveGameState();
+            updateUI();
+            setTimeout(() => {
+                elements.resultMessage.textContent = '';
+                showAd();
+            }, 1500);
+        } else {
+            elements.resultMessage.textContent = t.incorrect;
+        }
     }
 
     function showAd() {
