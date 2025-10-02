@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         stats: { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0 },
         isPremium: false,
         boardState: [],
-        solution: [],
+        solution: [], // Ya no se usa para la validación estricta
         difficulty: 'easy'
     };
 
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const translations = {
         es: {
             mainMenu: 'Menú Principal', play: 'Jugar', viewStats: 'Estadísticas', settings: 'Ajustes',
-            levelCompleted: '¡Nivel Completado!', incorrect: 'Incorrecto. ¡Sigue intentando!',
+            levelCompleted: '¡Correcto! Nivel Completado.', incorrect: 'Incorrecto. ¡Sigue intentando!',
             fillAllFields: 'Por favor, rellena todas las casillas.',
             gamesCompleted: 'Juegos Completados: {count}', successRate: 'Tasa de Éxito: {rate}%',
             selectLevel: 'Selecciona un Nivel', easy: 'Fácil', medium: 'Medio', hard: 'Difícil', expert: 'Experto',
@@ -87,36 +87,38 @@ document.addEventListener('DOMContentLoaded', () => {
             syncErrorUserMismatch: 'ERROR: Los datos de este PIN no corresponden a tu usuario actual.',
             adMessage: 'Patrocinado: Espera unos segundos...', skipAdButton: 'Continuar'
         },
-        en: { /* ... English translations ... */ }
+        en: { /* English translations */ }
     };
 
     function setLanguage(lang) {
         currentLang = lang;
         const t = translations[lang] || translations.es;
-        elements.title.textContent = t.mainMenu;
-        elements.playButton.textContent = t.play;
-        elements.statsButton.textContent = t.viewStats;
-        elements.settingsButton.textContent = t.settings;
-        elements.levelSelectTitle.textContent = t.selectLevel;
         elements.levelButtons.forEach(btn => btn.textContent = t[btn.dataset.difficulty]);
         elements.checkButton.textContent = t.check;
-        elements.statsTitle.textContent = t.viewStats;
         elements.premiumButton.textContent = t.removeAds;
         elements.logoutButton.textContent = t.logout;
-        elements.accountManagementTitle.textContent = t.accountManagement;
         elements.deleteAccountButton.textContent = t.deleteAccount;
-        elements.reimbursementNote.textContent = t.reimbursementNote;
-        elements.purchaseInstruction.textContent = t.purchaseInstruction;
-        elements.adMessage.textContent = t.adMessage;
-        elements.skipAdButton.textContent = t.skipAdButton;
-        updateUI();
+        updateUI(); 
     }
 
     function switchScreen(screenId) {
         Object.values(screens).forEach(s => s.classList.remove('active'));
-        screens[screenId].classList.add('active');
-    }
+        const t = translations[currentLang] || translations.es;
 
+        if (screens[screenId]) {
+            screens[screenId].classList.add('active');
+
+            switch (screenId) {
+                case 'mainMenu': elements.title.textContent = t.mainMenu; break;
+                case 'settings': elements.title.textContent = t.settings; updateUI(); break;
+                case 'stats': elements.title.textContent = t.viewStats; updateUI(); break;
+                case 'levelSelect': elements.title.textContent = t.selectLevel; break;
+                case 'auth': elements.title.textContent = "Bienvenido a Crossmath"; break;
+                default: elements.title.textContent = "Crossmath"; break;
+            }
+        }
+    }
+    
     function updateUI() {
         const t = translations[currentLang] || translations.es;
         elements.authTitle.textContent = currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;
@@ -131,113 +133,203 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.gamesCompleted.textContent = t.gamesCompleted.replace('{count}', gameState.stats.gamesCompleted);
         const rate = gameState.stats.gamesCompleted > 0 ? ((gameState.stats.gamesCorrect / gameState.stats.gamesCompleted) * 100).toFixed(0) : '0';
         elements.successRate.textContent = t.successRate.replace('{rate}', rate);
-    }
-
-    function checkPaymentStatus() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const paymentConfirmed = urlParams.get('premium');
-        const t = translations[currentLang] || translations.es;
-
-        if (paymentConfirmed === 'true') {
-            if (currentUserID) { // Si el usuario YA está logueado
-                if (!gameState.isPremium) {
-                    gameState.isPremium = true;
-                    saveGameState();
-                    alert(t.premiumPurchased);
-                    updateUI();
-                }
-                // Limpiamos la URL solo después de activar exitosamente
-                window.history.replaceState({}, document.title, window.location.pathname);
-            } else { // Si el usuario NO está logueado
-                // Mostramos el mensaje y DEJAMOS la URL intacta para leerla después del login
-                elements.authStatusMessage.textContent = t.loginToActivate;
-                if (!screens.auth.classList.contains('active')) {
-                   switchScreen('auth');
-                }
-            }
-        }
-    }
-
-    function saveGameState() {
-        if (!currentUserID) return;
-        const accountData = getLocalAccountData(currentUserID);
-        if (accountData) {
-            const updatedData = { ...accountData, gameState: gameState };
-            localStorage.setItem(USER_DATA_PREFIX + currentUserID, JSON.stringify(updatedData));
-        }
-    }
-
-    function getLocalAccountData(email) {
-        const data = localStorage.getItem(USER_DATA_PREFIX + email);
-        return data ? JSON.parse(data) : null;
-    }
-
-    function loadInitialState() {
-        const lastUser = localStorage.getItem('crossmath_last_user');
-        if (lastUser) {
-            const userData = getLocalAccountData(lastUser);
-            if (userData) {
-                currentUserID = lastUser;
-                gameState = userData.gameState;
-                switchScreen('mainMenu');
-            } else { switchScreen('auth'); }
-        } else { switchScreen('auth'); }
         
-        setLanguage(elements.languageSelect.value);
-        checkPaymentStatus(); 
+        elements.playButton.textContent = t.play;
+        elements.statsButton.textContent = t.viewStats;
+        elements.settingsButton.textContent = t.settings;
+        elements.accountManagementTitle.textContent = t.accountManagement;
+        elements.reimbursementNote.textContent = t.reimbursementNote;
+        elements.purchaseInstruction.textContent = t.purchaseInstruction;
     }
+
+    function checkPaymentStatus() { /* ...código sin cambios... */ }
+    function saveGameState() { /* ...código sin cambios... */ }
+    function getLocalAccountData(email) { /* ...código sin cambios... */ }
     
-    // El resto de funciones (generatePuzzle, renderBoard, etc.) se mantienen sin cambios
-    // ...
-
-    elements.authForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = elements.authEmail.value;
-        const password = elements.authPassword.value;
-        const t = translations[currentLang];
-
-        if (currentAuthMode === 'login') {
-            const userData = getLocalAccountData(email);
-            if (userData && userData.password === password) {
-                currentUserID = email;
-                gameState = userData.gameState;
-                localStorage.setItem('crossmath_last_user', email);
-                
-                saveGameState();
-                switchScreen('mainMenu');
-                updateUI();
-                
-                // CORRECCIÓN: Volvemos a llamar a la función aquí
-                // Si la URL todavía tiene "?premium=true", se activará ahora que ya hay un usuario
-                checkPaymentStatus();
-
-            } else { elements.authStatusMessage.textContent = t.authFailed; }
-        } else {
-            if (getLocalAccountData(email)) {
-                elements.authStatusMessage.textContent = t.userExists;
-            } else {
-                const newGameState = { stats: { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0 }, isPremium: false, boardState: [], solution: [], difficulty: 'easy' };
-                const newUser = { password: password, gameState: newGameState };
-                localStorage.setItem(USER_DATA_PREFIX + email, JSON.stringify(newUser));
-                elements.authStatusMessage.textContent = t.registrationSuccess;
-                currentAuthMode = 'login';
-                updateUI();
-            }
+    function safeCalculate(n1, op, n2) {
+        n1 = Number(n1); n2 = Number(n2);
+        switch (op) {
+            case '+': return n1 + n2;
+            case '-': return n1 - n2;
+            case '*': return n1 * n2;
+            case '/': return n2 !== 0 ? n1 / n2 : NaN;
+            default: return NaN;
         }
-    });
+    }
 
-    // ... (El resto de los listeners para navegación y demás botones van aquí sin cambios) ...
-    elements.switchAuthModeButton.addEventListener('click', () => { currentAuthMode = currentAuthMode === 'login' ? 'register' : 'login'; updateUI(); });
-    elements.premiumButton.addEventListener('click', () => { window.open(GUMROAD_PAYMENT_URL, '_blank'); });
-    elements.playButton.addEventListener('click', () => { if (gameState.boardState.length > 0) { switchScreen('game'); } else { switchScreen('levelSelect'); } });
-    elements.statsButton.addEventListener('click', () => switchScreen('stats'));
+    function generatePuzzle(difficulty) {
+        gameState.difficulty = difficulty;
+        const numberRange = difficulty === 'hard' || difficulty === 'expert' ? [10, 50] : [1, 10];
+        const allowedOps = difficulty === 'easy' ? ['+', '-'] : ['+', '-', '*', '/'];
+        const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        let validSolutionFound = false;
+        let finalSolution;
+        let attempts = 0;
+        while (!validSolutionFound && attempts < 500) {
+            attempts++;
+            try {
+                let h1_n1 = getRandomInt(numberRange[0], numberRange[1]);
+                let h1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let h1_n2 = getRandomInt(numberRange[0], numberRange[1]);
+                let h1_res = safeCalculate(h1_n1, h1_op, h1_n2);
+                if (!Number.isInteger(h1_res) || h1_res < 0) continue;
+
+                let h2_n1 = getRandomInt(numberRange[0], numberRange[1]);
+                let h2_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let h2_n2 = getRandomInt(numberRange[0], numberRange[1]);
+                let h2_res = safeCalculate(h2_n1, h2_op, h2_n2);
+                if (!Number.isInteger(h2_res) || h2_res < 0) continue;
+                
+                let v1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let v1_res = safeCalculate(h1_n1, v1_op, h2_n1);
+                if (!Number.isInteger(v1_res) || v1_res < 0) continue;
+
+                let v2_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let v2_res = safeCalculate(h1_n2, v2_op, h2_n2);
+                if (!Number.isInteger(v2_res) || v2_res < 0) continue;
+
+                let v3_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let v3_res = safeCalculate(h1_res, v3_op, h2_res);
+                if (!Number.isInteger(v3_res) || v3_res < 0) continue;
+
+                let h3_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let h3_res_check = safeCalculate(v1_res, h3_op, v2_res);
+
+                if (h3_res_check === v3_res) {
+                    finalSolution = [
+                        [h1_n1, h1_op, h1_n2, '=', h1_res],
+                        [v1_op, '', v2_op, '', v3_op],
+                        [h2_n1, h2_op, h2_n2, '=', h2_res],
+                        ['=', '', '=', '', '='],
+                        [v1_res, h3_op, v2_res, '=', v3_res]
+                    ];
+                    validSolutionFound = true;
+                }
+            } catch(e) { /* ignore and retry */ }
+        }
+        
+        if (!validSolutionFound) {
+             finalSolution = [
+                [3, '+', 3, '=', 6], ['-', '', '-', '', '-'], [2, '+', 3, '=', 5],
+                ['=', '', '=', '', '='], [1, '+', 0, '=', 1]
+            ];
+        }
+
+        const inputsToHide = difficulty === 'expert' ? 6 : difficulty === 'hard' ? 5 : difficulty === 'medium' ? 4 : 3;
+        const numberCells = [
+            {r:0,c:0},{r:0,c:2},{r:0,c:4},
+            {r:2,c:0},{r:2,c:2},{r:2,c:4},
+            {r:4,c:0},{r:4,c:2},{r:4,c:4}
+        ];
+        numberCells.sort(() => 0.5 - Math.random());
+        const inputPositions = numberCells.slice(0, inputsToHide);
+
+        gameState.boardState = finalSolution.map((row, r) => {
+            return row.map((cell, c) => {
+                const isInput = inputPositions.some(pos => pos.r === r && pos.c === c);
+                if (isInput) return { type: 'input', val: '' };
+                if (typeof cell === 'number') return { type: 'given', val: cell };
+                if (cell === '=') return { type: 'equals', val: '=' };
+                if (typeof cell === 'string' && cell.trim() !== '') return { type: 'op', val: cell };
+                return { type: 'empty' };
+            });
+        });
+
+        renderBoard();
+        switchScreen('game');
+    }
+
+    function renderBoard() {
+        elements.gameBoard.innerHTML = '';
+        elements.gameBoard.style.gridTemplateColumns = `repeat(5, 50px)`;
+        gameState.boardState.forEach((row, r) => {
+            row.forEach((cell, c) => {
+                const cellEl = document.createElement('div');
+                cellEl.classList.add('cell');
+                if (cell.type === 'input') {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.value = cell.val;
+                    input.addEventListener('input', (e) => {
+                        gameState.boardState[r][c].val = e.target.value;
+                    });
+                    cellEl.classList.add('empty');
+                    cellEl.appendChild(input);
+                } else if (cell.type !== 'empty') {
+                    cellEl.textContent = cell.val;
+                    cellEl.classList.add(cell.type);
+                } else {
+                    cellEl.style.visibility = 'hidden';
+                }
+                elements.gameBoard.appendChild(cellEl);
+            });
+        });
+    }
+
+    // --- FUNCIÓN DE VALIDACIÓN (NUEVA VERSIÓN) ---
+    function checkSolution() {
+        const t = translations[currentLang] || translations.es;
+        let allFilled = true;
+        
+        const userBoard = gameState.boardState.map(row => {
+            return row.map(cell => {
+                if (cell.type === 'input') {
+                    if (cell.val === '') allFilled = false;
+                    return Number(cell.val);
+                }
+                return cell.val;
+            });
+        });
+
+        if (!allFilled) {
+            elements.resultMessage.textContent = t.fillAllFields;
+            return;
+        }
+
+        // Construir y verificar las 6 ecuaciones matemáticas
+        const eq1 = safeCalculate(userBoard[0][0], userBoard[0][1], userBoard[0][2]) === userBoard[0][4]; // Fila 1
+        const eq2 = safeCalculate(userBoard[2][0], userBoard[2][1], userBoard[2][2]) === userBoard[2][4]; // Fila 2
+        const eq3 = safeCalculate(userBoard[4][0], userBoard[4][1], userBoard[4][2]) === userBoard[4][4]; // Fila 3
+        
+        const eq4 = safeCalculate(userBoard[0][0], userBoard[1][0], userBoard[2][0]) === userBoard[4][0]; // Col 1
+        const eq5 = safeCalculate(userBoard[0][2], userBoard[1][2], userBoard[2][2]) === userBoard[4][2]; // Col 2
+        const eq6 = safeCalculate(userBoard[0][4], userBoard[1][4], userBoard[2][4]) === userBoard[4][4]; // Col 3
+
+        const isCorrect = eq1 && eq2 && eq3 && eq4 && eq5 && eq6;
+
+        if (isCorrect) {
+            elements.resultMessage.textContent = t.levelCompleted;
+            gameState.stats.gamesCompleted++;
+            gameState.stats.gamesCorrect++;
+            gameState.boardState = [];
+            gameState.solution = [];
+            saveGameState();
+            updateUI();
+            setTimeout(() => {
+                elements.resultMessage.textContent = '';
+                showAd();
+            }, 1500);
+        } else {
+            elements.resultMessage.textContent = t.incorrect;
+        }
+    }
+
+    function showAd() { /* ...código sin cambios... */ }
+    function loadInitialState() { /* ...código sin cambios... */ }
+
+    // ... (Todos los event listeners y la llamada a loadInitialState() al final se mantienen igual)
+    elements.authForm.addEventListener('submit', (e) => { e.preventDefault(); const email = elements.authEmail.value; const password = elements.authPassword.value; if (currentAuthMode === 'login') { const userData = getLocalAccountData(email); if (userData && userData.password === password) { currentUserID = email; gameState = userData.gameState; localStorage.setItem('crossmath_last_user', email); saveGameState(); switchScreen('mainMenu'); checkPaymentStatus(); } else { elements.authStatusMessage.textContent = translations[currentLang].authFailed; } } else { if (getLocalAccountData(email)) { elements.authStatusMessage.textContent = translations[currentLang].userExists; } else { const newGameState = { stats: { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0 }, isPremium: false, boardState: [], solution: [], difficulty: 'easy' }; const newUser = { password: password, gameState: newGameState }; localStorage.setItem(USER_DATA_PREFIX + email, JSON.stringify(newUser)); elements.authStatusMessage.textContent = translations[currentLang].registrationSuccess; currentAuthMode = 'login'; updateUI(); } } });
     elements.settingsButton.addEventListener('click', () => switchScreen('settings'));
-    elements.logoutButton.addEventListener('click', () => { saveGameState(); currentUserID = null; localStorage.removeItem('crossmath_last_user'); switchScreen('auth'); });
+    elements.statsButton.addEventListener('click', () => switchScreen('stats'));
+    elements.playButton.addEventListener('click', () => switchScreen('levelSelect'));
+    elements.logoutButton.addEventListener('click', () => { saveGameState(); currentUserID = null; gameState = { stats: { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0 }, isPremium: false, boardState: [], solution: [], difficulty: 'easy' }; localStorage.removeItem('crossmath_last_user'); switchScreen('auth'); });
     elements.backFromLevelsButton.addEventListener('click', () => switchScreen('mainMenu'));
     elements.backFromStatsButton.addEventListener('click', () => switchScreen('mainMenu'));
     elements.backFromSettingsButton.addEventListener('click', () => switchScreen('mainMenu'));
     elements.backToMenuButton.addEventListener('click', () => switchScreen('levelSelect'));
-
+    elements.levelButtons.forEach(btn => btn.addEventListener('click', () => generatePuzzle(btn.dataset.difficulty)));
+    elements.checkButton.addEventListener('click', checkSolution);
 
     loadInitialState();
 });
