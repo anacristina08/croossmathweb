@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crossmath - Desafío de Números</title>
-    <!-- 🛑 CÓDIGO PRINCIPAL DE GOOGLE ADSENSE (Debe ir en el <head>) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636"
       crossorigin="anonymous"></script>
     
@@ -247,7 +246,6 @@
 <div class="container">
     <h1 id="title"></h1>
 
-    <!-- PANTALLA DE AUTENTICACIÓN -->
     <div id="auth-screen" class="screen">
         <h2 id="auth-title"></h2>
         <div id="auth-status-message"></div>
@@ -260,7 +258,6 @@
         <button class="menu-button secondary-button" id="auth-back-button"></button>
     </div>
 
-    <!-- MENÚ PRINCIPAL -->
     <div id="main-menu" class="screen">
         <p id="welcome-message"></p>
         <button class="menu-button" id="play-button"></button>
@@ -287,7 +284,6 @@
         <div id="game-board"></div>
         <div id="result-message"></div>
         <button class="menu-button" id="check-button"></button>
-        <!-- BOTÓN MODIFICADO: Lleva a Selección de Nivel para poder cambiarlo -->
         <button class="menu-button secondary-button" id="back-to-menu-button"></button>
     </div>
 
@@ -310,14 +306,11 @@
         <label id="language-label" for="language-select"></label>
         <select id="language-select"></select>
         
-        <!-- NOTA DE INSTRUCCIÓN DE COMPRA -->
         <p id="purchase-instruction" class="purchase-instruction"></p>
         
-        <!-- Botón de Monetización -->
         <button class="menu-button" id="premium-button"></button>
         <p id="premium-status"></p>
         
-        <!-- SECCIÓN DE SINCRONIZACIÓN (NUEVA) -->
         <div id="sync-data-section">
             <h3 id="sync-title">Sincronización Multi-Dispositivo</h3>
             <p style="font-size: 0.9em; text-align: center;">Ingresa tu PIN de 6 dígitos para guardar o cargar tu progreso y Premium.</p>
@@ -327,19 +320,15 @@
             <div id="sync-message" class="warning-note" style="display: none;"></div>
         </div>
         
-        <!-- SECCIÓN DE RESETEO DE DATOS -->
         <div id="reset-data-section">
             <h3 id="reset-title"></h3>
 
-            <!-- BOTÓN 1: Borrar solo progreso (Mantiene Premium) -->
             <button class="menu-button secondary-button" id="clear-progress-button"></button>
             
-            <!-- BOTÓN 2: Borrar todo (Incluye Premium + ADVERTENCIA) -->
             <button class="menu-button secondary-button" id="reset-all-button"></button>
             <p id="reset-all-note" class="warning-note"></p>
         </div>
 
-        <!-- SECCIÓN DE ELIMINACIÓN DE CUENTA -->
         <div id="delete-account-section">
             <h3 id="account-management-title"></h3>
             <p id="current-user-display"></p>
@@ -351,12 +340,10 @@
     </div>
 </div>
 
-<!-- Contenedor para la pantalla de Anuncios -->
 <div id="ad-popup" class="ad-screen" style="display: none;">
     <p id="ad-message"></p>
     <div id="real-ad-container">
-        <!-- Contenedor donde se cargará el anuncio de la red publicitaria -->
-    </div>
+        </div>
     <button class="ad-button" id="skip-ad-button"></button>
 </div>
 
@@ -367,7 +354,7 @@
     // 🛑 CONFIGURACIÓN DE FIREBASE (TU BASE DE DATOS EN LA NUBE) 🛑
     // -----------------------------------------------------------
     
-    // TUS CREDENCIALES (Copiadas del archivo que enviaste)
+    // TUS CREDENCIALES
     const firebaseConfig = {
         apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
         authDomain: "crossmath-sync-db.firebaseapp.com",
@@ -381,10 +368,10 @@
     // Variables globales de Firebase (se inicializarán abajo)
     let db;
     
-    // Inicializar Firebase y Firestore (usando el formato tradicional que no da errores de módulo)
+    // Iniciar Firebase y Firestore (USANDO EL FORMATO TRADICIONAL PARA COMPATIBILIDAD)
     const app = firebase.initializeApp(firebaseConfig);
     db = firebase.firestore(); 
-
+    
     // -----------------------------------------------------------
     // LÓGICA PRINCIPAL DEL JUEGO
     // -----------------------------------------------------------
@@ -692,14 +679,13 @@
 
     // Función que simula guardar datos en la 'nube' usando el PIN como clave
     async function saveToExternalDB(pin, data) {
-        // En una aplicación real, esto haría una llamada API segura a tu servidor.
-        // Usamos setDoc para guardar el documento con ID=PIN en la colección SyncCodes
+        // Sintaxis de la versión 9: db.collection().doc().set()
         await db.collection("SyncCodes").doc(pin).set(data);
     }
 
     // Función que simula cargar datos de la 'nube'
     async function loadFromExternalDB(pin) {
-        // Usamos getDoc para obtener el documento con ID=PIN de la colección SyncCodes
+        // Sintaxis de la versión 9: db.collection().doc().get()
         const docRef = db.collection("SyncCodes").doc(pin);
         const docSnap = await docRef.get(); // Usar .get() para obtener el snapshot
         
@@ -972,7 +958,6 @@
 
         // 🛑 Lógica para cargar el anuncio real
         elements.realAdContainer.innerHTML = `
-            <!-- CÓDIGO DEL ANUNCIO DE ADSENSE (El ID de slot debe ser REAL y aprobado en tu cuenta) -->
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-6018346455368636"
