@@ -788,14 +788,13 @@
         // 🛑 Lógica para cargar el anuncio real
         elements.realAdContainer.innerHTML = `
             <ins class="adsbygoogle"
-                 style="display:block"
+                 style="display:block; width: 300px; height: 250px;" 
                  data-ad-client="ca-pub-6018346455368636"
                  data-ad-slot="1234567890" 
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+                 data-ad-format="rectangle"
+                 data-full-width-responsive="false"></ins>
         `;
         // Ejecutar el script de AdSense para que cargue el anuncio
-        // Nota: El ID del Slot ('1234567890') debe ser REAL y aprobado en tu cuenta.
         (window.adsbygoogle = window.adsbygoogle || []).push({});
 
 
@@ -1044,6 +1043,7 @@
     function checkPaymentStatus() {
         const urlParams = new URLSearchParams(window.location.search);
         const paymentConfirmed = urlParams.get('premium');
+        const purchaseEmail = urlParams.get('user'); // Nuevo: Email del comprador de Gumroad
         const t = translations[currentLang];
 
         if (paymentConfirmed === 'true') {
@@ -1052,20 +1052,23 @@
             const savedUserID = localStorage.getItem('crossmath_active_user');
 
             if (savedUserID) {
-                // 1. Cargamos el estado del usuario logueado
+                // CASO 1: Usuario logueado. Activar de inmediato.
                 loadCurrentUserState(savedUserID); 
                 
                 if (!isPremium) {
-                    // 2. Activamos y guardamos el Premium
                     isPremium = true;
                     saveGameState(); 
-                    
                     alert(t.premiumPurchased); 
                     console.log("DEBUG: Premium activado para el usuario logueado: " + savedUserID);
                 }
+            } else if (purchaseEmail) {
+                // CASO 2: Compra detectada con email, pero usuario NO logueado.
+                // Guardamos el email temporalmente para activarlo al loguearse.
+                localStorage.setItem('crossmath_pending_premium_user', purchaseEmail);
+                alert("¡Compra detectada! Por favor, inicia sesión con el correo " + purchaseEmail + " para activar el Premium.");
             } else {
-                // Si la persona hace clic en el enlace antes de loguearse
-                alert("¡Compra detectada! Por favor, inicia sesión ahora para que se registre el Premium en tu cuenta.");
+                 // CASO 3: Compra detectada sin email de Gumroad y sin sesión activa.
+                alert("¡Compra detectada! Por favor, inicia sesión ahora y si el Premium no se activa, borra tu caché e inténtalo de nuevo.");
             }
             
             // Limpiar la URL para evitar recargas que parezcan un nuevo pago
@@ -1102,14 +1105,21 @@
                 
                 // Cargar el estado del usuario después de loguear
                 loadCurrentUserState(email);
+
+                // 🛑 LÓGICA CLAVE: Activar Premium Pendiente al iniciar sesión
+                const pendingUser = localStorage.getItem('crossmath_pending_premium_user');
+                if (pendingUser === email) {
+                    isPremium = true;
+                    saveGameState();
+                    localStorage.removeItem('crossmath_pending_premium_user');
+                    alert(t.premiumPurchased);
+                }
                 
                 elements.authStatusMessage.textContent = t.authSuccess;
                 elements.authStatusMessage.style.color = 'green';
                 
                 // Redirigir al menú principal DESPUÉS de loguear
                 switchScreen('main-menu');
-
-                // Verificar si se acaba de comprar el Premium antes de loguear
                 checkPaymentStatus(); 
 
             } else {
