@@ -368,1002 +368,1086 @@
     // Variables globales de Firebase (se inicializarán abajo)
     let db;
     
-    // Inicializar Firebase y Firestore (USANDO EL FORMATO TRADICIONAL PARA COMPATIBILIDAD)
+    // Inicializar Firebase y Firestore
     const app = firebase.initializeApp(firebaseConfig);
     db = firebase.firestore(); 
 
     // -----------------------------------------------------------
-    // LÓGICA PRINCIPAL DEL JUEGO (ENVUELTA PARA ASEGURAR CARGA)
+    // LÓGICA PRINCIPAL DEL JUEGO
     // -----------------------------------------------------------
     
-    (function() { 
-        const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
+    const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
 
-        const translations = {
-            es: {
-                mainMenu: 'Menú Principal', play: 'Jugar', viewStats: 'Ver Estadísticas', settings: 'Configuración',
-                levelCompleted: '¡Nivel Completado!', incorrect: 'Incorrecto. ¡Sigue intentando!',
-                fillAllFields: 'Por favor, rellena todas las casillas.',
-                gamesCompleted: 'Juegos Completados: {count}', successRate: 'Tasa de Éxito: {rate}', averageTime: 'Tiempo Promedio: {time}',
-                badges: 'Insignias', unlocked: 'Desbloqueadas',
-                firstTriumph: 'Primer Triunfo', firstTriumphDesc: 'Completa tu primer nivel',
-                speedDemon: 'Demonio de la Velocidad', speedDemonDesc: 'Completa un nivel en menos de 30 segundos',
-                perfectionist: 'Perfeccionista', perfectionistDesc: 'Completa 5 niveles sin usar pistas',
-                mathematician: 'Matemático', mathematicianDesc: 'Completa 10 niveles',
-                backToMenu: 'Volver al Menú', language: 'Idioma', selectLevel: 'Selecciona un Nivel',
-                easy: 'Fácil', medium: 'Medio', hard: 'Difícil', experto: 'Experto',
-                threeDigitNumbers: 'Números de 3 Cifras', infinite: 'Infinito',
-                check: 'Comprobar',
-                removeAds: 'Eliminar Anuncios', 
-                premiumPrice: 'USD $174.00', 
-                adMessage: 'Patrocinado: Espera unos segundos mientras cargamos el siguiente puzzle.',
-                adSkip: 'Continuar al Siguiente Puzzle',
-                premiumPurchased: '¡Premium Activo! Disfruta sin anuncios.',
-                premiumPurchaseFailed: 'Compra no registrada. Si ya pagaste, haz clic en el enlace de activación que recibiste en Gumroad.',
-                adSupported: 'Con Anuncios',
-                // --- Claves de Autenticación y Cuentas ---
-                loginTitle: 'Iniciar Sesión', registerTitle: 'Crear Cuenta',
-                loginButton: 'Iniciar Sesión', registerButton: 'Registrarme',
-                loginSwitch: '¿No tienes cuenta? Regístrate', registerSwitch: '¿Ya tienes cuenta? Inicia Sesión',
-                authSuccess: '¡Bienvenido(a)!', authFailed: 'Credenciales inválidas.',
-                userExists: 'El correo ya está registrado.', registrationSuccess: 'Cuenta creada. ¡Inicia Sesión!',
-                logout: 'Cerrar Sesión', welcome: '¡Hola, {user}!',
-                accountManagement: 'Gestión de Cuenta', deleteAccount: 'Eliminar Cuenta',
-                currentUser: 'Sesión activa: {user}',
-                deleteConfirm: '¿Estás seguro de que quieres ELIMINAR tu cuenta? Esta acción es PERMANENTE y borrará tu progreso y estadísticas guardadas.',
-                deleteSuccess: 'Tu cuenta ha sido eliminada. Todos los datos locales han sido borrados.',
-                reimbursementNote: 'NOTA: La eliminación de la cuenta no conlleva el reembolso del dinero pagado por la membresía Premium.',
-                authBack: 'Volver al Inicio',
-                // --- Claves de Instrucción de Compra ---
-                purchaseInstruction: 'IMPORTANTE: Para activar el Premium, la compra debe hacerse con el MISMO correo electrónico que usas para iniciar sesión en este juego.',
-                // --- Nuevas Claves de Borrado de Datos ---
-                resetTitle: 'Restablecer Datos Locales',
-                clearProgress: 'Borrar Progreso del Juego',
-                clearProgressConfirm: '¿Estás seguro de que quieres borrar tus estadísticas y progreso de puzzle actual? ¡El Premium se MANTENDRÁ!',
-                resetAll: 'Borrar TODO (Progreso y Premium)',
-                resetAllConfirm: 'ADVERTENCIA: ¿Estás seguro de que quieres borrar TODOS los datos, incluyendo tu estado PREMIUM? Perderás el beneficio de no tener anuncios.',
-                resetAllNote: 'Al borrar tus datos y tu estado Premium, el beneficio de no tener anuncios se perderá. ESTE JUEGO NO OFRECE REEMBOLSOS por membresías ya compradas.',
-                progressCleared: 'Progreso de juego (estadísticas y puzzles) borrado.',
-                allDataReset: 'Todos los datos (progreso y estado Premium) han sido borrados.',
-                syncError: 'Error: El PIN debe tener 6 dígitos y la cuenta debe estar activa.',
-                syncSuccessExport: 'ÉXITO: Progreso guardado en la nube con PIN {pin}.',
-                syncSuccessImport: 'ÉXITO: Datos cargados. La página se actualizará.',
-                syncErrorNotFound: 'ERROR: No se encontraron datos para ese PIN o el PIN es incorrecto.',
-                syncErrorUserMismatch: 'ERROR: Los datos de este PIN no corresponden a tu usuario actual.'
-            },
-            en: {
-                mainMenu: 'Main Menu', play: 'Play', viewStats: 'View Statistics', settings: 'Settings',
-                levelCompleted: 'Level Completed!', incorrect: 'Incorrect. Keep trying!',
-                fillAllFields: 'Please fill all fields.',
-                gamesCompleted: 'Games Completed: {count}', successRate: 'Success Rate: {rate}', averageTime: 'Average Time: {time}',
-                badges: 'Badges', unlocked: 'Unlocked',
-                firstTriumph: 'First Triumph', firstTriumphDesc: 'Complete your first level',
-                speedDemon: 'Speed Demon', speedDemonDesc: 'Complete a level in less than 30 seconds',
-                perfectionist: 'Perfectionist', perfectionistDesc: 'Complete 5 levels without using hints',
-                mathematician: 'Mathematician', mathematicianDesc: 'Complete 10 levels',
-                backToMenu: 'Back to Menu', language: 'Language', selectLevel: 'Select a Level',
-                easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert',
-                threeDigitNumbers: '3-Digit Numbers', infinite: 'Infinite',
-                check: 'Check',
-                removeAds: 'Remove Ads', 
-                premiumPrice: 'USD $174.00', 
-                adMessage: 'Sponsored: Please wait while we load the next puzzle.',
-                adSkip: 'Continue to Next Puzzle',
-                premiumPurchased: 'Premium Active! Enjoy ad-free playing.',
-                premiumPurchaseFailed: 'Purchase not registered. If you already paid, please click the activation link you received from Gumroad.',
-                adSupported: 'Ad Supported',
-                // --- Claves de Instrucción de Compra ---
-                purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',
-                // --- Claves de Autenticación y Cuentas ---
-                loginTitle: 'Log In', registerTitle: 'Create Account',
-                loginButton: 'Log In', registerButton: 'Sign Up',
-                loginSwitch: 'Don\'t have an account? Sign Up', registerSwitch: 'Already have an account? Log In',
-                authSuccess: 'Welcome back!', authFailed: 'Invalid credentials.',
-                userExists: 'Email is already registered.', registrationSuccess: 'Account created. Please log in!',
-                logout: 'Log Out', welcome: 'Hello, {user}!',
-                accountManagement: 'Account Management', deleteAccount: 'Delete Account',
-                currentUser: 'Active session: {user}',
-                deleteConfirm: 'Are you sure you want to DELETE your account? This action is PERMANENT and will erase your saved progress and statistics.',
-                deleteSuccess: 'Your account has been deleted. All local data has been erased.',
-                reimbursementNote: 'NOTE: Account deletion does not automatically trigger a refund for the Premium membership.',
-                authBack: 'Back to Home',
-                // --- Nuevas Claves de Borrado de Datos ---
-                resetTitle: 'Reset Local Data',
-                clearProgress: 'Clear Game Progress',
-                clearProgressConfirm: 'Are you sure you want to clear your stats and current puzzle progress? Premium status will be KEPT!',
-                resetAll: 'Reset ALL Data (Progress & Premium)',
-                resetAllConfirm: 'WARNING: Are you sure you want to delete ALL data, including your PREMIUM status? You will lose the ad-free benefit.',
-                resetAllNote: 'Clearing all data, including your Premium status, means you will lose the ad-free benefit. THIS GAME DOES NOT OFFER REFUNDS for memberships already purchased.',
-                progressCleared: 'Game progress (stats and puzzles) cleared.',
-                allDataReset: 'All data (progress and Premium status) has been reset.',
-                syncError: 'Error: PIN must be 6 digits and account must be active.',
-                syncSuccessExport: 'SUCCESS: Progress saved in the cloud with PIN {pin}.',
-                syncSuccessImport: 'SUCCESS: Data loaded. The page will update.',
-                syncErrorNotFound: 'ERROR: No data found for that PIN or PIN is incorrect.',
-                syncErrorUserMismatch: 'ERROR: This PIN data does not belong to your current user.'
-            },
-            // (Otros idiomas omitidos por brevedad)
-        };
-        
-        const languageNames = {
-            es: 'Español', en: 'English', fr: 'Français', de: 'Deutsch', pt: 'Português', it: 'Italiano'
-        };
+    const translations = {
+        es: {
+            mainMenu: 'Menú Principal', play: 'Jugar', viewStats: 'Ver Estadísticas', settings: 'Configuración',
+            levelCompleted: '¡Nivel Completado!', incorrect: 'Incorrecto. ¡Sigue intentando!',
+            fillAllFields: 'Por favor, rellena todas las casillas.',
+            gamesCompleted: 'Juegos Completados: {count}', successRate: 'Tasa de Éxito: {rate}', averageTime: 'Tiempo Promedio: {time}',
+            badges: 'Insignias', unlocked: 'Desbloqueadas',
+            firstTriumph: 'Primer Triunfo', firstTriumphDesc: 'Completa tu primer nivel',
+            speedDemon: 'Demonio de la Velocidad', speedDemonDesc: 'Completa un nivel en menos de 30 segundos',
+            perfectionist: 'Perfeccionista', perfectionistDesc: 'Completa 5 niveles sin usar pistas',
+            mathematician: 'Matemático', mathematicianDesc: 'Completa 10 niveles',
+            backToMenu: 'Volver al Menú', language: 'Idioma', selectLevel: 'Selecciona un Nivel',
+            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', experto: 'Experto',
+            threeDigitNumbers: 'Números de 3 Cifras', infinite: 'Infinito',
+            check: 'Comprobar',
+            removeAds: 'Eliminar Anuncios', 
+            premiumPrice: 'USD $174.00', 
+            adMessage: 'Patrocinado: Espera unos segundos mientras cargamos el siguiente puzzle.',
+            adSkip: 'Continuar al Siguiente Puzzle',
+            premiumPurchased: '¡Premium Activo! Disfruta sin anuncios.',
+            premiumPurchaseFailed: 'Compra no registrada. Si ya pagaste, haz clic en el enlace de activación que recibiste en Gumroad.',
+            adSupported: 'Con Anuncios',
+            // --- Claves de Autenticación y Cuentas ---
+            loginTitle: 'Iniciar Sesión', registerTitle: 'Crear Cuenta',
+            loginButton: 'Iniciar Sesión', registerButton: 'Registrarme',
+            loginSwitch: '¿No tienes cuenta? Regístrate', registerSwitch: '¿Ya tienes cuenta? Inicia Sesión',
+            authSuccess: '¡Bienvenido(a)!', authFailed: 'Credenciales inválidas.',
+            userExists: 'El correo ya está registrado.', registrationSuccess: 'Cuenta creada. ¡Inicia Sesión!',
+            logout: 'Cerrar Sesión', welcome: '¡Hola, {user}!',
+            accountManagement: 'Gestión de Cuenta', deleteAccount: 'Eliminar Cuenta',
+            currentUser: 'Sesión activa: {user}',
+            deleteConfirm: '¿Estás seguro de que quieres ELIMINAR tu cuenta? Esta acción es PERMANENTE y borrará tu progreso y estadísticas guardadas.',
+            deleteSuccess: 'Tu cuenta ha sido eliminada. Todos los datos locales han sido borrados.',
+            reimbursementNote: 'NOTA: La eliminación de la cuenta no conlleva el reembolso del dinero pagado por la membresía Premium.',
+            authBack: 'Volver al Inicio',
+            // --- Claves de Instrucción de Compra ---
+            purchaseInstruction: 'IMPORTANTE: Para activar el Premium, la compra debe hacerse con el MISMO correo electrónico que usas para iniciar sesión en este juego.',
+            // --- Nuevas Claves de Borrado de Datos ---
+            resetTitle: 'Restablecer Datos Locales',
+            clearProgress: 'Borrar Progreso del Juego',
+            clearProgressConfirm: '¿Estás seguro de que quieres borrar tus estadísticas y progreso de puzzle actual? ¡El Premium se MANTENDRÁ!',
+            resetAll: 'Borrar TODO (Progreso y Premium)',
+            resetAllConfirm: 'ADVERTENCIA: ¿Estás seguro de que quieres borrar TODOS los datos, incluyendo tu estado PREMIUM? Perderás el beneficio de no tener anuncios.',
+            resetAllNote: 'Al borrar tus datos y tu estado Premium, el beneficio de no tener anuncios se perderá. ESTE JUEGO NO OFRECE REEMBOLSOS por membresías ya compradas.',
+            progressCleared: 'Progreso de juego (estadísticas y puzzles) borrado.',
+            allDataReset: 'Todos los datos (progreso y estado Premium) han sido borrados.',
+            syncError: 'Error: El PIN debe tener 6 dígitos y la cuenta debe estar activa.',
+            syncSuccessExport: 'ÉXITO: Progreso guardado en la nube con PIN {pin}.',
+            syncSuccessImport: 'ÉXITO: Datos cargados. La página se actualizará.',
+            syncErrorNotFound: 'ERROR: No se encontraron datos para ese PIN o el PIN es incorrecto.',
+            syncErrorUserMismatch: 'ERROR: Los datos de este PIN no corresponden a tu usuario actual.'
+        },
+        en: {
+            mainMenu: 'Main Menu', play: 'Play', viewStats: 'View Statistics', settings: 'Settings',
+            levelCompleted: 'Level Completed!', incorrect: 'Incorrect. Keep trying!',
+            fillAllFields: 'Please fill all fields.',
+            gamesCompleted: 'Games Completed: {count}', successRate: 'Success Rate: {rate}', averageTime: 'Average Time: {time}',
+            badges: 'Badges', unlocked: 'Unlocked',
+            firstTriumph: 'First Triumph', firstTriumphDesc: 'Complete your first level',
+            speedDemon: 'Speed Demon', speedDemonDesc: 'Complete a level in less than 30 seconds',
+            perfectionist: 'Perfectionist', perfectionistDesc: 'Complete 5 levels without using hints',
+            mathematician: 'Mathematician', mathematicianDesc: 'Complete 10 levels',
+            backToMenu: 'Back to Menu', language: 'Language', selectLevel: 'Select a Level',
+            easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert',
+            threeDigitNumbers: '3-Digit Numbers', infinite: 'Infinite',
+            check: 'Check',
+            removeAds: 'Remove Ads', 
+            premiumPrice: 'USD $174.00', 
+            adMessage: 'Sponsored: Please wait while we load the next puzzle.',
+            adSkip: 'Continue to Next Puzzle',
+            premiumPurchased: 'Premium Active! Enjoy ad-free playing.',
+            premiumPurchaseFailed: 'Purchase not registered. If you already paid, please click the activation link you received from Gumroad.',
+            adSupported: 'Ad Supported',
+            // --- Claves de Instrucción de Compra ---
+            purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',
+            // --- Claves de Autenticación y Cuentas ---
+            loginTitle: 'Log In', registerTitle: 'Create Account',
+            loginButton: 'Log In', registerButton: 'Sign Up',
+            loginSwitch: 'Don\'t have an account? Sign Up', registerSwitch: 'Already have an account? Log In',
+            authSuccess: 'Welcome back!', authFailed: 'Invalid credentials.',
+            userExists: 'Email is already registered.', registrationSuccess: 'Account created. Please log in!',
+            logout: 'Log Out', welcome: 'Hello, {user}!',
+            accountManagement: 'Account Management', deleteAccount: 'Delete Account',
+            currentUser: 'Active session: {user}',
+            deleteConfirm: 'Are you sure you want to DELETE your account? This action is PERMANENT and will erase your saved progress and statistics.',
+            deleteSuccess: 'Your account has been deleted. All local data has been erased.',
+            reimbursementNote: 'NOTE: Account deletion does not automatically trigger a refund for the Premium membership.',
+            authBack: 'Back to Home',
+            // --- Nuevas Claves de Borrado de Datos ---
+            resetTitle: 'Reset Local Data',
+            clearProgress: 'Clear Game Progress',
+            clearProgressConfirm: 'Are you sure you want to clear your stats and current puzzle progress? Premium status will be KEPT!',
+            resetAll: 'Reset ALL Data (Progress & Premium)',
+            resetAllConfirm: 'WARNING: Are you sure you want to delete ALL data, including your PREMIUM status? You will lose the ad-free benefit.',
+            resetAllNote: 'Clearing all data, including your Premium status, means you will lose the ad-free benefit. THIS GAME DOES NOT OFFER REFUNDS for memberships already purchased.',
+            progressCleared: 'Game progress (stats and puzzles) cleared.',
+            allDataReset: 'All data (progress and Premium status) has been reset.',
+            syncError: 'Error: PIN must be 6 digits and account must be active.',
+            syncSuccessExport: 'SUCCESS: Progress saved in the cloud with PIN {pin}.',
+            syncSuccessImport: 'SUCCESS: Data loaded. The page will update.',
+            syncErrorNotFound: 'ERROR: No data found for that PIN or PIN is incorrect.',
+            syncErrorUserMismatch: 'ERROR: This PIN data does not belong to your current user.'
+        },
+        // (Otros idiomas omitidos por brevedad)
+    };
+    
+    const languageNames = {
+        es: 'Español', en: 'English', fr: 'Français', de: 'Deutsch', pt: 'Português', it: 'Italiano'
+    };
 
-        const screens = {
-            'auth-screen': document.getElementById('auth-screen'), 
-            'main-menu': document.getElementById('main-menu'),
-            'level-select-screen': document.getElementById('level-select-screen'),
-            'game-screen': document.getElementById('game-screen'),
-            'stats-screen': document.getElementById('stats-screen'),
-            'settings-screen': document.getElementById('settings-screen')
-        };
+    const screens = {
+        'auth-screen': document.getElementById('auth-screen'), 
+        'main-menu': document.getElementById('main-menu'),
+        'level-select-screen': document.getElementById('level-select-screen'),
+        'game-screen': document.getElementById('game-screen'),
+        'stats-screen': document.getElementById('stats-screen'),
+        'settings-screen': document.getElementById('settings-screen')
+    };
 
-        const elements = {
-            title: document.getElementById('title'),
-            playButton: document.getElementById('play-button'),
-            statsButton: document.getElementById('stats-button'),
-            settingsButton: document.getElementById('settings-button'),
-            // Autenticación
-            authTitle: document.getElementById('auth-title'),
-            authEmail: document.getElementById('auth-email'),
-            authPassword: document.getElementById('auth-password'),
-            authSubmitButton: document.getElementById('auth-submit-button'),
-            authStatusMessage: document.getElementById('auth-status-message'),
-            switchAuthModeButton: document.getElementById('switch-auth-mode-button'),
-            authBackButton: document.getElementById('auth-back-button'),
-            logoutButton: document.getElementById('logout-button'),
-            welcomeMessage: document.getElementById('welcome-message'),
-            // Gestión de cuenta
-            accountManagementTitle: document.getElementById('account-management-title'),
-            currentUserDisplay: document.getElementById('current-user-display'),
-            deleteAccountButton: document.getElementById('delete-account-button'),
-            reimbursementNote: document.getElementById('reimbursement-note'),
-            // Reset de datos
-            resetTitle: document.getElementById('reset-title'),
-            clearProgressButton: document.getElementById('clear-progress-button'),
-            resetAllButton: document.getElementById('reset-all-button'),
-            resetAllNote: document.getElementById('reset-all-note'),
-            // Sincronización (NUEVO)
-            syncInput: document.getElementById('sync-input'),
-            exportButton: document.getElementById('export-button'),
-            importButton: document.getElementById('import-button'),
-            syncMessage: document.getElementById('sync-message'),
-            // Otros elementos
-            levelSelectTitle: document.getElementById('level-select-title'),
-            levelButtons: document.querySelectorAll('.level-button'),
-            gameBoard: document.getElementById('game-board'),
-            resultMessage: document.getElementById('result-message'),
-            checkButton: document.getElementById('check-button'),
-            backToMenuButton: document.getElementById('back-to-menu-button'),
-            backFromLevelsButton: document.getElementById('back-from-levels-button'),
-            backFromStatsButton: document.getElementById('back-from-stats-button'),
-            backFromSettingsButton: document.getElementById('back-from-settings-button'),
-            languageSelect: document.getElementById('language-select'),
-            languageLabel: document.getElementById('language-label'),
-            gamesCompleted: document.getElementById('games-completed'),
-            successRate: document.getElementById('success-rate'),
-            averageTime: document.getElementById('average-time'),
-            badgesTitle: document.getElementById('badges-title'),
-            badgesList: document.getElementById('badges-list'),
-            premiumButton: document.getElementById('premium-button'),
-            premiumStatus: document.getElementById('premium-status'),
-            adPopup: document.getElementById('ad-popup'),
-            adMessage: document.getElementById('ad-message'),
-            skipAdButton: document.getElementById('skip-ad-button'),
-            realAdContainer: document.getElementById('real-ad-container'), 
-            purchaseInstruction: document.getElementById('purchase-instruction')
-        };
+    const elements = {
+        title: document.getElementById('title'),
+        playButton: document.getElementById('play-button'),
+        statsButton: document.getElementById('stats-button'),
+        settingsButton: document.getElementById('settings-button'),
+        // Autenticación
+        authTitle: document.getElementById('auth-title'),
+        authEmail: document.getElementById('auth-email'),
+        authPassword: document.getElementById('auth-password'),
+        authSubmitButton: document.getElementById('auth-submit-button'),
+        authStatusMessage: document.getElementById('auth-status-message'),
+        switchAuthModeButton: document.getElementById('switch-auth-mode-button'),
+        authBackButton: document.getElementById('auth-back-button'),
+        logoutButton: document.getElementById('logout-button'),
+        welcomeMessage: document.getElementById('welcome-message'),
+        // Gestión de cuenta
+        accountManagementTitle: document.getElementById('account-management-title'),
+        currentUserDisplay: document.getElementById('current-user-display'),
+        deleteAccountButton: document.getElementById('delete-account-button'),
+        reimbursementNote: document.getElementById('reimbursement-note'),
+        // Reset de datos
+        resetTitle: document.getElementById('reset-title'),
+        clearProgressButton: document.getElementById('clear-progress-button'),
+        resetAllButton: document.getElementById('reset-all-button'),
+        resetAllNote: document.getElementById('reset-all-note'),
+        // Sincronización (NUEVO)
+        syncInput: document.getElementById('sync-input'),
+        exportButton: document.getElementById('export-button'),
+        importButton: document.getElementById('import-button'),
+        syncMessage: document.getElementById('sync-message'),
+        // Otros elementos
+        levelSelectTitle: document.getElementById('level-select-title'),
+        levelButtons: document.querySelectorAll('.level-button'),
+        gameBoard: document.getElementById('game-board'),
+        resultMessage: document.getElementById('result-message'),
+        checkButton: document.getElementById('check-button'),
+        backToMenuButton: document.getElementById('back-to-menu-button'),
+        backFromLevelsButton: document.getElementById('back-from-levels-button'),
+        backFromStatsButton: document.getElementById('back-from-stats-button'),
+        backFromSettingsButton: document.getElementById('back-from-settings-button'),
+        languageSelect: document.getElementById('language-select'),
+        languageLabel: document.getElementById('language-label'),
+        gamesCompleted: document.getElementById('games-completed'),
+        successRate: document.getElementById('success-rate'),
+        averageTime: document.getElementById('average-time'),
+        badgesTitle: document.getElementById('badges-title'),
+        badgesList: document.getElementById('badges-list'),
+        premiumButton: document.getElementById('premium-button'),
+        premiumStatus: document.getElementById('premium-status'),
+        adPopup: document.getElementById('ad-popup'),
+        adMessage: document.getElementById('ad-message'),
+        skipAdButton: document.getElementById('skip-ad-button'),
+        realAdContainer: document.getElementById('real-ad-container'), 
+        purchaseInstruction: document.getElementById('purchase-instruction')
+    };
 
-        let boardState = [];
-        let solution = [];
-        let currentLang = 'es';
-        let isPremium = false; 
-        let currentAuthMode = 'login'; 
-        let currentUserID = null; 
-        let stats = {
-            gamesCompleted: 0,
-            gamesCorrect: 0,
-            totalTime: 0,
-            badges: []
-        };
-        let difficultySettings = {
-            level: 'easy'
-        };
+    let boardState = [];
+    let solution = [];
+    let currentLang = 'es';
+    let isPremium = false; 
+    let currentAuthMode = 'login'; 
+    let currentUserID = null; 
+    let stats = {
+        gamesCompleted: 0,
+        gamesCorrect: 0,
+        totalTime: 0,
+        badges: []
+    };
+    let difficultySettings = {
+        level: 'easy'
+    };
 
-        const badges = [
-            { id: 'firstTriumph', desc: 'firstTriumphDesc' },
-            { id: 'speedDemon', desc: 'speedDemonDesc' },
-            { id: 'perfectionist', desc: 'perfectionistDesc' },
-            { id: 'mathematician', desc: 'mathematicianDesc' }
-        ];
+    const badges = [
+        { id: 'firstTriumph', desc: 'firstTriumphDesc' },
+        { id: 'speedDemon', desc: 'speedDemonDesc' },
+        { id: 'perfectionist', desc: 'perfectionistDesc' },
+        { id: 'mathematician', desc: 'mathematicianDesc' }
+    ];
 
-        // Prefijo para almacenar datos de cuentas
-        const USER_DATA_PREFIX = 'crossmath_user_';
+    // Prefijo para almacenar datos de cuentas
+    const USER_DATA_PREFIX = 'crossmath_user_';
 
-        function getLocalAccountData(email) {
-            const data = localStorage.getItem(USER_DATA_PREFIX + email);
-            return data ? JSON.parse(data) : null;
-        }
+    function getLocalAccountData(email) {
+        const data = localStorage.getItem(USER_DATA_PREFIX + email);
+        return data ? JSON.parse(data) : null;
+    }
 
-        function saveLocalAccountData(email, data) {
-            localStorage.setItem(USER_DATA_PREFIX + email, JSON.stringify(data));
-        }
+    function saveLocalAccountData(email, data) {
+        localStorage.setItem(USER_DATA_PREFIX + email, JSON.stringify(data));
+    }
 
-        function removeLocalAccountData(email) {
-            localStorage.removeItem(USER_DATA_PREFIX + email);
-        }
+    function removeLocalAccountData(email) {
+        localStorage.removeItem(USER_DATA_PREFIX + email);
+    }
 
-        function saveCurrentUserState() {
-            if (currentUserID) {
-                const currentData = getLocalAccountData(currentUserID) || {};
-                saveLocalAccountData(currentUserID, {
-                    password: currentData.password, 
-                    stats: stats,
-                    isPremium: isPremium,
-                    boardState: boardState,
-                    solution: solution,
-                    difficultySettings: difficultySettings
-                });
-            }
-        }
-
-        function loadCurrentUserState(email) {
-            const userData = getLocalAccountData(email);
-            if (userData) {
-                stats = userData.stats || { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
-                isPremium = userData.isPremium || false;
-                boardState = userData.boardState || [];
-                solution = userData.solution || [];
-                difficultySettings = userData.difficultySettings || { level: 'easy' };
-            } else {
-                stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
-                isPremium = false;
-                boardState = [];
-                solution = [];
-                difficultySettings = { level: 'easy' };
-            }
-            currentUserID = email;
-            // Limpiar las variables globales de localStorage si había datos sin cuenta
-            localStorage.removeItem('crossmath_stats');
-            localStorage.removeItem('crossmath_isPremium');
-            localStorage.removeItem('crossmath_boardState');
-            localStorage.removeItem('crossmath_solution');
-            localStorage.removeItem('crossmath_difficulty');
-        }
-        
-        function updateAuthScreenUI() {
-            const t = translations[currentLang];
-            elements.authTitle.textContent = currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;
-            elements.authSubmitButton.textContent = currentAuthMode === 'login' ? t.loginButton : t.registerButton;
-            elements.switchAuthModeButton.textContent = currentAuthMode === 'login' ? t.loginSwitch : t.registerSwitch;
-            elements.authStatusMessage.textContent = '';
-            elements.authEmail.value = '';
-            elements.authPassword.value = '';
-        }
-
-        // --- FUNCIONES DE BORRADO DE DATOS ---
-
-        // Botón 1: Borra solo progreso y estadísticas (Mantiene Premium)
-        function deleteLocalProgress() {
-            const t = translations[currentLang];
-            if (confirm(t.clearProgressConfirm)) {
-                stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
-                boardState = [];
-                solution = [];
-                
-                saveCurrentUserState();
-                alert(t.progressCleared);
-                updateStatsView();
-                updateMainMenuUI();
-            }
-        }
-
-        // Botón 2: Borra todo (Incluye Premium + Advertencia)
-        function resetAllData() {
-            const t = translations[currentLang];
-            if (confirm(t.resetAllConfirm)) {
-                stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
-                boardState = [];
-                solution = [];
-                isPremium = false; 
-                
-                saveCurrentUserState();
-                alert(t.allDataReset);
-                updateStatsView();
-                updateMainMenuUI();
-                updatePremiumView();
-            }
-        }
-        // --- FIN FUNCIONES DE BORRADO DE DATOS ---
-        
-        // --- FUNCIONES DE SINCRONIZACIÓN POR PIN (FIREBASE) ---
-
-        // Función que simula guardar datos en la 'nube' usando el PIN como clave
-        async function saveToExternalDB(pin, data) {
-            // Sintaxis compatible para Firestore: db.collection().doc().set()
-            await db.collection("SyncCodes").doc(pin).set(data);
-        }
-
-        // Función que simula cargar datos de la 'nube'
-        async function loadFromExternalDB(pin) {
-            // Sintaxis compatible para Firestore: db.collection().doc().get()
-            const docRef = db.collection("SyncCodes").doc(pin);
-            const docSnap = await docRef.get();
-            
-            if (docSnap.exists) {
-                return docSnap.data();
-            } else {
-                return null;
-            }
-        }
-        
-        async function exportUserData() {
-            const pin = elements.syncInput.value.trim();
-            if (!currentUserID || pin.length !== 6 || isNaN(pin)) {
-                elements.syncMessage.textContent = translations[currentLang].syncError;
-                elements.syncMessage.style.display = 'block';
-                return;
-            }
-
-            elements.syncMessage.textContent = 'Guardando en la nube...';
-            elements.syncMessage.style.display = 'block';
-
-            try {
-                const dataToSync = {
-                    userId: currentUserID,
-                    stats: stats,
-                    isPremium: isPremium,
-                    difficultySettings: difficultySettings
-                };
-
-                // 2. Guardar en la 'nube' (USANDO FIREBASE)
-                await saveToExternalDB(pin, dataToSync);
-
-                // 3. Mostrar confirmación
-                elements.syncMessage.textContent = translations[currentLang].syncSuccessExport.replace('{pin}', pin);
-                elements.syncInput.value = '';
-            } catch (e) {
-                elements.syncMessage.textContent = "Error de exportación: " + e.message;
-                elements.syncMessage.style.display = 'block';
-            }
-        }
-
-        async function importUserData() {
-            const pin = elements.syncInput.value.trim();
-            if (pin.length !== 6 || isNaN(pin)) {
-                elements.syncMessage.textContent = translations[currentLang].syncError;
-                elements.syncMessage.style.display = 'block';
-                return;
-            }
-
-            elements.syncMessage.textContent = 'Cargando datos...';
-            elements.syncMessage.style.display = 'block';
-            
-            try {
-                // 1. Cargar datos de la 'nube' (USANDO FIREBASE)
-                const importedData = await loadFromExternalDB(pin);
-
-                if (!importedData) {
-                    elements.syncMessage.textContent = translations[currentLang].syncErrorNotFound;
-                    return;
-                }
-
-                // Verificar que los datos le pertenecen al usuario logueado
-                if (importedData.userId !== currentUserID) {
-                     elements.syncMessage.textContent = translations[currentLang].syncErrorUserMismatch;
-                     return;
-                }
-
-                // 2. Aplicar los datos al estado actual del usuario
-                stats = importedData.stats;
-                isPremium = importedData.isPremium;
-                difficultySettings = importedData.difficultySettings;
-                
-                // 3. Guardar el nuevo estado localmente y forzar actualización
-                saveCurrentUserState();
-                
-                elements.syncMessage.textContent = translations[currentLang].syncSuccessImport;
-                
-                setTimeout(() => {
-                    window.location.reload(); 
-                }, 500);
-
-            } catch (e) {
-                elements.syncMessage.textContent = "Error de importación: " + e.message;
-                elements.syncMessage.style.display = 'block';
-            }
-        }
-        // --- FIN FUNCIONES DE SINCRONIZACIÓN ---
-
-
-        function updatePremiumView() {
-            const t = translations[currentLang];
-            
-            if (isPremium) {
-                elements.premiumButton.style.display = 'none';
-                elements.premiumStatus.textContent = t.premiumPurchased;
-                elements.premiumStatus.style.color = 'green';
-            } else {
-                elements.premiumButton.style.display = 'block';
-                elements.premiumButton.textContent = `${t.removeAds} (${t.premiumPrice})`;
-                elements.premiumStatus.textContent = t.adSupported;
-                elements.premiumStatus.style.color = 'gray';
-            }
-        }
-
-        function updateMainMenuUI() {
-            const t = translations[currentLang];
-            if (currentUserID) {
-                elements.welcomeMessage.textContent = t.welcome.replace('{user}', currentUserID);
-                elements.logoutButton.style.display = 'block';
-                if (boardState.length > 0) {
-                    const difficultyKey = difficultySettings.level;
-                    elements.playButton.textContent = `${t.play} (${t[difficultyKey] || difficultyKey}) - Continuar`;
-                } else {
-                    elements.playButton.textContent = t.play;
-                }
-            } else {
-                elements.welcomeMessage.textContent = '';
-                elements.logoutButton.style.display = 'none';
-            }
-        }
-
-        function updateSettingsUI() {
-            const t = translations[currentLang];
-            elements.accountManagementTitle.textContent = t.accountManagement;
-            elements.currentUserDisplay.textContent = t.currentUser.replace('{user}', currentUserID);
-            elements.deleteAccountButton.textContent = t.deleteAccount;
-            elements.reimbursementNote.textContent = t.reimbursementNote;
-            
-            elements.purchaseInstruction.textContent = t.purchaseInstruction; // Cargar la nota de compra
-            
-            elements.resetTitle.textContent = t.resetTitle;
-            elements.clearProgressButton.textContent = t.clearProgress;
-            elements.resetAllButton.textContent = t.resetAll;
-            elements.resetAllNote.textContent = t.resetAllNote;
-            
-            // Ocultar mensaje de sincronización al abrir
-            elements.syncMessage.style.display = 'none';
-        }
-
-        function setLanguage(lang) {
-            const t = translations[currentLang];
-            elements.title.textContent = t.mainMenu;
-            elements.statsButton.textContent = t.viewStats;
-            elements.settingsButton.textContent = t.settings;
-            elements.checkButton.textContent = t.check;
-            elements.backToMenuButton.textContent = t.backToMenu;
-            elements.backFromLevelsButton.textContent = t.backToMenu;
-            elements.backFromStatsButton.textContent = t.backToMenu;
-            elements.backFromSettingsButton.textContent = t.backToMenu;
-            elements.languageLabel.textContent = t.language;
-            elements.levelSelectTitle.textContent = t.selectLevel;
-            elements.badgesTitle.textContent = t.badges;
-            elements.authBackButton.textContent = t.authBack;
-            
-            elements.levelButtons.forEach(button => {
-                const difficulty = button.dataset.difficulty;
-                if (t[difficulty]) {
-                    button.textContent = t[difficulty];
-                }
-            });
-            updateStatsView();
-            updatePremiumView();
-            updateAuthScreenUI();
-            updateMainMenuUI();
-            updateSettingsUI();
-        }
-
-        function switchScreen(screenId) {
-            for (const id in screens) {
-                screens[id].classList.remove('active');
-            }
-            screens[screenId].classList.add('active');
-
-            if (screenId === 'stats-screen') {
-                updateStatsView();
-            }
-            if (screenId === 'settings-screen') {
-                updateSettingsUI();
-                updatePremiumView();
-            }
-            if (screenId === 'auth-screen') {
-                updateAuthScreenUI();
-            }
-            if (screenId === 'main-menu') {
-                updateMainMenuUI();
-            }
-        }
-
-        function updateStatsView() {
-            const t = translations[currentLang];
-            elements.gamesCompleted.textContent = t.gamesCompleted.replace('{count}', stats.gamesCompleted);
-            const rate = stats.gamesCompleted > 0 ? ((stats.gamesCorrect / stats.gamesCompleted) * 100).toFixed(0) + '%' : '0%';
-            elements.successRate.textContent = t.successRate.replace('{rate}', rate);
-            const avgTime = stats.gamesCorrect > 0 ? (stats.totalTime / stats.gamesCorrect).toFixed(1) + 's' : '0s';
-            elements.averageTime.textContent = t.averageTime.replace('{time}', avgTime);
-            
-            elements.badgesList.innerHTML = '';
-            badges.forEach(badge => {
-                const badgeItem = document.createElement('div');
-                badgeItem.classList.add('badge-item');
-                const icon = document.createElement('span');
-                icon.classList.add('badge-icon');
-                icon.textContent = stats.badges.includes(badge.id) ? '🏆' : '🔒';
-                const text = document.createElement('span');
-                text.textContent = `${translations[currentLang][badge.id]} - ${translations[currentLang][badge.desc]}`;
-                badgeItem.appendChild(icon);
-                badgeItem.appendChild(text);
-                elements.badgesList.appendChild(badgeItem);
+    function saveCurrentUserState() {
+        if (currentUserID) {
+            const currentData = getLocalAccountData(currentUserID) || {};
+            saveLocalAccountData(currentUserID, {
+                password: currentData.password, 
+                stats: stats,
+                isPremium: isPremium,
+                boardState: boardState,
+                solution: solution,
+                difficultySettings: difficultySettings
             });
         }
+    }
 
-        function saveBoardState() {}
-        function saveGameState() {
+    function loadCurrentUserState(email) {
+        const userData = getLocalAccountData(email);
+        if (userData) {
+            stats = userData.stats || { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
+            isPremium = userData.isPremium || false;
+            boardState = userData.boardState || [];
+            solution = userData.solution || [];
+            difficultySettings = userData.difficultySettings || { level: 'easy' };
+        } else {
+            stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
+            isPremium = false;
+            boardState = [];
+            solution = [];
+            difficultySettings = { level: 'easy' };
+        }
+        currentUserID = email;
+        // Limpiar las variables globales de localStorage si había datos sin cuenta
+        localStorage.removeItem('crossmath_stats');
+        localStorage.removeItem('crossmath_isPremium');
+        localStorage.removeItem('crossmath_boardState');
+        localStorage.removeItem('crossmath_solution');
+        localStorage.removeItem('crossmath_difficulty');
+    }
+    
+    function updateAuthScreenUI() {
+        const t = translations[currentLang];
+        elements.authTitle.textContent = currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;
+        elements.authSubmitButton.textContent = currentAuthMode === 'login' ? t.loginButton : t.registerButton;
+        elements.switchAuthModeButton.textContent = currentAuthMode === 'login' ? t.loginSwitch : t.registerSwitch;
+        elements.authStatusMessage.textContent = '';
+        elements.authEmail.value = '';
+        elements.authPassword.value = '';
+    }
+
+    // --- FUNCIONES DE BORRADO DE DATOS ---
+
+    // Botón 1: Borra solo progreso y estadísticas (Mantiene Premium)
+    function deleteLocalProgress() {
+        const t = translations[currentLang];
+        if (confirm(t.clearProgressConfirm)) {
+            stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
+            boardState = [];
+            solution = [];
+            
             saveCurrentUserState();
+            alert(t.progressCleared);
+            updateStatsView();
+            updateMainMenuUI();
         }
-        
-        function loadGameState() {
-            const savedUserID = localStorage.getItem('crossmath_active_user');
-            if (savedUserID) {
-                loadCurrentUserState(savedUserID);
-                return true;
-            } 
+    }
+
+    // Botón 2: Borra todo (Incluye Premium + Advertencia)
+    function resetAllData() {
+        const t = translations[currentLang];
+        if (confirm(t.resetAllConfirm)) {
+            stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
+            boardState = [];
+            solution = [];
+            isPremium = false; 
             
-            // Fallback para datos antiguos si no hay usuario logueado
-            const savedStats = localStorage.getItem('crossmath_stats');
-            if (savedStats) {
-                stats = JSON.parse(savedStats);
-            }
-            const savedPremium = localStorage.getItem('crossmath_isPremium');
-            isPremium = savedPremium === 'true';
-            
-            return false;
+            saveCurrentUserState();
+            alert(t.allDataReset);
+            updateStatsView();
+            updateMainMenuUI();
+            updatePremiumView();
         }
+    }
+    // --- FIN FUNCIONES DE BORRADO DE DATOS ---
+    
+    // --- FUNCIONES DE SINCRONIZACIÓN POR PIN (PREPARADO PARA LA NUBE) ---
 
-        function checkBadges() {
-            if (stats.gamesCompleted >= 1 && !stats.badges.includes('firstTriumph')) {
-                stats.badges.push('firstTriumph');
-            }
-            if (stats.gamesCorrect >= 5 && !stats.badges.includes('perfectionist')) {
-                stats.badges.push('perfectionist');
-            }
-            if (stats.gamesCorrect >= 10 && !stats.badges.includes('mathematician')) {
-                stats.badges.push('mathematician');
-            }
-            saveGameState();
-        }
+    // Función que simula guardar datos en la 'nube' usando el PIN como clave
+    async function saveToExternalDB(pin, data) {
+        // Usamos setDoc para guardar el documento con ID=PIN en la colección SyncCodes
+        await db.collection("SyncCodes").doc(pin).set(data);
+    }
 
-        function safeCalculate(n1, op, n2) {
-            n1 = Number(n1);
-            n2 = Number(n2);
-            switch (op) {
-                case '+': return n1 + n2;
-                case '-': return n1 - n2;
-                case '*': return n1 * n2;
-                case '/': return n1 / n2;
-                default: return NaN;
-            }
-        }
+    // Función que simula cargar datos de la 'nube'
+    async function loadFromExternalDB(pin) {
+        // Usamos getDoc para obtener el documento con ID=PIN de la colección SyncCodes
+        const docRef = db.collection("SyncCodes").doc(pin);
+        const docSnap = await docRef.get(); // Usar .get() para obtener el snapshot
         
-        function showAd() {
-            if (isPremium) {
-                generatePuzzle();
-                return;
-            }
+        if (docSnap.exists) {
+            return docSnap.data();
+        } else {
+            return null;
+        }
+    }
+    
+    async function exportUserData() {
+        const pin = elements.syncInput.value.trim();
+        if (!currentUserID || pin.length !== 6 || isNaN(pin)) {
+            elements.syncMessage.textContent = translations[currentLang].syncError;
+            elements.syncMessage.style.display = 'block';
+            return;
+        }
 
-            elements.adMessage.textContent = translations[currentLang].adMessage;
-            elements.skipAdButton.textContent = translations[currentLang].adSkip;
-            elements.adPopup.style.display = 'flex';
+        elements.syncMessage.textContent = 'Guardando en la nube...';
+        elements.syncMessage.style.display = 'block';
 
-            // 🛑 Lógica para cargar el anuncio real
-            elements.realAdContainer.innerHTML = `
-                <ins class="adsbygoogle"
-                     style="display:block"
-                     data-ad-client="ca-pub-6018346455368636"
-                     data-ad-slot="1234567890" 
-                     data-ad-format="auto"
-                     data-full-width-responsive="true"></ins>
-            `;
-            // Ejecutar el script de AdSense para que cargue el anuncio
-            // Nota: Si el anuncio no aparece, es porque Google no sirve contenido al sitio aún.
-            try {
-                 (window.adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {
-                console.error("Error al cargar AdSense:", e);
-            }
-
-            // 🛑 Implementación del temporizador de emergencia (8 segundos)
-            const skipTimer = setTimeout(() => {
-                elements.skipAdButton.click();
-            }, 8000); 
-
-            elements.skipAdButton.onclick = () => {
-                clearTimeout(skipTimer); // Detener el temporizador si el usuario hace clic
-                elements.adPopup.style.display = 'none';
-                elements.realAdContainer.innerHTML = ''; // Limpiar el contenedor del anuncio
-                generatePuzzle();
-                elements.resultMessage.textContent = '';
-                screens['game-screen'].classList.add('active');
+        try {
+            const dataToSync = {
+                userId: currentUserID,
+                stats: stats,
+                isPremium: isPremium,
+                difficultySettings: difficultySettings
             };
 
-            screens['game-screen'].classList.remove('active');
+            // 2. Guardar en la 'nube' (USANDO FIREBASE)
+            await saveToExternalDB(pin, dataToSync);
+
+            // 3. Mostrar confirmación
+            elements.syncMessage.textContent = translations[currentLang].syncSuccessExport.replace('{pin}', pin);
+            elements.syncInput.value = '';
+        } catch (e) {
+            elements.syncMessage.textContent = "Error de exportación: " + e.message;
+            elements.syncMessage.style.display = 'block';
+        }
+    }
+
+    async function importUserData() {
+        const pin = elements.syncInput.value.trim();
+        if (pin.length !== 6 || isNaN(pin)) {
+            elements.syncMessage.textContent = translations[currentLang].syncError;
+            elements.syncMessage.style.display = 'block';
+            return;
         }
 
-        function generatePuzzle() {
-            const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        elements.syncMessage.textContent = 'Cargando datos...';
+        elements.syncMessage.style.display = 'block';
+        
+        try {
+            // 1. Cargar datos de la 'nube' (USANDO FIREBASE)
+            const importedData = await loadFromExternalDB(pin);
 
-            const difficulty = difficultySettings.level;
-            const numberRange = difficulty === 'threeDigit' ? [10, 99] :
-                                difficulty === 'hard' ? [10, 50] :
-                                difficulty === 'medium' ? [5, 20] : [1, 10];
-            const allowedOps = difficulty === 'easy' ? ['+', '-'] : ['+', '-', '*', '/'];
-
-            let validSolutionFound = false;
-            let finalSolution = [];
-            let attempts = 0;
-
-            while (!validSolutionFound && attempts < 500) {
-                attempts++;
-                try {
-                    let h1_n1 = getRandomInt(numberRange[0], numberRange[1]);
-                    let h1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
-                    let h1_n2 = getRandomInt(numberRange[0], numberRange[1]);
-                    if (h1_op === '/' && h1_n1 % h1_n2 !== 0) continue;
-                    let h1_res = safeCalculate(h1_n1, h1_op, h1_n2);
-                    if (!Number.isInteger(h1_res) || h1_res < 0) continue;
-
-                    let h2_n1 = getRandomInt(numberRange[0], numberRange[1]);
-                    let h2_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
-                    let h2_n2 = getRandomInt(numberRange[0], numberRange[1]);
-                    if (h2_op === '/' && h2_n1 % h2_n2 !== 0) continue;
-                    let h2_res = safeCalculate(h2_n1, h2_op, h2_n2);
-                    if (!Number.isInteger(h2_res) || h2_res < 0) continue;
-                    
-                    let v1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
-                    let v1_res = safeCalculate(h1_n1, v1_op, h2_n1);
-                    if (!Number.isInteger(v1_res) || v1_res < 0) continue;
-
-                    let v2_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
-                    let v2_res = safeCalculate(h1_n2, v2_op, h2_n2);
-                    if (!Number.isInteger(v2_res) || v2_res < 0) continue;
-
-                    let v3_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
-                    let v3_res = safeCalculate(h1_res, v3_op, h2_res);
-                    if (!Number.isInteger(v3_res) || v3_res < 0) continue;
-                    
-                    let h3_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
-                    let h3_n1 = v1_res;
-                    let h3_n2 = v2_res;
-                    if (h3_op === '/' && h3_n1 % h3_n2 !== 0) continue;
-                    let h3_res = safeCalculate(h3_n1, h3_op, h3_n2);
-                    if (h3_res !== v3_res || !Number.isInteger(h3_res) || h3_res < 0) continue;
-                    
-                    finalSolution = [
-                        [h1_n1, h1_op, h1_n2, '=', h1_res],
-                        [v1_op, '', v2_op, '', v3_op],
-                        [h2_n1, h2_op, h2_n2, '=', h2_res],
-                        ['=', '', '=', '', '='],
-                        [h3_n1, h3_op, h3_n2, '=', h3_res]
-                    ];
-                    validSolutionFound = true;
-                } catch (e) {}
-            }
-            
-            if (!validSolutionFound) {
-                // Solución de fallback
-                finalSolution = [
-                    [1, '+', 2, '=', 3],
-                    ['+', ' ', '+', ' ', '+'],
-                    [4, '+', 5, '=', 9],
-                    ['=', ' ', '=', ' ', '='],
-                    [5, '+', 7, '=', 12]
-                ];
+            if (!importedData) {
+                elements.syncMessage.textContent = translations[currentLang].syncErrorNotFound;
+                return;
             }
 
-            solution = finalSolution;
-            
-            let boardData = [];
-            const numberCells = [
-                {r: 0, c: 0}, {r: 0, c: 2}, {r: 0, c: 4},
-                {r: 2, c: 0}, {r: 2, c: 2}, {r: 2, c: 4},
-                {r: 4, c: 0}, {r: 4, c: 2}, {r: 4, c: 4}
-            ];
-
-            for (let i = numberCells.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [numberCells[i], numberCells[j]] = [numberCells[j], numberCells[i]];
+            // Verificar que los datos le pertenecen al usuario logueado
+            if (importedData.userId !== currentUserID) {
+                 elements.syncMessage.textContent = translations[currentLang].syncErrorUserMismatch;
+                 return;
             }
 
-            const inputsToHide = difficulty === 'expert' ? 6 : difficulty === 'hard' ? 5 : difficulty === 'medium' ? 4 : 3;
-            const inputPositions = numberCells.slice(0, inputsToHide);
+            // 2. Aplicar los datos al estado actual del usuario
+            stats = importedData.stats;
+            isPremium = importedData.isPremium;
+            difficultySettings = importedData.difficultySettings;
+            
+            // 3. Guardar el nuevo estado localmente y forzar actualización
+            saveCurrentUserState();
+            
+            elements.syncMessage.textContent = translations[currentLang].syncSuccessImport;
+            
+            setTimeout(() => {
+                window.location.reload(); 
+            }, 500);
 
-            for (let r = 0; r < solution.length; r++) {
-                let row = []
-                for (let c = 0; c < solution[r].length; c++) {
-                    const cellValue = solution[r][c];
-                    const isInput = inputPositions.some(pos => pos.r === r && pos.c === c);
-                    
-                    if (isInput) {
-                        row.push({ type: 'input', val: '', solution: cellValue });
-                    } else if (typeof cellValue === 'number') {
-                        row.push({ type: 'given', val: cellValue });
-                    } else if (cellValue === '=') {
-                        row.push({ type: 'equals', val: '=' });
-                    } else if (typeof cellValue === 'string' && cellValue.trim() !== '') {
-                        // Celdas de operadores y vacías (para operadores verticales)
-                        row.push({ type: 'op', val: cellValue }); 
-                    } else {
-                        // Celdas invisibles para el layout
-                        row.push({ type: 'empty-space', val: '' }); 
-                    }
-                }
-                boardData.push(row);
+        } catch (e) {
+            elements.syncMessage.textContent = "Error de importación: " + e.message;
+            elements.syncMessage.style.display = 'block';
+        }
+    }
+    // --- FIN FUNCIONES DE SINCRONIZACIÓN ---
+
+
+    function updatePremiumView() {
+        const t = translations[currentLang];
+        
+        if (isPremium) {
+            elements.premiumButton.style.display = 'none';
+            elements.premiumStatus.textContent = t.premiumPurchased;
+            elements.premiumStatus.style.color = 'green';
+        } else {
+            elements.premiumButton.style.display = 'block';
+            elements.premiumButton.textContent = `${t.removeAds} (${t.premiumPrice})`;
+            elements.premiumStatus.textContent = t.adSupported;
+            elements.premiumStatus.style.color = 'gray';
+        }
+    }
+
+    function updateMainMenuUI() {
+        const t = translations[currentLang];
+        if (currentUserID) {
+            elements.welcomeMessage.textContent = t.welcome.replace('{user}', currentUserID);
+            elements.logoutButton.style.display = 'block';
+            if (boardState.length > 0) {
+                const difficultyKey = difficultySettings.level;
+                elements.playButton.textContent = `${t.play} (${t[difficultyKey] || difficultyKey}) - Continuar`;
+            } else {
+                 elements.playButton.textContent = t.play;
             }
-            
-            boardState = boardData;
-            
-            elements.gameBoard.style.gridTemplateColumns = `repeat(5, auto)`;
-            renderBoard();
-            saveBoardState(); 
+        } else {
+            elements.welcomeMessage.textContent = '';
+            elements.logoutButton.style.display = 'none';
+        }
+    }
+
+    function updateSettingsUI() {
+        const t = translations[currentLang];
+        elements.accountManagementTitle.textContent = t.accountManagement;
+        elements.currentUserDisplay.textContent = t.currentUser.replace('{user}', currentUserID);
+        elements.deleteAccountButton.textContent = t.deleteAccount;
+        elements.reimbursementNote.textContent = t.reimbursementNote;
+        
+        elements.purchaseInstruction.textContent = t.purchaseInstruction; // Cargar la nota de compra
+        
+        elements.resetTitle.textContent = t.resetTitle;
+        elements.clearProgressButton.textContent = t.clearProgress;
+        elements.resetAllButton.textContent = t.resetAll;
+        elements.resetAllNote.textContent = t.resetAllNote;
+        
+        // Ocultar mensaje de sincronización al abrir
+        elements.syncMessage.style.display = 'none';
+    }
+
+    function setLanguage(lang) {
+        currentLang = lang;
+        const t = translations[currentLang];
+        elements.title.textContent = t.mainMenu;
+        elements.statsButton.textContent = t.viewStats;
+        elements.settingsButton.textContent = t.settings;
+        elements.checkButton.textContent = t.check;
+        elements.backToMenuButton.textContent = t.backToMenu;
+        elements.backFromLevelsButton.textContent = t.backToMenu;
+        elements.backFromStatsButton.textContent = t.backToMenu;
+        elements.backFromSettingsButton.textContent = t.backToMenu;
+        elements.languageLabel.textContent = t.language;
+        elements.levelSelectTitle.textContent = t.selectLevel;
+        elements.badgesTitle.textContent = t.badges;
+        elements.authBackButton.textContent = t.authBack;
+        
+        elements.levelButtons.forEach(button => {
+            const difficulty = button.dataset.difficulty;
+            if (t[difficulty]) {
+                button.textContent = t[difficulty];
+            }
+        });
+        updateStatsView();
+        updatePremiumView();
+        updateAuthScreenUI();
+        updateMainMenuUI();
+        updateSettingsUI();
+    }
+
+    function switchScreen(screenId) {
+        for (const id in screens) {
+            screens[id].classList.remove('active');
+        }
+        screens[screenId].classList.add('active');
+
+        if (screenId === 'stats-screen') {
+            updateStatsView();
+        }
+        if (screenId === 'settings-screen') {
+            updateSettingsUI();
+            updatePremiumView();
+        }
+        if (screenId === 'auth-screen') {
+            updateAuthScreenUI();
+        }
+        if (screenId === 'main-menu') {
+            updateMainMenuUI();
+        }
+    }
+
+    function updateStatsView() {
+        const t = translations[currentLang];
+        elements.gamesCompleted.textContent = t.gamesCompleted.replace('{count}', stats.gamesCompleted);
+        const rate = stats.gamesCompleted > 0 ? ((stats.gamesCorrect / stats.gamesCompleted) * 100).toFixed(0) + '%' : '0%';
+        elements.successRate.textContent = t.successRate.replace('{rate}', rate);
+        const avgTime = stats.gamesCorrect > 0 ? (stats.totalTime / stats.gamesCorrect).toFixed(1) + 's' : '0s';
+        elements.averageTime.textContent = t.averageTime.replace('{time}', avgTime);
+        
+        elements.badgesList.innerHTML = '';
+        badges.forEach(badge => {
+            const badgeItem = document.createElement('div');
+            badgeItem.classList.add('badge-item');
+            const icon = document.createElement('span');
+            icon.classList.add('badge-icon');
+            icon.textContent = stats.badges.includes(badge.id) ? '🏆' : '🔒';
+            const text = document.createElement('span');
+            text.textContent = `${translations[currentLang][badge.id]} - ${translations[currentLang][badge.desc]}`;
+            badgeItem.appendChild(icon);
+            badgeItem.appendChild(text);
+            elements.badgesList.appendChild(badgeItem);
+        });
+    }
+
+    function saveBoardState() {}
+    function saveGameState() {
+        saveCurrentUserState();
+    }
+    
+    function loadGameState() {
+        const savedUserID = localStorage.getItem('crossmath_active_user');
+        if (savedUserID) {
+            loadCurrentUserState(savedUserID);
+            return true;
+        } 
+        
+        // Fallback para datos antiguos si no hay usuario logueado
+        const savedStats = localStorage.getItem('crossmath_stats');
+        if (savedStats) {
+            stats = JSON.parse(savedStats);
+        }
+        const savedPremium = localStorage.getItem('crossmath_isPremium');
+        isPremium = savedPremium === 'true';
+        
+        return false;
+    }
+
+    function checkBadges() {
+        if (stats.gamesCompleted >= 1 && !stats.badges.includes('firstTriumph')) {
+            stats.badges.push('firstTriumph');
+        }
+        if (stats.gamesCorrect >= 5 && !stats.badges.includes('perfectionist')) {
+            stats.badges.push('perfectionist');
+        }
+        if (stats.gamesCorrect >= 10 && !stats.badges.includes('mathematician')) {
+            stats.badges.push('mathematician');
+        }
+        saveGameState();
+    }
+
+    function safeCalculate(n1, op, n2) {
+        n1 = Number(n1);
+        n2 = Number(n2);
+        switch (op) {
+            case '+': return n1 + n2;
+            case '-': return n1 - n2;
+            case '*': return n1 * n2;
+            case '/': return n1 / n2;
+            default: return NaN;
+        }
+    }
+    
+    function showAd() {
+        if (isPremium) {
+            generatePuzzle();
+            return;
         }
 
-        function renderBoard() {
-            elements.gameBoard.innerHTML = '';
-            boardState.forEach((row, rowIndex) => {
-                row.forEach((cell, colIndex) => {
-                    const cellElement = document.createElement('div');
-                    cellElement.classList.add('cell');
+        elements.adMessage.textContent = translations[currentLang].adMessage;
+        elements.skipAdButton.textContent = translations[currentLang].adSkip;
+        elements.adPopup.style.display = 'flex';
 
-                    if (cell.type === 'input') {
-                        const input = document.createElement('input');
-                        input.type = "number";
-                        input.value = cell.val; 
-                        
-                        input.addEventListener('input', (e) => {
-                            cell.val = e.target.value;
-                            saveCurrentUserState(); 
-                        });
-                        
-                        cellElement.classList.add('empty');
-                        cellElement.appendChild(input);
-                    } else if (cell.type === 'given') {
-                        cellElement.classList.add('given');
-                        cellElement.textContent = cell.val;
-                    } else if (cell.type === 'equals') {
-                        cellElement.classList.add('equals');
-                        cellElement.textContent = cell.val;
-                    } else if (cell.type === 'op') {
-                        // Los operadores se ven igual que los signos de igual
-                        cellElement.classList.add('operand');
-                        cellElement.textContent = cell.val;
-                    } else if (cell.type === 'empty-space') {
-                        // Las celdas vacías necesarias para el layout 5x5 deben ser invisibles
-                        cellElement.style.visibility = 'hidden';
-                        cellElement.style.border = 'none';
-                        cellElement.style.boxShadow = 'none';
-                    }
-                    elements.gameBoard.appendChild(cellElement);
-                });
-            });
+        // 🛑 Lógica para cargar el anuncio real
+        elements.realAdContainer.innerHTML = `
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-6018346455368636"
+                 data-ad-slot="1234567890" 
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        `;
+        // Ejecutar el script de AdSense para que cargue el anuncio
+        // Nota: Si el anuncio no aparece, es porque Google no sirve contenido al sitio aún.
+        try {
+             (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("Error al cargar AdSense:", e);
         }
 
-        const isEquationCorrect = (equation) => {
-            try {
-                const [n1, op, n2, equals, res] = equation;
-                if (op === '/' && Number(n2) === 0) return false;
-                
-                const result = safeCalculate(n1, op, n2); 
-                
-                return Number(result) === Number(res);
-            } catch (e) {
-                return false;
-            }
+        // 🛑 Implementación del temporizador de emergencia (8 segundos)
+        const skipTimer = setTimeout(() => {
+            elements.skipAdButton.click();
+        }, 8000); 
+
+        elements.skipAdButton.onclick = () => {
+            clearTimeout(skipTimer); // Detener el temporizador si el usuario hace clic
+            elements.adPopup.style.display = 'none';
+            elements.realAdContainer.innerHTML = ''; // Limpiar el contenedor del anuncio
+            generatePuzzle();
+            elements.resultMessage.textContent = '';
+            screens['game-screen'].classList.add('active');
         };
 
-        function checkSolution() {
-            const inputs = document.querySelectorAll('#game-board input');
-            
-            let allInputsFilled = true;
-            inputs.forEach(input => {
-                if (input.value.trim() === '') {
-                    allInputsFilled = false;
-                }
-            });
+        screens['game-screen'].classList.remove('active');
+    }
 
-            if (!allInputsFilled) {
-                elements.resultMessage.textContent = translations[currentLang].fillAllFields; 
-                return;
-            }
+    function generatePuzzle() {
+        const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-            const userBoard = JSON.parse(JSON.stringify(solution)); 
-            let inputIndex = 0;
+        const difficulty = difficultySettings.level;
+        const numberRange = difficulty === 'threeDigit' ? [10, 99] :
+                            difficulty === 'hard' ? [10, 50] :
+                            difficulty === 'medium' ? [5, 20] : [1, 10];
+        const allowedOps = difficulty === 'easy' ? ['+', '-'] : ['+', '-', '*', '/'];
 
-            boardState.forEach((row, rowIndex) => {
-                row.forEach((cell, colIndex) => {
-                    if (cell.type === 'input') {
-                        userBoard[rowIndex][colIndex] = inputs[inputIndex].value; 
-                        inputIndex++;
-                    }
-                });
-            });
+        let validSolutionFound = false;
+        let finalSolution = [];
+        let attempts = 0;
 
-            const equations = [
-                userBoard[0], userBoard[2], userBoard[4], 
-                [userBoard[0][0], userBoard[1][0], userBoard[2][0], userBoard[3][0], userBoard[4][0]], 
-                [userBoard[0][2], userBoard[1][2], userBoard[2][2], userBoard[3][2], userBoard[4][2]], 
-                [userBoard[0][4], userBoard[1][4], userBoard[2][4], userBoard[3][4], userBoard[4][4]], 
-            ];
-            
-            let allEquationsValid = true;
-            equations.forEach(eq => {
-                if (!isEquationCorrect(eq)) {
-                    allEquationsValid = false;
-                }
-            });
+        while (!validSolutionFound && attempts < 500) {
+            attempts++;
+            try {
+                let h1_n1 = getRandomInt(numberRange[0], numberRange[1]);
+                let h1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let h1_n2 = getRandomInt(numberRange[0], numberRange[1]);
+                if (h1_op === '/' && h1_n1 % h1_n2 !== 0) continue;
+                let h1_res = safeCalculate(h1_n1, h1_op, h1_n2);
+                if (!Number.isInteger(h1_res) || h1_res < 0) continue;
 
-            if (allEquationsValid) {
-                elements.resultMessage.textContent = translations[currentLang].levelCompleted;
-                stats.gamesCompleted++;
-                stats.gamesCorrect++;
-                checkBadges();
+                let h2_n1 = getRandomInt(numberRange[0], numberRange[1]);
+                let h2_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let h2_n2 = getRandomInt(numberRange[0], numberRange[1]);
+                if (h2_op === '/' && h2_n1 % h2_n2 !== 0) continue;
+                let h2_res = safeCalculate(h2_n1, h2_op, h2_n2);
+                if (!Number.isInteger(h2_res) || h2_res < 0) continue;
                 
-                boardState = [];
-                solution = [];
-                saveCurrentUserState(); 
+                let v1_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let v1_res = safeCalculate(h1_n1, v1_op, h2_n1);
+                if (!Number.isInteger(v1_res) || v1_res < 0) continue;
 
-                setTimeout(() => {
-                    showAd();
-                }, 1000); 
-            } else {
-                elements.resultMessage.textContent = translations[currentLang].incorrect;
-            }
+                let v2_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let v2_res = safeCalculate(h1_n2, v2_op, h2_n2);
+                if (!Number.isInteger(v2_res) || v2_res < 0) continue;
+
+                let v3_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let v3_res = safeCalculate(h1_res, v3_op, h2_res);
+                if (!Number.isInteger(v3_res) || v3_res < 0) continue;
+                
+                let h3_op = allowedOps[getRandomInt(0, allowedOps.length - 1)];
+                let h3_n1 = v1_res;
+                let h3_n2 = v2_res;
+                if (h3_op === '/' && h3_n1 % h3_n2 !== 0) continue;
+                let h3_res = safeCalculate(h3_n1, h3_op, h3_n2);
+                if (h3_res !== v3_res || !Number.isInteger(h3_res) || h3_res < 0) continue;
+                
+                finalSolution = [
+                    [h1_n1, h1_op, h1_n2, '=', h1_res],
+                    [v1_op, '', v2_op, '', v3_op],
+                    [h2_n1, h2_op, h2_n2, '=', h2_res],
+                    ['=', '', '=', '', '='],
+                    [h3_n1, h3_op, h3_n2, '=', h3_res]
+                ];
+                validSolutionFound = true;
+            } catch (e) {}
         }
         
-        // LÓGICA DE VERIFICACIÓN DE PAGO CORREGIDA
-        function checkPaymentStatus() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const paymentConfirmed = urlParams.get('premium');
-            const purchaseEmail = urlParams.get('user'); // Email del comprador de Gumroad
-            const t = translations[currentLang];
+        if (!validSolutionFound) {
+            // Solución de fallback
+            finalSolution = [
+                [1, '+', 2, '=', 3],
+                ['+', ' ', '+', ' ', '+'],
+                [4, '+', 5, '=', 9],
+                ['=', ' ', '=', ' ', '='],
+                [5, '+', 7, '=', 12]
+            ];
+        }
 
-            if (paymentConfirmed === 'true') {
-                console.log("DEBUG: Parámetro 'premium=true' detectado en la URL.");
+        solution = finalSolution;
+        
+        let boardData = [];
+        const numberCells = [
+            {r: 0, c: 0}, {r: 0, c: 2}, {r: 0, c: 4},
+            {r: 2, c: 0}, {r: 2, c: 2}, {r: 2, c: 4},
+            {r: 4, c: 0}, {r: 4, c: 2}, {r: 4, c: 4}
+        ];
+
+        for (let i = numberCells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numberCells[i], numberCells[j]] = [numberCells[j], numberCells[i]];
+        }
+
+        const inputsToHide = difficulty === 'expert' ? 6 : difficulty === 'hard' ? 5 : difficulty === 'medium' ? 4 : 3;
+        const inputPositions = numberCells.slice(0, inputsToHide);
+
+        for (let r = 0; r < solution.length; r++) {
+            let row = []
+            for (let c = 0; c < solution[r].length; c++) {
+                const cellValue = solution[r][c];
+                const isInput = inputPositions.some(pos => pos.r === r && pos.c === c);
                 
-                const savedUserID = localStorage.getItem('crossmath_active_user');
-
-                if (savedUserID) {
-                    // 1. Cargamos el estado del usuario logueado
-                    loadCurrentUserState(savedUserID); 
-                    
-                    if (!isPremium) {
-                        // 2. Activamos y guardamos el Premium
-                        isPremium = true;
-                        saveGameState(); 
-                        
-                        alert(t.premiumPurchased); 
-                        console.log("DEBUG: Premium activado para el usuario logueado: " + savedUserID);
-                    }
-                } else if (purchaseEmail) {
-                    // CASO 2: Compra detectada con email, pero usuario NO logueado.
-                    // Guardamos el email temporalmente para activarlo al loguearse.
-                    localStorage.setItem('crossmath_pending_premium_user', purchaseEmail);
-                    alert("¡Compra detectada! Por favor, inicia sesión con el correo " + purchaseEmail + " para activar el Premium.");
+                if (isInput) {
+                    row.push({ type: 'input', val: '', solution: cellValue });
+                } else if (typeof cellValue === 'number') {
+                    row.push({ type: 'given', val: cellValue });
+                } else if (cellValue === '=') {
+                    row.push({ type: 'equals', val: '=' });
+                } else if (typeof cellValue === 'string' && cellValue.trim() !== '') {
+                    // Celdas de operadores y vacías (para operadores verticales)
+                    row.push({ type: 'op', val: cellValue }); 
                 } else {
-                    // CASO 3: Compra detectada sin email de Gumroad y sin sesión activa.
-                    alert("¡Compra detectada! Por favor, inicia sesión ahora y si el Premium no se activa, borra tu caché e inténtalo de nuevo.");
+                    // Celdas invisibles para el layout
+                     row.push({ type: 'empty-space', val: '' }); 
                 }
-                
-                // Limpiar la URL para evitar recargas que parezcan un nuevo pago
-                window.history.replaceState({}, document.title, window.location.pathname);
-                return true; 
-            } 
+            }
+            boardData.push(row);
+        }
+        
+        boardState = boardData;
+        
+        elements.gameBoard.style.gridTemplateColumns = `repeat(5, auto)`;
+        renderBoard();
+        saveBoardState(); 
+    }
+
+    function renderBoard() {
+        elements.gameBoard.innerHTML = '';
+        boardState.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                const cellElement = document.createElement('div');
+                cellElement.classList.add('cell');
+
+                if (cell.type === 'input') {
+                    const input = document.createElement('input');
+                    input.type = "number";
+                    input.value = cell.val; 
+                    
+                    input.addEventListener('input', (e) => {
+                        cell.val = e.target.value;
+                        saveCurrentUserState(); 
+                    });
+                    
+                    cellElement.classList.add('empty');
+                    cellElement.appendChild(input);
+                } else if (cell.type === 'given') {
+                    cellElement.classList.add('given');
+                    cellElement.textContent = cell.val;
+                } else if (cell.type === 'equals') {
+                    cellElement.classList.add('equals');
+                    cellElement.textContent = cell.val;
+                } else if (cell.type === 'op') {
+                    // Los operadores se ven igual que los signos de igual
+                    cellElement.classList.add('operand');
+                    cellElement.textContent = cell.val;
+                } else if (cell.type === 'empty-space') {
+                    // Las celdas vacías necesarias para el layout 5x5 deben ser invisibles
+                    cellElement.style.visibility = 'hidden';
+                    cellElement.style.border = 'none';
+                    cellElement.style.boxShadow = 'none';
+                }
+                elements.gameBoard.appendChild(cellElement);
+            });
+        });
+    }
+
+    const isEquationCorrect = (equation) => {
+        try {
+            const [n1, op, n2, equals, res] = equation;
+            if (op === '/' && Number(n2) === 0) return false;
+            
+            const result = safeCalculate(n1, op, n2); 
+            
+            return Number(result) === Number(res);
+        } catch (e) {
             return false;
         }
+    };
 
-        // --- Sincronización de Datos (PIN de 6 dígitos) ---
-
-        // Función que simula guardar datos en la 'nube' usando el PIN como clave
-        async function saveToExternalDB(pin, data) {
-            // Usamos setDoc para guardar el documento con ID=PIN en la colección SyncCodes
-            await db.collection("SyncCodes").doc(pin).set(data);
-        }
-
-        // Función que simula cargar datos de la 'nube'
-        async function loadFromExternalDB(pin) {
-            // Usamos getDoc para obtener el documento con ID=PIN de la colección SyncCodes
-            const docRef = db.collection("SyncCodes").doc(pin);
-            const docSnap = await docRef.get();
-            
-            if (docSnap.exists) {
-                return docSnap.data();
-            } else {
-                return null;
-            }
-        }
+    function checkSolution() {
+        const inputs = document.querySelectorAll('#game-board input');
         
-        async function exportUserData() {
-            const pin = elements.syncInput.value.trim();
-            if (!currentUserID || pin.length !== 6 || isNaN(pin)) {
-                elements.syncMessage.textContent = translations[currentLang].syncError;
-                elements.syncMessage.style.display = 'block';
-                return;
+        let allInputsFilled = true;
+        inputs.forEach(input => {
+            if (input.value.trim() === '') {
+                allInputsFilled = false;
             }
+        });
 
-            elements.syncMessage.textContent = 'Guardando en la nube...';
-            elements.syncMessage.style.display = 'block';
-
-            try {
-                const dataToSync = {
-                    userId: currentUserID,
-                    stats: stats,
-                    isPremium: isPremium,
-                    difficultySettings: difficultySettings
-                };
-
-                // 2. Guardar en la 'nube' (USANDO FIREBASE)
-                await saveToExternalDB(pin, dataToSync);
-
-                // 3. Mostrar confirmación
-                elements.syncMessage.textContent = translations[currentLang].syncSuccessExport.replace('{pin}', pin);
-                elements.syncInput.value = '';
-            } catch (e) {
-                elements.syncMessage.textContent = "Error de exportación: " + e.message;
-                elements.syncMessage.style.display = 'block';
-            }
+        if (!allInputsFilled) {
+            elements.resultMessage.textContent = translations[currentLang].fillAllFields; 
+            return;
         }
 
-        async function importUserData() {
-            const pin = elements.syncInput.value.trim();
-            if (pin.length !== 6 || isNaN(pin)) {
-                elements.syncMessage.textContent = translations[currentLang].syncError;
-                elements.syncMessage.style.display = 'block';
-                return;
-            }
+        const userBoard = JSON.parse(JSON.stringify(solution)); 
+        let inputIndex = 0;
 
-            elements.syncMessage.textContent = 'Cargando datos...';
-            elements.syncMessage.style.display = 'block';
+        boardState.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                if (cell.type === 'input') {
+                    userBoard[rowIndex][colIndex] = inputs[inputIndex].value; 
+                    inputIndex++;
+                }
+            });
+        });
+
+        const equations = [
+            userBoard[0], userBoard[2], userBoard[4], 
+            [userBoard[0][0], userBoard[1][0], userBoard[2][0], userBoard[3][0], userBoard[4][0]], 
+            [userBoard[0][2], userBoard[1][2], userBoard[2][2], userBoard[3][2], userBoard[4][2]], 
+            [userBoard[0][4], userBoard[1][4], userBoard[2][4], userBoard[3][4], userBoard[4][4]], 
+        ];
+        
+        let allEquationsValid = true;
+        equations.forEach(eq => {
+            if (!isEquationCorrect(eq)) {
+                allEquationsValid = false;
+            }
+        });
+
+        if (allEquationsValid) {
+            elements.resultMessage.textContent = translations[currentLang].levelCompleted;
+            stats.gamesCompleted++;
+            stats.gamesCorrect++;
+            checkBadges();
             
-            try {
-                // 1. Cargar datos de la 'nube' (USANDO FIREBASE)
-                const importedData = await loadFromExternalDB(pin);
+            boardState = [];
+            solution = [];
+            saveCurrentUserState(); 
 
-                if (!importedData) {
-                    elements.syncMessage.textContent = translations[currentLang].syncErrorNotFound;
-                    return;
+            setTimeout(() => {
+                showAd();
+            }, 1000); 
+        } else {
+            elements.resultMessage.textContent = translations[currentLang].incorrect;
+        }
+    }
+    
+    // LÓGICA DE VERIFICACIÓN DE PAGO CORREGIDA
+    function checkPaymentStatus() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paymentConfirmed = urlParams.get('premium');
+        const purchaseEmail = urlParams.get('user'); // Email del comprador de Gumroad
+        const t = translations[currentLang];
+
+        if (paymentConfirmed === 'true') {
+            console.log("DEBUG: Parámetro 'premium=true' detectado en la URL.");
+            
+            const savedUserID = localStorage.getItem('crossmath_active_user');
+
+            if (savedUserID) {
+                // 1. Cargamos el estado del usuario logueado
+                loadCurrentUserState(savedUserID); 
+                
+                if (!isPremium) {
+                    // 2. Activamos y guardamos el Premium
+                    isPremium = true;
+                    saveGameState(); 
+                    
+                    alert(t.premiumPurchased); 
+                    console.log("DEBUG: Premium activado para el usuario logueado: " + savedUserID);
                 }
+            } else if (purchaseEmail) {
+                // CASO 2: Compra detectada con email, pero usuario NO logueado.
+                // Guardamos el email temporalmente para activarlo al loguearse.
+                localStorage.setItem('crossmath_pending_premium_user', purchaseEmail);
+                alert("¡Compra detectada! Por favor, inicia sesión con el correo " + purchaseEmail + " para activar el Premium.");
+            } else {
+                 // CASO 3: Compra detectada sin email de Gumroad y sin sesión activa.
+                alert("¡Compra detectada! Por favor, inicia sesión ahora y si el Premium no se activa, borra tu caché e inténtalo de nuevo.");
+            }
+            
+            // Limpiar la URL para evitar recargas que parezcan un nuevo pago
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return true; 
+        } 
+        return false;
+    }
 
-                // Verificar que los datos le pertenecen al usuario logueado
-                if (importedData.userId !== currentUserID) {
-                     elements.syncMessage.textContent = translations[currentLang].syncErrorUserMismatch;
-                     return;
+    // --- EVENT LISTENERS ---
+
+    // Manejador de Login/Registro
+    document.getElementById('auth-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = elements.authEmail.value;
+        const password = elements.authPassword.value;
+        const t = translations[currentLang];
+        elements.authStatusMessage.style.color = 'red';
+
+        if (currentAuthMode === 'register') {
+            if (getLocalAccountData(email)) {
+                elements.authStatusMessage.textContent = t.userExists;
+            } else {
+                saveLocalAccountData(email, { password: password, stats: null, isPremium: false });
+                elements.authStatusMessage.textContent = t.registrationSuccess;
+                elements.authStatusMessage.style.color = 'green';
+                currentAuthMode = 'login';
+                updateAuthScreenUI();
+            }
+        } else if (currentAuthMode === 'login') {
+            const userData = getLocalAccountData(email);
+            if (userData && userData.password === password) {
+                localStorage.setItem('crossmath_active_user', email);
+                
+                // Cargar el estado del usuario después de loguear
+                loadCurrentUserState(email);
+
+                // 🛑 LÓGICA CLAVE: Activar Premium Pendiente al iniciar sesión
+                const pendingUser = localStorage.getItem('crossmath_pending_premium_user');
+                if (pendingUser === email) {
+                    isPremium = true;
+                    saveGameState();
+                    localStorage.removeItem('crossmath_pending_premium_user');
+                    alert(t.premiumPurchased);
                 }
+                
+                elements.authStatusMessage.textContent = t.authSuccess;
+                elements.authStatusMessage.style.color = 'green';
+                
+                // Redirigir al menú principal DESPUÉS de loguear
+                switchScreen('main-menu');
+                checkPaymentStatus(); 
 
-                // 2. Aplicar los datos al estado actual del usuario
-                stats = importedData.stats;
-                isPremium = importedData.isPremium;
-                difficultySettings = importedData.difficultySettings;
-                
-                // 3. Guardar el nuevo estado localmente y forzar actualización
-                saveCurrentUserState();
-                
-                elements.syncMessage.textContent = translations[currentLang].syncSuccessImport;
-                
-                setTimeout(() => {
-                    window.location.reload(); 
-                }, 500);
-
-            } catch (e) {
-                elements.syncMessage.textContent = "Error de importación: " + e.message;
-                elements.syncMessage.style.display = 'block';
+            } else {
+                elements.authStatusMessage.textContent = t.authFailed;
             }
         }
-        // --- FIN FUNCIONES DE SINCRONIZACIÓN ---
+    });
 
-        // (El resto de las funciones como updatePremiumView, etc. continúan aquí)
+    elements.switchAuthModeButton.addEventListener('click', () => {
+        currentAuthMode = currentAuthMode === 'login' ? 'register' : 'login';
+        updateAuthScreenUI();
+    });
+    
+    elements.authBackButton.addEventListener('click', () => {
+        if (currentUserID) {
+            switchScreen('main-menu');
+        } else {
+            alert("Por favor, inicia sesión o crea una cuenta para continuar.");
+        }
+    });
 
-        // ...
-        // FIN DEL CÓDIGO JavaScript PRINCIPAL
-    </script>
+    elements.logoutButton.addEventListener('click', () => {
+        saveCurrentUserState(); 
+        currentUserID = null;
+        localStorage.removeItem('crossmath_active_user');
+        switchScreen('auth-screen');
+    });
+    
+    elements.deleteAccountButton.addEventListener('click', () => {
+        const t = translations[currentLang];
+        if (!currentUserID) return;
+        
+        const confirmDelete = confirm(t.deleteConfirm);
+
+        if (confirmDelete) {
+            removeLocalAccountData(currentUserID); 
+            localStorage.removeItem('crossmath_active_user');
+            
+            alert(t.deleteSuccess);
+            
+            currentUserID = null;
+            switchScreen('auth-screen'); 
+        }
+    });
+    
+    elements.clearProgressButton.addEventListener('click', deleteLocalProgress);
+    
+    elements.resetAllButton.addEventListener('click', resetAllData);
+
+    // --- Sincronización de Datos (PIN de 6 dígitos) ---
+    elements.exportButton.addEventListener('click', exportUserData);
+    elements.importButton.addEventListener('click', importUserData);
+
+
+    // Botón Premium (Redirige a Gumroad)
+    elements.premiumButton.addEventListener('click', () => {
+        if (!currentUserID) {
+            alert("Por favor, inicia sesión para realizar la compra Premium.");
+            return;
+        }
+        // Se abre en una nueva pestaña para que el juego no se cierre.
+        window.open(GUMROAD_PAYMENT_URL, '_blank');
+        
+        // Mensaje de ayuda (opcional)
+        setTimeout(() => {
+            alert("Serás redirigido a Gumroad. Una vez que pagues, haz clic en el enlace que te aparecerá para activar el Premium.");
+        }, 500);
+    });
+
+    // 🛑 LÓGICA PARA VOLVER A SELECCIÓN DE NIVEL (Corrección de UX)
+    elements.backToMenuButton.addEventListener('click', () => {
+        // En lugar de ir al menú principal, lleva a la selección de nivel.
+        switchScreen('level-select-screen');
+    });
+
+
+    // Otros Event Listeners
+    elements.playButton.addEventListener('click', () => {
+        if (currentUserID && boardState.length > 0) {
+            switchScreen('game-screen');
+        } else if (currentUserID) {
+            switchScreen('level-select-screen');
+        } else {
+            switchScreen('auth-screen');
+        }
+    });
+
+    elements.statsButton.addEventListener('click', () => {
+         if (currentUserID) {
+            switchScreen('stats-screen');
+        } else {
+            switchScreen('auth-screen');
+        }
+    });
+    elements.settingsButton.addEventListener('click', () => {
+         if (currentUserID) {
+            switchScreen('settings-screen');
+        } else {
+            switchScreen('auth-screen');
+        }
+    });
+    elements.backFromLevelsButton.addEventListener('click', () => switchScreen('main-menu'));
+    elements.backFromStatsButton.addEventListener('click', () => switchScreen('main-menu'));
+    elements.backFromSettingsButton.addEventListener('click', () => switchScreen('main-menu'));
+    elements.checkButton.addEventListener('click', checkSolution);
+    elements.languageSelect.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+    });
+    
+    elements.levelButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            difficultySettings.level = button.dataset.difficulty;
+            switchScreen('game-screen');
+            generatePuzzle();
+        });
+    });
+
+    // Initialization
+    for (const langCode in languageNames) {
+        const option = document.createElement('option');
+        option.value = langCode;
+        option.textContent = languageNames[langCode];
+        elements.languageSelect.appendChild(option);
+    }
+    
+    const browserLang = navigator.language.split('-')[0];
+    if (translations[browserLang]) {
+        currentLang = browserLang;
+    }
+    elements.languageSelect.value = currentLang;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const hasActiveUser = loadGameState();
+        
+        // Se ejecuta para activar el Premium si el usuario vino de un enlace de activación
+        checkPaymentStatus(); 
+
+        setLanguage(currentLang);
+        
+        if (hasActiveUser) {
+            switchScreen('main-menu');
+        } else {
+            switchScreen('auth-screen');
+        }
+    });
+</script>
 </body>
 </html>
