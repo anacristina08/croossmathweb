@@ -116,7 +116,7 @@
             background: #ffebeb;
             border-radius: 5px;
         }
-        
+
         /* Estilo específico para la nota de compra */
         .purchase-instruction {
             font-size: 0.9em;
@@ -410,6 +410,8 @@
             premiumPurchased: 'Premium Active! Enjoy ad-free playing.',
             premiumPurchaseFailed: 'Purchase not registered. If you already paid, please click the activation link you received from Gumroad.',
             adSupported: 'Ad Supported',
+            // --- Claves de Instrucción de Compra ---
+            purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',
             // --- Claves de Autenticación y Cuentas ---
             loginTitle: 'Log In', registerTitle: 'Create Account',
             loginButton: 'Log In', registerButton: 'Sign Up',
@@ -423,8 +425,6 @@
             deleteSuccess: 'Your account has been deleted. All local data has been erased.',
             reimbursementNote: 'NOTE: Account deletion does not automatically trigger a refund for the Premium membership.',
             authBack: 'Back to Home',
-            // --- Claves de Instrucción de Compra ---
-            purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',
             // --- Nuevas Claves de Borrado de Datos ---
             resetTitle: 'Reset Local Data',
             clearProgress: 'Clear Game Progress',
@@ -813,6 +813,7 @@
                  data-full-width-responsive="true"></ins>
         `;
         // Ejecutar el script de AdSense para que cargue el anuncio
+        // Nota: El ID del Slot ('1234567890') debe ser REAL y aprobado en tu cuenta.
         (window.adsbygoogle = window.adsbygoogle || []).push({});
 
 
@@ -1070,12 +1071,14 @@
             const savedUserID = localStorage.getItem('crossmath_active_user');
 
             if (savedUserID) {
-                // CASO 1: Usuario logueado. Activar de inmediato.
+                // 1. Cargamos el estado del usuario logueado
                 loadCurrentUserState(savedUserID); 
                 
                 if (!isPremium) {
+                    // 2. Activamos y guardamos el Premium
                     isPremium = true;
                     saveGameState(); 
+                    
                     alert(t.premiumPurchased); 
                     console.log("DEBUG: Premium activado para el usuario logueado: " + savedUserID);
                 }
@@ -1203,6 +1206,12 @@
         }, 500);
     });
 
+    // 🛑 LÓGICA PARA VOLVER A SELECCIÓN DE NIVEL (Corrección de UX)
+    elements.backToMenuButton.addEventListener('click', () => {
+        // En lugar de ir al menú principal, lleva a la selección de nivel.
+        switchScreen('level-select-screen');
+    });
+
 
     // Otros Event Listeners
     elements.playButton.addEventListener('click', () => {
@@ -1229,7 +1238,6 @@
             switchScreen('auth-screen');
         }
     });
-    elements.backToMenuButton.addEventListener('click', () => switchScreen('main-menu'));
     elements.backFromLevelsButton.addEventListener('click', () => switchScreen('main-menu'));
     elements.backFromStatsButton.addEventListener('click', () => switchScreen('main-menu'));
     elements.backFromSettingsButton.addEventListener('click', () => switchScreen('main-menu'));
