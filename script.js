@@ -461,7 +461,13 @@ elements.importButton.addEventListener('click', async () => {
     } catch(e) { console.error(e); }
 });
 
-elements.playButton.addEventListener('click', () => switchScreen('levelSelect'));
+elements.playButton.addEventListener('click', () => {
+    if (gameState.boardState.length > 0) {
+        switchScreen('game');
+    } else {
+        switchScreen('levelSelect');
+    }
+});
 elements.statsButton.addEventListener('click', () => switchScreen('stats'));
 elements.settingsButton.addEventListener('click', () => switchScreen('settings'));
 elements.checkButton.addEventListener('click', checkSolution);
@@ -473,5 +479,3 @@ elements.backFromSettingsButton.addEventListener('click', () => switchScreen('ma
 elements.languageSelect.addEventListener('change', (e) => setLanguage(e.target.value));
 
 loadInitialState();
-
-});
