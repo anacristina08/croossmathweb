@@ -81,7 +81,6 @@
             background-color: #5a6268;
         }
         
-        /* Estilos para formularios de autenticación */
         .auth-form {
             width: 100%;
             display: flex;
@@ -117,7 +116,6 @@
             border-radius: 5px;
         }
 
-        /* Estilo específico para la nota de compra */
         .purchase-instruction {
             font-size: 0.9em;
             color: var(--text-color);
@@ -133,18 +131,15 @@
             border: 1px solid var(--border-color);
         }
 
-        /* --- CSS CORREGIDO DEL TABLERO (Móvil) --- */
         #game-board {
             display: grid;
-            gap: 5px; /* Espacio entre celdas */
+            gap: 5px;
             margin-bottom: 1rem;
             justify-content: center;
             transition: all 0.3s ease;
-            /* gridTemplateColumns se define en el JS para 5 columnas */
         }
         
         .cell {
-            /* Tamaños fijos para el aspecto cuadrado tipo móvil */
             width: 45px;
             height: 45px;
             display: flex;
@@ -196,7 +191,6 @@
             width: 100%;
         }
 
-        /* Estilo para la capa de anuncio real */
         .ad-screen {
             position: fixed;
             top: 0;
@@ -216,11 +210,10 @@
         }
 
         #real-ad-container {
-            /* Contenedor donde se inyectará el banner publicitario */
             background: white;
             padding: 10px;
             max-width: 90%;
-            width: 320px; /* Tamaño típico de banner móvil */
+            width: 320px;
             min-height: 50px;
             display: flex;
             justify-content: center;
@@ -310,7 +303,7 @@
         
         <button class="menu-button" id="premium-button"></button>
         <p id="premium-status"></p>
-        
+     
         <div id="sync-data-section">
             <h3 id="sync-title">Sincronización Multi-Dispositivo</h3>
             <p style="font-size: 0.9em; text-align: center;">Ingresa tu PIN de 6 dígitos para guardar o cargar tu progreso y Premium.</p>
@@ -319,12 +312,10 @@
             <button class="menu-button secondary-button" id="import-button">2. Importar (Cargar)</button>
             <div id="sync-message" class="warning-note" style="display: none;"></div>
         </div>
-        
+       
         <div id="reset-data-section">
             <h3 id="reset-title"></h3>
-
             <button class="menu-button secondary-button" id="clear-progress-button"></button>
-            
             <button class="menu-button secondary-button" id="reset-all-button"></button>
             <p id="reset-all-note" class="warning-note"></p>
         </div>
@@ -342,8 +333,7 @@
 
 <div id="ad-popup" class="ad-screen" style="display: none;">
     <p id="ad-message"></p>
-    <div id="real-ad-container">
-        </div>
+    <div id="real-ad-container"></div>
     <button class="ad-button" id="skip-ad-button"></button>
 </div>
 
@@ -351,33 +341,14 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 <script>
     // -----------------------------------------------------------
-    // 🛑 CONFIGURACIÓN DE FIREBASE (TU BASE DE DATOS EN LA NUBE) 🛑
-    // -----------------------------------------------------------
-    
-    // TUS CREDENCIALES
-    const firebaseConfig = {
-        apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
-        authDomain: "crossmath-sync-db.firebaseapp.com",
-        projectId: "crossmath-sync-db",
-        storageBucket: "crossmath-sync-db.firebasestorage.app",
-        messagingSenderId: "170459630175",
-        appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",
-        measurementId: "G-BBJKKN96SV"
-    };
-
-    // Variables globales de Firebase (se inicializarán abajo)
-    let db;
-    
-    // Inicializar Firebase y Firestore
-    const app = firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore(); 
-
-    // -----------------------------------------------------------
     // LÓGICA PRINCIPAL DEL JUEGO
     // -----------------------------------------------------------
     
-    const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
+    // Variables globales
+    let db;
+    let app;
 
+    const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";
     const translations = {
         es: {
             mainMenu: 'Menú Principal', play: 'Jugar', viewStats: 'Ver Estadísticas', settings: 'Configuración',
@@ -390,7 +361,7 @@
             perfectionist: 'Perfeccionista', perfectionistDesc: 'Completa 5 niveles sin usar pistas',
             mathematician: 'Matemático', mathematicianDesc: 'Completa 10 niveles',
             backToMenu: 'Volver al Menú', language: 'Idioma', selectLevel: 'Selecciona un Nivel',
-            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', experto: 'Experto',
+            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', expert: 'Experto',
             threeDigitNumbers: 'Números de 3 Cifras', infinite: 'Infinito',
             check: 'Comprobar',
             removeAds: 'Eliminar Anuncios', 
@@ -400,7 +371,6 @@
             premiumPurchased: '¡Premium Activo! Disfruta sin anuncios.',
             premiumPurchaseFailed: 'Compra no registrada. Si ya pagaste, haz clic en el enlace de activación que recibiste en Gumroad.',
             adSupported: 'Con Anuncios',
-            // --- Claves de Autenticación y Cuentas ---
             loginTitle: 'Iniciar Sesión', registerTitle: 'Crear Cuenta',
             loginButton: 'Iniciar Sesión', registerButton: 'Registrarme',
             loginSwitch: '¿No tienes cuenta? Regístrate', registerSwitch: '¿Ya tienes cuenta? Inicia Sesión',
@@ -413,9 +383,7 @@
             deleteSuccess: 'Tu cuenta ha sido eliminada. Todos los datos locales han sido borrados.',
             reimbursementNote: 'NOTA: La eliminación de la cuenta no conlleva el reembolso del dinero pagado por la membresía Premium.',
             authBack: 'Volver al Inicio',
-            // --- Claves de Instrucción de Compra ---
             purchaseInstruction: 'IMPORTANTE: Para activar el Premium, la compra debe hacerse con el MISMO correo electrónico que usas para iniciar sesión en este juego.',
-            // --- Nuevas Claves de Borrado de Datos ---
             resetTitle: 'Restablecer Datos Locales',
             clearProgress: 'Borrar Progreso del Juego',
             clearProgressConfirm: '¿Estás seguro de que quieres borrar tus estadísticas y progreso de puzzle actual? ¡El Premium se MANTENDRÁ!',
@@ -451,12 +419,10 @@
             premiumPurchased: 'Premium Active! Enjoy ad-free playing.',
             premiumPurchaseFailed: 'Purchase not registered. If you already paid, please click the activation link you received from Gumroad.',
             adSupported: 'Ad Supported',
-            // --- Claves de Instrucción de Compra ---
             purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',
-            // --- Claves de Autenticación y Cuentas ---
             loginTitle: 'Log In', registerTitle: 'Create Account',
             loginButton: 'Log In', registerButton: 'Sign Up',
-            loginSwitch: 'Don\'t have an account? Sign Up', registerSwitch: 'Already have an account? Log In',
+            loginSwitch: "Don't have an account? Sign Up", registerSwitch: 'Already have an account? Log In',
             authSuccess: 'Welcome back!', authFailed: 'Invalid credentials.',
             userExists: 'Email is already registered.', registrationSuccess: 'Account created. Please log in!',
             logout: 'Log Out', welcome: 'Hello, {user}!',
@@ -466,7 +432,6 @@
             deleteSuccess: 'Your account has been deleted. All local data has been erased.',
             reimbursementNote: 'NOTE: Account deletion does not automatically trigger a refund for the Premium membership.',
             authBack: 'Back to Home',
-            // --- Nuevas Claves de Borrado de Datos ---
             resetTitle: 'Reset Local Data',
             clearProgress: 'Clear Game Progress',
             clearProgressConfirm: 'Are you sure you want to clear your stats and current puzzle progress? Premium status will be KEPT!',
@@ -479,15 +444,12 @@
             syncSuccessExport: 'SUCCESS: Progress saved in the cloud with PIN {pin}.',
             syncSuccessImport: 'SUCCESS: Data loaded. The page will update.',
             syncErrorNotFound: 'ERROR: No data found for that PIN or PIN is incorrect.',
-            syncErrorUserMismatch: 'ERROR: This PIN data does not belong to your current user.'
-        },
-        // (Otros idiomas omitidos por brevedad)
+            syncErrorUserMismatch: "ERROR: This PIN data does not belong to your current user."
+        }
     };
-    
     const languageNames = {
         es: 'Español', en: 'English', fr: 'Français', de: 'Deutsch', pt: 'Português', it: 'Italiano'
     };
-
     const screens = {
         'auth-screen': document.getElementById('auth-screen'), 
         'main-menu': document.getElementById('main-menu'),
@@ -496,13 +458,11 @@
         'stats-screen': document.getElementById('stats-screen'),
         'settings-screen': document.getElementById('settings-screen')
     };
-
     const elements = {
         title: document.getElementById('title'),
         playButton: document.getElementById('play-button'),
         statsButton: document.getElementById('stats-button'),
         settingsButton: document.getElementById('settings-button'),
-        // Autenticación
         authTitle: document.getElementById('auth-title'),
         authEmail: document.getElementById('auth-email'),
         authPassword: document.getElementById('auth-password'),
@@ -512,22 +472,18 @@
         authBackButton: document.getElementById('auth-back-button'),
         logoutButton: document.getElementById('logout-button'),
         welcomeMessage: document.getElementById('welcome-message'),
-        // Gestión de cuenta
         accountManagementTitle: document.getElementById('account-management-title'),
         currentUserDisplay: document.getElementById('current-user-display'),
         deleteAccountButton: document.getElementById('delete-account-button'),
         reimbursementNote: document.getElementById('reimbursement-note'),
-        // Reset de datos
         resetTitle: document.getElementById('reset-title'),
         clearProgressButton: document.getElementById('clear-progress-button'),
         resetAllButton: document.getElementById('reset-all-button'),
         resetAllNote: document.getElementById('reset-all-note'),
-        // Sincronización (NUEVO)
         syncInput: document.getElementById('sync-input'),
         exportButton: document.getElementById('export-button'),
         importButton: document.getElementById('import-button'),
         syncMessage: document.getElementById('sync-message'),
-        // Otros elementos
         levelSelectTitle: document.getElementById('level-select-title'),
         levelButtons: document.querySelectorAll('.level-button'),
         gameBoard: document.getElementById('game-board'),
@@ -552,12 +508,11 @@
         realAdContainer: document.getElementById('real-ad-container'), 
         purchaseInstruction: document.getElementById('purchase-instruction')
     };
-
     let boardState = [];
     let solution = [];
     let currentLang = 'es';
     let isPremium = false; 
-    let currentAuthMode = 'login'; 
+    let currentAuthMode = 'login';
     let currentUserID = null; 
     let stats = {
         gamesCompleted: 0,
@@ -568,15 +523,12 @@
     let difficultySettings = {
         level: 'easy'
     };
-
     const badges = [
         { id: 'firstTriumph', desc: 'firstTriumphDesc' },
         { id: 'speedDemon', desc: 'speedDemonDesc' },
         { id: 'perfectionist', desc: 'perfectionistDesc' },
         { id: 'mathematician', desc: 'mathematicianDesc' }
     ];
-
-    // Prefijo para almacenar datos de cuentas
     const USER_DATA_PREFIX = 'crossmath_user_';
 
     function getLocalAccountData(email) {
@@ -622,7 +574,6 @@
             difficultySettings = { level: 'easy' };
         }
         currentUserID = email;
-        // Limpiar las variables globales de localStorage si había datos sin cuenta
         localStorage.removeItem('crossmath_stats');
         localStorage.removeItem('crossmath_isPremium');
         localStorage.removeItem('crossmath_boardState');
@@ -640,16 +591,12 @@
         elements.authPassword.value = '';
     }
 
-    // --- FUNCIONES DE BORRADO DE DATOS ---
-
-    // Botón 1: Borra solo progreso y estadísticas (Mantiene Premium)
     function deleteLocalProgress() {
         const t = translations[currentLang];
         if (confirm(t.clearProgressConfirm)) {
             stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };
             boardState = [];
             solution = [];
-            
             saveCurrentUserState();
             alert(t.progressCleared);
             updateStatsView();
@@ -657,7 +604,6 @@
         }
     }
 
-    // Botón 2: Borra todo (Incluye Premium + Advertencia)
     function resetAllData() {
         const t = translations[currentLang];
         if (confirm(t.resetAllConfirm)) {
@@ -665,7 +611,6 @@
             boardState = [];
             solution = [];
             isPremium = false; 
-            
             saveCurrentUserState();
             alert(t.allDataReset);
             updateStatsView();
@@ -673,22 +618,14 @@
             updatePremiumView();
         }
     }
-    // --- FIN FUNCIONES DE BORRADO DE DATOS ---
     
-    // --- FUNCIONES DE SINCRONIZACIÓN POR PIN (PREPARADO PARA LA NUBE) ---
-
-    // Función que simula guardar datos en la 'nube' usando el PIN como clave
     async function saveToExternalDB(pin, data) {
-        // Usamos setDoc para guardar el documento con ID=PIN en la colección SyncCodes
         await db.collection("SyncCodes").doc(pin).set(data);
     }
 
-    // Función que simula cargar datos de la 'nube'
     async function loadFromExternalDB(pin) {
-        // Usamos getDoc para obtener el documento con ID=PIN de la colección SyncCodes
         const docRef = db.collection("SyncCodes").doc(pin);
-        const docSnap = await docRef.get(); // Usar .get() para obtener el snapshot
-        
+        const docSnap = await docRef.get();
         if (docSnap.exists) {
             return docSnap.data();
         } else {
@@ -714,11 +651,7 @@
                 isPremium: isPremium,
                 difficultySettings: difficultySettings
             };
-
-            // 2. Guardar en la 'nube' (USANDO FIREBASE)
             await saveToExternalDB(pin, dataToSync);
-
-            // 3. Mostrar confirmación
             elements.syncMessage.textContent = translations[currentLang].syncSuccessExport.replace('{pin}', pin);
             elements.syncInput.value = '';
         } catch (e) {
@@ -737,47 +670,36 @@
 
         elements.syncMessage.textContent = 'Cargando datos...';
         elements.syncMessage.style.display = 'block';
-        
         try {
-            // 1. Cargar datos de la 'nube' (USANDO FIREBASE)
             const importedData = await loadFromExternalDB(pin);
-
             if (!importedData) {
                 elements.syncMessage.textContent = translations[currentLang].syncErrorNotFound;
                 return;
             }
 
-            // Verificar que los datos le pertenecen al usuario logueado
             if (importedData.userId !== currentUserID) {
                  elements.syncMessage.textContent = translations[currentLang].syncErrorUserMismatch;
-                 return;
+                return;
             }
 
-            // 2. Aplicar los datos al estado actual del usuario
             stats = importedData.stats;
             isPremium = importedData.isPremium;
             difficultySettings = importedData.difficultySettings;
             
-            // 3. Guardar el nuevo estado localmente y forzar actualización
             saveCurrentUserState();
-            
             elements.syncMessage.textContent = translations[currentLang].syncSuccessImport;
             
             setTimeout(() => {
                 window.location.reload(); 
             }, 500);
-
         } catch (e) {
             elements.syncMessage.textContent = "Error de importación: " + e.message;
             elements.syncMessage.style.display = 'block';
         }
     }
-    // --- FIN FUNCIONES DE SINCRONIZACIÓN ---
-
 
     function updatePremiumView() {
         const t = translations[currentLang];
-        
         if (isPremium) {
             elements.premiumButton.style.display = 'none';
             elements.premiumStatus.textContent = t.premiumPurchased;
@@ -813,15 +735,11 @@
         elements.currentUserDisplay.textContent = t.currentUser.replace('{user}', currentUserID);
         elements.deleteAccountButton.textContent = t.deleteAccount;
         elements.reimbursementNote.textContent = t.reimbursementNote;
-        
-        elements.purchaseInstruction.textContent = t.purchaseInstruction; // Cargar la nota de compra
-        
+        elements.purchaseInstruction.textContent = t.purchaseInstruction;
         elements.resetTitle.textContent = t.resetTitle;
         elements.clearProgressButton.textContent = t.clearProgress;
         elements.resetAllButton.textContent = t.resetAll;
         elements.resetAllNote.textContent = t.resetAllNote;
-        
-        // Ocultar mensaje de sincronización al abrir
         elements.syncMessage.style.display = 'none';
     }
 
@@ -898,7 +816,6 @@
         });
     }
 
-    function saveBoardState() {}
     function saveGameState() {
         saveCurrentUserState();
     }
@@ -910,7 +827,6 @@
             return true;
         } 
         
-        // Fallback para datos antiguos si no hay usuario logueado
         const savedStats = localStorage.getItem('crossmath_stats');
         if (savedStats) {
             stats = JSON.parse(savedStats);
@@ -933,7 +849,7 @@
         }
         saveGameState();
     }
-
+    
     function safeCalculate(n1, op, n2) {
         n1 = Number(n1);
         n2 = Number(n2);
@@ -945,7 +861,7 @@
             default: return NaN;
         }
     }
-    
+
     function showAd() {
         if (isPremium) {
             generatePuzzle();
@@ -955,8 +871,6 @@
         elements.adMessage.textContent = translations[currentLang].adMessage;
         elements.skipAdButton.textContent = translations[currentLang].adSkip;
         elements.adPopup.style.display = 'flex';
-
-        // 🛑 Lógica para cargar el anuncio real
         elements.realAdContainer.innerHTML = `
             <ins class="adsbygoogle"
                  style="display:block"
@@ -965,23 +879,20 @@
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
         `;
-        // Ejecutar el script de AdSense para que cargue el anuncio
-        // Nota: Si el anuncio no aparece, es porque Google no sirve contenido al sitio aún.
         try {
              (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {
             console.error("Error al cargar AdSense:", e);
         }
 
-        // 🛑 Implementación del temporizador de emergencia (8 segundos)
         const skipTimer = setTimeout(() => {
             elements.skipAdButton.click();
-        }, 8000); 
+        }, 8000);
 
         elements.skipAdButton.onclick = () => {
-            clearTimeout(skipTimer); // Detener el temporizador si el usuario hace clic
+            clearTimeout(skipTimer);
             elements.adPopup.style.display = 'none';
-            elements.realAdContainer.innerHTML = ''; // Limpiar el contenedor del anuncio
+            elements.realAdContainer.innerHTML = '';
             generatePuzzle();
             elements.resultMessage.textContent = '';
             screens['game-screen'].classList.add('active');
@@ -992,17 +903,15 @@
 
     function generatePuzzle() {
         const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
         const difficulty = difficultySettings.level;
         const numberRange = difficulty === 'threeDigit' ? [10, 99] :
                             difficulty === 'hard' ? [10, 50] :
                             difficulty === 'medium' ? [5, 20] : [1, 10];
         const allowedOps = difficulty === 'easy' ? ['+', '-'] : ['+', '-', '*', '/'];
-
         let validSolutionFound = false;
         let finalSolution = [];
         let attempts = 0;
-
+        
         while (!validSolutionFound && attempts < 500) {
             attempts++;
             try {
@@ -1051,7 +960,6 @@
         }
         
         if (!validSolutionFound) {
-            // Solución de fallback
             finalSolution = [
                 [1, '+', 2, '=', 3],
                 ['+', ' ', '+', ' ', '+'],
@@ -1062,14 +970,12 @@
         }
 
         solution = finalSolution;
-        
         let boardData = [];
         const numberCells = [
             {r: 0, c: 0}, {r: 0, c: 2}, {r: 0, c: 4},
             {r: 2, c: 0}, {r: 2, c: 2}, {r: 2, c: 4},
             {r: 4, c: 0}, {r: 4, c: 2}, {r: 4, c: 4}
         ];
-
         for (let i = numberCells.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [numberCells[i], numberCells[j]] = [numberCells[j], numberCells[i]];
@@ -1079,11 +985,10 @@
         const inputPositions = numberCells.slice(0, inputsToHide);
 
         for (let r = 0; r < solution.length; r++) {
-            let row = []
+            let row = [];
             for (let c = 0; c < solution[r].length; c++) {
                 const cellValue = solution[r][c];
                 const isInput = inputPositions.some(pos => pos.r === r && pos.c === c);
-                
                 if (isInput) {
                     row.push({ type: 'input', val: '', solution: cellValue });
                 } else if (typeof cellValue === 'number') {
@@ -1091,21 +996,18 @@
                 } else if (cellValue === '=') {
                     row.push({ type: 'equals', val: '=' });
                 } else if (typeof cellValue === 'string' && cellValue.trim() !== '') {
-                    // Celdas de operadores y vacías (para operadores verticales)
-                    row.push({ type: 'op', val: cellValue }); 
+                    row.push({ type: 'op', val: cellValue });
                 } else {
-                    // Celdas invisibles para el layout
-                     row.push({ type: 'empty-space', val: '' }); 
+                     row.push({ type: 'empty-space', val: '' });
                 }
             }
             boardData.push(row);
         }
         
         boardState = boardData;
-        
         elements.gameBoard.style.gridTemplateColumns = `repeat(5, auto)`;
         renderBoard();
-        saveBoardState(); 
+        saveGameState(); 
     }
 
     function renderBoard() {
@@ -1119,12 +1021,10 @@
                     const input = document.createElement('input');
                     input.type = "number";
                     input.value = cell.val; 
-                    
                     input.addEventListener('input', (e) => {
                         cell.val = e.target.value;
                         saveCurrentUserState(); 
                     });
-                    
                     cellElement.classList.add('empty');
                     cellElement.appendChild(input);
                 } else if (cell.type === 'given') {
@@ -1134,11 +1034,9 @@
                     cellElement.classList.add('equals');
                     cellElement.textContent = cell.val;
                 } else if (cell.type === 'op') {
-                    // Los operadores se ven igual que los signos de igual
                     cellElement.classList.add('operand');
                     cellElement.textContent = cell.val;
                 } else if (cell.type === 'empty-space') {
-                    // Las celdas vacías necesarias para el layout 5x5 deben ser invisibles
                     cellElement.style.visibility = 'hidden';
                     cellElement.style.border = 'none';
                     cellElement.style.boxShadow = 'none';
@@ -1152,9 +1050,7 @@
         try {
             const [n1, op, n2, equals, res] = equation;
             if (op === '/' && Number(n2) === 0) return false;
-            
             const result = safeCalculate(n1, op, n2); 
-            
             return Number(result) === Number(res);
         } catch (e) {
             return false;
@@ -1163,7 +1059,6 @@
 
     function checkSolution() {
         const inputs = document.querySelectorAll('#game-board input');
-        
         let allInputsFilled = true;
         inputs.forEach(input => {
             if (input.value.trim() === '') {
@@ -1178,7 +1073,6 @@
 
         const userBoard = JSON.parse(JSON.stringify(solution)); 
         let inputIndex = 0;
-
         boardState.forEach((row, rowIndex) => {
             row.forEach((cell, colIndex) => {
                 if (cell.type === 'input') {
@@ -1194,7 +1088,7 @@
             [userBoard[0][2], userBoard[1][2], userBoard[2][2], userBoard[3][2], userBoard[4][2]], 
             [userBoard[0][4], userBoard[1][4], userBoard[2][4], userBoard[3][4], userBoard[4][4]], 
         ];
-        
+
         let allEquationsValid = true;
         equations.forEach(eq => {
             if (!isEquationCorrect(eq)) {
@@ -1207,54 +1101,41 @@
             stats.gamesCompleted++;
             stats.gamesCorrect++;
             checkBadges();
-            
             boardState = [];
             solution = [];
             saveCurrentUserState(); 
 
             setTimeout(() => {
                 showAd();
-            }, 1000); 
+            }, 1000);
         } else {
             elements.resultMessage.textContent = translations[currentLang].incorrect;
         }
     }
     
-    // LÓGICA DE VERIFICACIÓN DE PAGO CORREGIDA
     function checkPaymentStatus() {
         const urlParams = new URLSearchParams(window.location.search);
         const paymentConfirmed = urlParams.get('premium');
-        const purchaseEmail = urlParams.get('user'); // Email del comprador de Gumroad
+        const purchaseEmail = urlParams.get('user');
         const t = translations[currentLang];
 
         if (paymentConfirmed === 'true') {
-            console.log("DEBUG: Parámetro 'premium=true' detectado en la URL.");
-            
             const savedUserID = localStorage.getItem('crossmath_active_user');
 
             if (savedUserID) {
-                // 1. Cargamos el estado del usuario logueado
-                loadCurrentUserState(savedUserID); 
-                
+                loadCurrentUserState(savedUserID);
                 if (!isPremium) {
-                    // 2. Activamos y guardamos el Premium
                     isPremium = true;
                     saveGameState(); 
-                    
                     alert(t.premiumPurchased); 
-                    console.log("DEBUG: Premium activado para el usuario logueado: " + savedUserID);
                 }
             } else if (purchaseEmail) {
-                // CASO 2: Compra detectada con email, pero usuario NO logueado.
-                // Guardamos el email temporalmente para activarlo al loguearse.
                 localStorage.setItem('crossmath_pending_premium_user', purchaseEmail);
                 alert("¡Compra detectada! Por favor, inicia sesión con el correo " + purchaseEmail + " para activar el Premium.");
             } else {
-                 // CASO 3: Compra detectada sin email de Gumroad y sin sesión activa.
                 alert("¡Compra detectada! Por favor, inicia sesión ahora y si el Premium no se activa, borra tu caché e inténtalo de nuevo.");
             }
             
-            // Limpiar la URL para evitar recargas que parezcan un nuevo pago
             window.history.replaceState({}, document.title, window.location.pathname);
             return true; 
         } 
@@ -1263,7 +1144,6 @@
 
     // --- EVENT LISTENERS ---
 
-    // Manejador de Login/Registro
     document.getElementById('auth-form').addEventListener('submit', (e) => {
         e.preventDefault();
         const email = elements.authEmail.value;
@@ -1285,11 +1165,8 @@
             const userData = getLocalAccountData(email);
             if (userData && userData.password === password) {
                 localStorage.setItem('crossmath_active_user', email);
-                
-                // Cargar el estado del usuario después de loguear
                 loadCurrentUserState(email);
-
-                // 🛑 LÓGICA CLAVE: Activar Premium Pendiente al iniciar sesión
+                
                 const pendingUser = localStorage.getItem('crossmath_pending_premium_user');
                 if (pendingUser === email) {
                     isPremium = true;
@@ -1301,10 +1178,8 @@
                 elements.authStatusMessage.textContent = t.authSuccess;
                 elements.authStatusMessage.style.color = 'green';
                 
-                // Redirigir al menú principal DESPUÉS de loguear
                 switchScreen('main-menu');
                 checkPaymentStatus(); 
-
             } else {
                 elements.authStatusMessage.textContent = t.authFailed;
             }
@@ -1315,7 +1190,7 @@
         currentAuthMode = currentAuthMode === 'login' ? 'register' : 'login';
         updateAuthScreenUI();
     });
-    
+
     elements.authBackButton.addEventListener('click', () => {
         if (currentUserID) {
             switchScreen('main-menu');
@@ -1330,56 +1205,40 @@
         localStorage.removeItem('crossmath_active_user');
         switchScreen('auth-screen');
     });
-    
+
     elements.deleteAccountButton.addEventListener('click', () => {
         const t = translations[currentLang];
         if (!currentUserID) return;
         
-        const confirmDelete = confirm(t.deleteConfirm);
-
-        if (confirmDelete) {
+        if (confirm(t.deleteConfirm)) {
             removeLocalAccountData(currentUserID); 
             localStorage.removeItem('crossmath_active_user');
-            
             alert(t.deleteSuccess);
-            
             currentUserID = null;
             switchScreen('auth-screen'); 
         }
     });
-    
-    elements.clearProgressButton.addEventListener('click', deleteLocalProgress);
-    
-    elements.resetAllButton.addEventListener('click', resetAllData);
 
-    // --- Sincronización de Datos (PIN de 6 dígitos) ---
+    elements.clearProgressButton.addEventListener('click', deleteLocalProgress);
+    elements.resetAllButton.addEventListener('click', resetAllData);
     elements.exportButton.addEventListener('click', exportUserData);
     elements.importButton.addEventListener('click', importUserData);
 
-
-    // Botón Premium (Redirige a Gumroad)
     elements.premiumButton.addEventListener('click', () => {
         if (!currentUserID) {
             alert("Por favor, inicia sesión para realizar la compra Premium.");
             return;
         }
-        // Se abre en una nueva pestaña para que el juego no se cierre.
         window.open(GUMROAD_PAYMENT_URL, '_blank');
-        
-        // Mensaje de ayuda (opcional)
         setTimeout(() => {
             alert("Serás redirigido a Gumroad. Una vez que pagues, haz clic en el enlace que te aparecerá para activar el Premium.");
         }, 500);
     });
 
-    // 🛑 LÓGICA PARA VOLVER A SELECCIÓN DE NIVEL (Corrección de UX)
     elements.backToMenuButton.addEventListener('click', () => {
-        // En lugar de ir al menú principal, lleva a la selección de nivel.
         switchScreen('level-select-screen');
     });
 
-
-    // Otros Event Listeners
     elements.playButton.addEventListener('click', () => {
         if (currentUserID && boardState.length > 0) {
             switchScreen('game-screen');
@@ -1397,6 +1256,7 @@
             switchScreen('auth-screen');
         }
     });
+
     elements.settingsButton.addEventListener('click', () => {
          if (currentUserID) {
             switchScreen('settings-screen');
@@ -1404,14 +1264,16 @@
             switchScreen('auth-screen');
         }
     });
+
     elements.backFromLevelsButton.addEventListener('click', () => switchScreen('main-menu'));
     elements.backFromStatsButton.addEventListener('click', () => switchScreen('main-menu'));
     elements.backFromSettingsButton.addEventListener('click', () => switchScreen('main-menu'));
     elements.checkButton.addEventListener('click', checkSolution);
+
     elements.languageSelect.addEventListener('change', (e) => {
         setLanguage(e.target.value);
     });
-    
+
     elements.levelButtons.forEach(button => {
         button.addEventListener('click', () => {
             difficultySettings.level = button.dataset.difficulty;
@@ -1419,27 +1281,42 @@
             generatePuzzle();
         });
     });
-
-    // Initialization
-    for (const langCode in languageNames) {
-        const option = document.createElement('option');
-        option.value = langCode;
-        option.textContent = languageNames[langCode];
-        elements.languageSelect.appendChild(option);
-    }
     
-    const browserLang = navigator.language.split('-')[0];
-    if (translations[browserLang]) {
-        currentLang = browserLang;
-    }
-    elements.languageSelect.value = currentLang;
+    // --- INICIALIZACIÓN DEL JUEGO ---
     
     document.addEventListener('DOMContentLoaded', () => {
+        // CORRECCIÓN 2: Mover la inicialización de Firebase aquí.
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
+            authDomain: "crossmath-sync-db.firebaseapp.com",
+            projectId: "crossmath-sync-db",
+            storageBucket: "crossmath-sync-db.firebasestorage.app",
+            messagingSenderId: "170459630175",
+            appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",
+            measurementId: "G-BBJKKN96SV"
+        };
+        app = firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+
+        // Cargar los idiomas en el selector
+        for (const langCode in languageNames) {
+            const option = document.createElement('option');
+            option.value = langCode;
+            option.textContent = languageNames[langCode];
+            elements.languageSelect.appendChild(option);
+        }
+        
+        // Detectar idioma del navegador
+        const browserLang = navigator.language.split('-')[0];
+        if (translations[browserLang]) {
+            currentLang = browserLang;
+        }
+        elements.languageSelect.value = currentLang;
+
+        // Cargar estado del juego y decidir pantalla inicial
         const hasActiveUser = loadGameState();
         
-        // Se ejecuta para activar el Premium si el usuario vino de un enlace de activación
         checkPaymentStatus(); 
-
         setLanguage(currentLang);
         
         if (hasActiveUser) {
