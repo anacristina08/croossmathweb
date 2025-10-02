@@ -813,11 +813,20 @@
                  data-full-width-responsive="true"></ins>
         `;
         // Ejecutar el script de AdSense para que cargue el anuncio
-        // Nota: El ID del Slot ('1234567890') debe ser REAL y aprobado en tu cuenta.
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        // Nota: Si el anuncio no aparece, es porque Google no sirve contenido al sitio aún.
+        try {
+             (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+            console.error("Error al cargar AdSense:", e);
+        }
 
+        // 🛑 Implementación del temporizador de emergencia (8 segundos)
+        const skipTimer = setTimeout(() => {
+            elements.skipAdButton.click();
+        }, 8000); 
 
         elements.skipAdButton.onclick = () => {
+            clearTimeout(skipTimer); // Detener el temporizador si el usuario hace clic
             elements.adPopup.style.display = 'none';
             elements.realAdContainer.innerHTML = ''; // Limpiar el contenedor del anuncio
             generatePuzzle();
