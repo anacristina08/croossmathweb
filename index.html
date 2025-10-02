@@ -116,6 +116,15 @@
             background: #ffebeb;
             border-radius: 5px;
         }
+        
+        /* Estilo específico para la nota de compra */
+        .purchase-instruction {
+            font-size: 0.9em;
+            color: var(--text-color);
+            padding: 5px 0;
+            max-width: 80%;
+            text-align: center;
+        }
 
         #language-select {
             margin-bottom: 1rem;
@@ -297,6 +306,8 @@
         <label id="language-label" for="language-select"></label>
         <select id="language-select"></select>
         
+        <p id="purchase-instruction" class="purchase-instruction"></p>
+        
         <button class="menu-button" id="premium-button"></button>
         <p id="premium-status"></p>
         
@@ -366,6 +377,8 @@
             deleteSuccess: 'Tu cuenta ha sido eliminada. Todos los datos locales han sido borrados.',
             reimbursementNote: 'NOTA: La eliminación de la cuenta no conlleva el reembolso del dinero pagado por la membresía Premium.',
             authBack: 'Volver al Inicio',
+            // --- Claves de Instrucción de Compra ---
+            purchaseInstruction: 'IMPORTANTE: Para activar el Premium, la compra debe hacerse con el MISMO correo electrónico que usas para iniciar sesión en este juego.',
             // --- Nuevas Claves de Borrado de Datos ---
             resetTitle: 'Restablecer Datos Locales',
             clearProgress: 'Borrar Progreso del Juego',
@@ -410,6 +423,8 @@
             deleteSuccess: 'Your account has been deleted. All local data has been erased.',
             reimbursementNote: 'NOTE: Account deletion does not automatically trigger a refund for the Premium membership.',
             authBack: 'Back to Home',
+            // --- Claves de Instrucción de Compra ---
+            purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',
             // --- Nuevas Claves de Borrado de Datos ---
             resetTitle: 'Reset Local Data',
             clearProgress: 'Clear Game Progress',
@@ -483,7 +498,8 @@
         adPopup: document.getElementById('ad-popup'),
         adMessage: document.getElementById('ad-message'),
         skipAdButton: document.getElementById('skip-ad-button'),
-        realAdContainer: document.getElementById('real-ad-container') // Nuevo elemento
+        realAdContainer: document.getElementById('real-ad-container'), // Nuevo elemento
+        purchaseInstruction: document.getElementById('purchase-instruction') // Nuevo elemento
     };
 
     let boardState = [];
@@ -648,6 +664,8 @@
         elements.deleteAccountButton.textContent = t.deleteAccount;
         elements.reimbursementNote.textContent = t.reimbursementNote;
         
+        elements.purchaseInstruction.textContent = t.purchaseInstruction; // Cargar la nota de compra
+        
         elements.resetTitle.textContent = t.resetTitle;
         elements.clearProgressButton.textContent = t.clearProgress;
         elements.resetAllButton.textContent = t.resetAll;
@@ -788,11 +806,11 @@
         // 🛑 Lógica para cargar el anuncio real
         elements.realAdContainer.innerHTML = `
             <ins class="adsbygoogle"
-                 style="display:block; width: 300px; height: 250px;" 
+                 style="display:block"
                  data-ad-client="ca-pub-6018346455368636"
                  data-ad-slot="1234567890" 
-                 data-ad-format="rectangle"
-                 data-full-width-responsive="false"></ins>
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
         `;
         // Ejecutar el script de AdSense para que cargue el anuncio
         (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -1043,7 +1061,7 @@
     function checkPaymentStatus() {
         const urlParams = new URLSearchParams(window.location.search);
         const paymentConfirmed = urlParams.get('premium');
-        const purchaseEmail = urlParams.get('user'); // Nuevo: Email del comprador de Gumroad
+        const purchaseEmail = urlParams.get('user'); // Email del comprador de Gumroad
         const t = translations[currentLang];
 
         if (paymentConfirmed === 'true') {
