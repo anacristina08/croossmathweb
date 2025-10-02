@@ -93,7 +93,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function setLanguage(lang) {
         currentLang = lang;
         const t = translations[lang] || translations.es;
-        // ... (resto de la función sin cambios)
+        elements.title.textContent = t.mainMenu;
+        elements.playButton.textContent = t.play;
+        elements.statsButton.textContent = t.viewStats;
+        elements.settingsButton.textContent = t.settings;
+        elements.levelSelectTitle.textContent = t.selectLevel;
+        elements.levelButtons.forEach(btn => btn.textContent = t[btn.dataset.difficulty]);
+        elements.checkButton.textContent = t.check;
+        elements.statsTitle.textContent = t.viewStats;
+        elements.premiumButton.textContent = t.removeAds;
+        elements.logoutButton.textContent = t.logout;
+        elements.accountManagementTitle.textContent = t.accountManagement;
+        elements.deleteAccountButton.textContent = t.deleteAccount;
+        elements.reimbursementNote.textContent = t.reimbursementNote;
+        elements.purchaseInstruction.textContent = t.purchaseInstruction;
+        elements.adMessage.textContent = t.adMessage;
+        elements.skipAdButton.textContent = t.skipAdButton;
         updateUI();
     }
 
@@ -104,33 +119,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateUI() {
         const t = translations[currentLang] || translations.es;
-        // ... (resto de la función sin cambios)
+        elements.authTitle.textContent = currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;
+        elements.authSubmitButton.textContent = currentAuthMode === 'login' ? t.loginButton : t.registerButton;
+        elements.switchAuthModeButton.textContent = currentAuthMode === 'login' ? t.loginSwitch : t.registerSwitch;
+        if (currentUserID) {
+            elements.welcomeMessage.textContent = t.welcome.replace('{user}', currentUserID.split('@')[0]);
+            elements.currentUserDisplay.textContent = t.currentUser.replace('{user}', currentUserID);
+        }
+        elements.premiumStatus.textContent = gameState.isPremium ? t.premiumPurchased : t.adSupported;
+        elements.premiumButton.style.display = gameState.isPremium ? 'none' : 'block';
+        elements.gamesCompleted.textContent = t.gamesCompleted.replace('{count}', gameState.stats.gamesCompleted);
+        const rate = gameState.stats.gamesCompleted > 0 ? ((gameState.stats.gamesCorrect / gameState.stats.gamesCompleted) * 100).toFixed(0) : '0';
+        elements.successRate.textContent = t.successRate.replace('{rate}', rate);
     }
-    
-    // --- LÓGICA DE ACTIVACIÓN PREMIUM (NUEVA VERSIÓN) ---
+
     function checkPaymentStatus() {
         const urlParams = new URLSearchParams(window.location.search);
         const paymentConfirmed = urlParams.get('premium');
         const t = translations[currentLang] || translations.es;
 
         if (paymentConfirmed === 'true') {
-            // Si hay un usuario logueado, activamos Premium para él.
-            if (currentUserID) {
+            if (currentUserID) { // Si el usuario YA está logueado
                 if (!gameState.isPremium) {
                     gameState.isPremium = true;
                     saveGameState();
                     alert(t.premiumPurchased);
                     updateUI();
                 }
-            } 
-            // Si NO hay nadie logueado, mostramos un mensaje en la pantalla de login.
-            else {
+                // Limpiamos la URL solo después de activar exitosamente
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else { // Si el usuario NO está logueado
+                // Mostramos el mensaje y DEJAMOS la URL intacta para leerla después del login
                 elements.authStatusMessage.textContent = t.loginToActivate;
-                switchScreen('auth');
+                if (!screens.auth.classList.contains('active')) {
+                   switchScreen('auth');
+                }
             }
-            
-            // Limpiamos la URL para no volver a activar el mensaje en cada recarga.
-            window.history.replaceState({}, document.title, window.location.pathname);
         }
     }
 
@@ -160,10 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { switchScreen('auth'); }
         
         setLanguage(elements.languageSelect.value);
-        checkPaymentStatus(); // Se llama después de cargar el estado inicial del usuario
+        checkPaymentStatus(); 
     }
     
-    // ... (El resto de las funciones como generatePuzzle, renderBoard, etc., se mantienen igual)
+    // El resto de funciones (generatePuzzle, renderBoard, etc.) se mantienen sin cambios
+    // ...
 
     elements.authForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -182,20 +207,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 switchScreen('mainMenu');
                 updateUI();
                 
-                // Después de iniciar sesión, volvemos a comprobar por si veníamos de un enlace de pago.
+                // CORRECCIÓN: Volvemos a llamar a la función aquí
+                // Si la URL todavía tiene "?premium=true", se activará ahora que ya hay un usuario
                 checkPaymentStatus();
 
             } else { elements.authStatusMessage.textContent = t.authFailed; }
         } else {
-            // ... (lógica de registro sin cambios)
+            if (getLocalAccountData(email)) {
+                elements.authStatusMessage.textContent = t.userExists;
+            } else {
+                const newGameState = { stats: { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0 }, isPremium: false, boardState: [], solution: [], difficulty: 'easy' };
+                const newUser = { password: password, gameState: newGameState };
+                localStorage.setItem(USER_DATA_PREFIX + email, JSON.stringify(newUser));
+                elements.authStatusMessage.textContent = t.registrationSuccess;
+                currentAuthMode = 'login';
+                updateUI();
+            }
         }
     });
 
-    // ... (Resto de los event listeners sin cambios)
-    elements.premiumButton.addEventListener('click', () => {
-        window.open(GUMROAD_PAYMENT_URL, '_blank');
-    });
-    // ...
+    // ... (El resto de los listeners para navegación y demás botones van aquí sin cambios) ...
+    elements.switchAuthModeButton.addEventListener('click', () => { currentAuthMode = currentAuthMode === 'login' ? 'register' : 'login'; updateUI(); });
+    elements.premiumButton.addEventListener('click', () => { window.open(GUMROAD_PAYMENT_URL, '_blank'); });
+    elements.playButton.addEventListener('click', () => { if (gameState.boardState.length > 0) { switchScreen('game'); } else { switchScreen('levelSelect'); } });
+    elements.statsButton.addEventListener('click', () => switchScreen('stats'));
+    elements.settingsButton.addEventListener('click', () => switchScreen('settings'));
+    elements.logoutButton.addEventListener('click', () => { saveGameState(); currentUserID = null; localStorage.removeItem('crossmath_last_user'); switchScreen('auth'); });
+    elements.backFromLevelsButton.addEventListener('click', () => switchScreen('mainMenu'));
+    elements.backFromStatsButton.addEventListener('click', () => switchScreen('mainMenu'));
+    elements.backFromSettingsButton.addEventListener('click', () => switchScreen('mainMenu'));
+    elements.backToMenuButton.addEventListener('click', () => switchScreen('levelSelect'));
+
 
     loadInitialState();
 });
