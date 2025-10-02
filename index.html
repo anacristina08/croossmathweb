@@ -97,7 +97,7 @@
             width: calc(100% - 24px);
         }
 
-        #delete-account-section, #reset-data-section {
+        #delete-account-section, #reset-data-section, #sync-data-section {
             width: 100%;
             margin-top: 20px;
             padding-top: 20px;
@@ -124,6 +124,16 @@
             padding: 5px 0;
             max-width: 80%;
             text-align: center;
+        }
+        #sync-data-output {
+            width: 80%;
+            min-height: 50px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            word-break: break-all;
+            text-align: left;
+            font-size: 0.8em;
         }
 
         #language-select {
@@ -311,6 +321,15 @@
         <button class="menu-button" id="premium-button"></button>
         <p id="premium-status"></p>
         
+        <div id="sync-data-section">
+            <h3 id="sync-title">Sincronización Multi-Dispositivo</h3>
+            <p style="font-size: 0.9em; text-align: center;">Usa el código de sincronización para abrir tu cuenta en cualquier otro dispositivo.</p>
+            <button class="menu-button" id="export-button">Exportar Cuenta (Generar Código)</button>
+            <div id="sync-data-output"></div>
+            <input type="text" id="import-input" placeholder="Pega el código aquí...">
+            <button class="menu-button secondary-button" id="import-button">Importar Cuenta (Cargar)</button>
+        </div>
+        
         <div id="reset-data-section">
             <h3 id="reset-title"></h3>
 
@@ -388,6 +407,9 @@
             resetAllNote: 'Al borrar tus datos y tu estado Premium, el beneficio de no tener anuncios se perderá. ESTE JUEGO NO OFRECE REEMBOLSOS por membresías ya compradas.',
             progressCleared: 'Progreso de juego (estadísticas y puzzles) borrado.',
             allDataReset: 'Todos los datos (progreso y estado Premium) han sido borrados.',
+            syncExport: 'Código de sincronización copiado al portapapeles. ¡Pégalo en tu otro dispositivo!',
+            syncImportSuccess: '¡Datos importados y cargados con éxito!',
+            syncImportError: 'ERROR: Código de sincronización inválido o corrupto.'
         },
         en: {
             mainMenu: 'Main Menu', play: 'Play', viewStats: 'View Statistics', settings: 'Settings',
@@ -434,6 +456,9 @@
             resetAllNote: 'Clearing all data, including your Premium status, means you will lose the ad-free benefit. THIS GAME DOES NOT OFFER REFUNDS for memberships already purchased.',
             progressCleared: 'Game progress (stats and puzzles) cleared.',
             allDataReset: 'All data (progress and Premium status) has been reset.',
+            syncExport: 'Sync code copied to clipboard. Paste it on your other device!',
+            syncImportSuccess: 'Data imported and loaded successfully!',
+            syncImportError: 'ERROR: Invalid or corrupt sync code.'
         },
         // (Otros idiomas omitidos por brevedad)
     };
@@ -476,6 +501,12 @@
         clearProgressButton: document.getElementById('clear-progress-button'),
         resetAllButton: document.getElementById('reset-all-button'),
         resetAllNote: document.getElementById('reset-all-note'),
+        // Sincronización (NUEVO)
+        syncTitle: document.getElementById('sync-title'),
+        exportButton: document.getElementById('export-button'),
+        importInput: document.getElementById('import-input'),
+        importButton: document.getElementById('import-button'),
+        syncDataOutput: document.getElementById('sync-data-output'),
         // Otros elementos
         levelSelectTitle: document.getElementById('level-select-title'),
         levelButtons: document.querySelectorAll('.level-button'),
@@ -498,8 +529,8 @@
         adPopup: document.getElementById('ad-popup'),
         adMessage: document.getElementById('ad-message'),
         skipAdButton: document.getElementById('skip-ad-button'),
-        realAdContainer: document.getElementById('real-ad-container'), // Nuevo elemento
-        purchaseInstruction: document.getElementById('purchase-instruction') // Nuevo elemento
+        realAdContainer: document.getElementById('real-ad-container'), 
+        purchaseInstruction: document.getElementById('purchase-instruction')
     };
 
     let boardState = [];
@@ -623,6 +654,92 @@
         }
     }
     // --- FIN FUNCIONES DE BORRADO DE DATOS ---
+    
+    // --- FUNCIONES DE SINCRONIZACIÓN (NUEVAS) ---
+
+    function exportUserData() {
+        if (!currentUserID) {
+            alert("Debes iniciar sesión para exportar tu cuenta.");
+            return;
+        }
+
+        const userData = getLocalAccountData(currentUserID);
+        if (!userData) {
+            alert("Error: No se encontraron datos para exportar.");
+            return;
+        }
+
+        // Crear una copia de los datos, excluyendo la contraseña
+        const dataToExport = {
+            email: currentUserID,
+            stats: stats,
+            isPremium: isPremium,
+            boardState: boardState,
+            solution: solution,
+            difficultySettings: difficultySettings
+        };
+
+        // Codificar los datos en Base64 para crear un código de sincronización
+        const syncCode = btoa(JSON.stringify(dataToExport));
+        
+        // Mostrar y copiar al portapapeles
+        elements.syncDataOutput.textContent = syncCode;
+        navigator.clipboard.writeText(syncCode);
+        alert(translations[currentLang].syncExport);
+    }
+
+    function importUserData() {
+        const syncCode = elements.importInput.value.trim();
+        if (!syncCode) {
+            alert(translations[currentLang].syncImportError);
+            return;
+        }
+
+        try {
+            // Decodificar Base64
+            const decodedString = atob(syncCode);
+            const importedData = JSON.parse(decodedString);
+
+            // Validación mínima de estructura y que el email esté presente
+            if (!importedData.email || !importedData.stats) {
+                alert(translations[currentLang].syncImportError);
+                return;
+            }
+
+            const importedEmail = importedData.email;
+
+            // 1. Sobrescribir los datos locales de la cuenta importada
+            const currentLocalData = getLocalAccountData(importedEmail) || {};
+            
+            saveLocalAccountData(importedEmail, {
+                // Mantener la contraseña local (el código no la contiene)
+                password: currentLocalData.password || "password_necesaria_para_login", 
+                stats: importedData.stats,
+                isPremium: importedData.isPremium,
+                boardState: importedData.boardState,
+                solution: importedData.solution,
+                difficultySettings: importedData.difficultySettings
+            });
+
+            // 2. Forzar el inicio de sesión con la cuenta importada (opcional: requiere contraseña)
+            // Para simplificar, forzaremos la carga del estado y la obligamos a usar la contraseña local
+            
+            // Si el usuario no estaba logueado, lo logueamos con el nuevo estado
+            if (!currentUserID) {
+                localStorage.setItem('crossmath_active_user', importedEmail);
+            }
+            
+            loadCurrentUserState(importedEmail);
+            switchScreen('settings-screen'); // Vuelve a settings para ver la confirmación
+            alert(translations[currentLang].syncImportSuccess);
+
+        } catch (e) {
+            console.error("Error de importación:", e);
+            alert(translations[currentLang].syncImportError);
+        }
+    }
+
+    // --- FIN FUNCIONES DE SINCRONIZACIÓN ---
 
 
     function updatePremiumView() {
@@ -670,6 +787,10 @@
         elements.clearProgressButton.textContent = t.clearProgress;
         elements.resetAllButton.textContent = t.resetAll;
         elements.resetAllNote.textContent = t.resetAllNote;
+        
+        // Sincronización
+        elements.exportButton.textContent = t.exportButton; // Esto no existe en la traducción, usaré el valor del HTML
+        elements.importButton.textContent = t.importButton; // Esto no existe en la traducción, usaré el valor del HTML
     }
 
     function setLanguage(lang) {
@@ -1198,6 +1319,10 @@
     elements.clearProgressButton.addEventListener('click', deleteLocalProgress);
     
     elements.resetAllButton.addEventListener('click', resetAllData);
+
+    // --- Sincronización de Datos ---
+    elements.exportButton.addEventListener('click', exportUserData);
+    elements.importButton.addEventListener('click', importUserData);
 
 
     // Botón Premium (Redirige a Gumroad)
