@@ -5,8 +5,345 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CroossMathWeb</title>
 
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636" crossorigin="anonymous"></script>
-  
+  <style>
+
+    body {
+
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+
+      margin: 0;
+
+      padding: 20px;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      min-height: 100vh;
+
+      box-sizing: border-box;
+
+    }
+
+    .container {
+
+      width: 90%;
+
+      max-width: 550px;
+
+      margin: auto;
+
+      padding: 30px;
+
+      background: rgba(255, 255, 255, 0.95);
+
+      border-radius: 15px;
+
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+
+      text-align: center;
+
+    }
+
+    h1, h2 {
+
+      color: #333;
+
+      margin-bottom: 20px;
+
+      font-weight: 700;
+
+    }
+
+    p {
+
+      color: #555;
+
+      font-size: 1.1em;
+
+    }
+
+    .screen { display: none; }
+
+    .screen.active { display: block; }
+
+    input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
+
+        width: 100%;
+
+        padding: 12px;
+
+        margin-bottom: 15px;
+
+        border-radius: 8px;
+
+        border: 1px solid #ccc;
+
+        box-sizing: border-box;
+
+        font-size: 16px;
+
+        background-color: #f9f9f9;
+
+        color: #333;
+
+    }
+
+    input:focus {
+
+        border-color: #4CAF50;
+
+        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+
+        outline: none;
+
+    }
+
+    .menu-button, .level-button, .ad-button {
+
+      display: block;
+
+      width: 100%;
+
+      padding: 15px;
+
+      margin: 10px 0;
+
+      font-size: 1.1em;
+
+      background-color: #4CAF50;
+
+      color: white;
+
+      border: none;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      transition: background-color 0.3s ease, transform 0.2s ease;
+
+      font-weight: bold;
+
+      text-transform: uppercase;
+
+    }
+
+    .menu-button:hover, .level-button:hover, .ad-button:hover {
+
+        background-color: #45a049;
+
+        transform: translateY(-2px);
+
+    }
+
+    .secondary-button { background-color: #f44336; }
+
+    .secondary-button:hover { background-color: #da190b; }
+
+    .ad-screen {
+
+      position: fixed;
+
+      top: 0; left: 0;
+
+      width: 100%; height: 100%;
+
+      background: rgba(0,0,0,0.9);
+
+      color: white;
+
+      display: none;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      z-index: 1000;
+
+      text-align: center;
+
+    }
+
+    #real-ad-container {
+
+      width: 320px;
+
+      height: 50px;
+
+      background: #333;
+
+      margin-bottom: 25px;
+
+      border: 2px solid #fff;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      color: #eee;
+
+      border-radius: 5px;
+
+    }
+
+    #auth-status-message, #feedback {
+
+      font-weight: bold;
+
+      margin: 15px 0;
+
+      font-size: 1.1em;
+
+      min-height: 1.2em;
+
+    }
+
+    .correct { color: #4CAF50; }
+
+    .incorrect { color: #f44336; }
+
+    #game-screen h2 { color: #333; }
+
+    #puzzle-grid {
+
+        display: grid;
+
+        grid-gap: 5px;
+
+        width: 100%;
+
+        max-width: 400px;
+
+        margin: 30px auto;
+
+        background-color: #3a475a;
+
+        border-radius: 8px;
+
+        padding: 10px;
+
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+
+    }
+
+    .puzzle-cell {
+
+        width: 100%;
+
+        height: 0;
+
+        padding-bottom: 100%; 
+
+        position: relative;
+
+        border-radius: 4px;
+
+    }
+
+    .puzzle-cell > * {
+
+        position: absolute;
+
+        top: 0; left: 0;
+
+        width: 100%; height: 100%;
+
+        display: flex;
+
+        justify-content: center;
+
+        align-items: center;
+
+        font-size: 1.6em;
+
+        font-weight: bold;
+
+        color: #333;
+
+        box-sizing: border-box;
+
+    }
+
+    .puzzle-cell.fixed-cell {
+
+        background-color: #e8e8e8;
+
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+
+    }
+
+    .puzzle-cell.input-cell {
+
+        background-color: #ffffff;
+
+        border: 2px solid #4CAF50;
+
+    }
+
+    .puzzle-cell.empty-cell {
+
+        background-color: transparent;
+
+        box-shadow: none;
+
+    }
+
+    .puzzle-cell input {
+
+        width: 100%;
+
+        height: 100%;
+
+        background-color: transparent;
+
+        border: none;
+
+        text-align: center;
+
+        padding: 0;
+
+        color: #333;
+
+        font-size: 1em;
+
+        font-weight: bold;
+
+        box-sizing: border-box;
+
+        border-radius: 4px;
+
+        -moz-appearance: textfield;
+
+    }
+
+    .puzzle-cell input:focus {
+
+        outline: none;
+
+        box-shadow: inset 0 0 5px rgba(76, 175, 80, 0.7);
+
+    }
+
+    .puzzle-cell input::-webkit-outer-spin-button,
+
+    .puzzle-cell input::-webkit-inner-spin-button {
+
+        -webkit-appearance: none;
+
+        margin: 0;
+
+    }
+
+  </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -113,58 +450,58 @@
         easy: [
           {
             grid: [
-              [null,   null, null, null, null],
-              [null,    1,   null, null, null],
-              [  2,   '+',  null, '=',    5],
-              [null,   '+',   null, null, null],
-              [null,   null,  null, null, null],
-              [  8,   '-',    3,  '=', null]
+              [8, '/', null, '=', 2],
+              ['+', '', '-', '', '*'],
+              [2, '+', 3, '=', null],
+              ['=', '', '=', '', '='],
+              [null, '', 1, '', 10]
             ],
             equations: [
-              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] }, // 2 + ? = 5
-              { cells: [[5,0], [5,1], [5,2], [5,3], [5,4]] }, // 8 - 3 = ?
-              { cells: [[1,1], [2,1], [3,1], [4,1], [5,1]] }  // 1 + ? = 8
+              { cells: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
+              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
+              { cells: [[0,0], [1,0], [2,0], [3,0], [4,0]] },
+              { cells: [[0,2], [1,2], [2,2], [3,2], [4,2]] },
+              { cells: [[0,4], [1,4], [2,4], [3,4], [4,4]] }
             ]
           }
         ],
         medium: [
           {
             grid: [
-              [null, null, null, null, null],
-              [null,   9,  '*', null, null],
-              [  8,  '-', null, '=',    5],
-              [null,  '=', null, null, null],
-              [null,   2,  '+', null, null],
-              [  4,  '*', null, '=',   16]
+              [null, '*', 3, '=', 21],
+              ['-', '', '+', '', '/'],
+              [4, '*', null, '=', 32],
+              ['=', '', '=', '', '='],
+              [3, '', 11, '', null]
             ],
             equations: [
-              { cells: [[1,1], [1,2], [1,3], [1,4], [1,5]] }, // 9 * ? = 27 (ajustado para que sea horizontal)
-              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] }, // 8 - ? = 5
-              { cells: [[5,0], [5,1], [5,2], [5,3], [5,4]] }, // 4 * ? = 16
-              { cells: [[1,1], [2,1], [3,1], [4,1], [5,1]] }  // 9 - 8 = ? (ajustado para que sea vertical)
+              { cells: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
+              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
+              { cells: [[0,0], [1,0], [2,0], [3,0], [4,0]] },
+              { cells: [[0,2], [1,2], [2,2], [3,2], [4,2]] },
+              { cells: [[0,4], [1,4], [2,4], [3,4], [4,4]] }
             ]
           }
         ],
         hard: [
           {
             grid: [
-              [null, null, null, null, null],
-              [null,   7,  '+', null, null],
-              [  9,  '/', null, '=',    3],
-              [null,  '-', null, null, null],
-              [null,   4,  '*', null, null],
-              [ 27,  '-', null, '=',   23]
+              [9, '-', null, '=', 2],
+              ['*', '', '+', '', '*'],
+              [null, '/', 3, '=', 3],
+              ['=', '', '=', '', '='],
+              [81, '', 12, '', null]
             ],
             equations: [
-              { cells: [[1,1], [1,2], [1,3], [1,4], [1,5]] }, // 7 + ? = ? (ajustado para ser horizontal)
-              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] }, // 9 / ? = 3
-              { cells: [[5,0], [5,1], [5,2], [5,3], [5,4]] }, // 27 - ? = 23
-              { cells: [[1,1], [2,1], [3,1], [4,1], [5,1]] }  // 7 / 9 = ? (ajustado para ser vertical)
+              { cells: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
+              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
+              { cells: [[0,0], [1,0], [2,0], [3,0], [4,0]] },
+              { cells: [[0,2], [1,2], [2,2], [3,2], [4,2]] },
+              { cells: [[0,4], [1,4], [2,4], [3,4], [4,4]] }
             ]
           }
         ]
       };
-
 
       function renderPuzzle(puzzle) {
         const grid = document.getElementById('puzzle-grid');
@@ -174,28 +511,23 @@
         grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
         grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-        // Flattern el grid para mapear fácilmente a las celdas
-        puzzle.grid.forEach((row, rowIndex) => {
-            row.forEach((cellValue, colIndex) => {
-                const cell = document.createElement('div');
-                cell.classList.add('puzzle-cell');
-                cell.dataset.row = rowIndex; // Para fácil referencia
-                cell.dataset.col = colIndex; // Para fácil referencia
+        puzzle.grid.flat().forEach(cellValue => {
+            const cell = document.createElement('div');
+            cell.classList.add('puzzle-cell');
 
-                if (cellValue === null) {
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.pattern = "[0-9-]*"; 
-                    cell.appendChild(input);
-                    cell.classList.add('input-cell'); // Añadir clase para estilo específico
-                } else if (cellValue !== '') {
-                    cell.textContent = cellValue;
-                    cell.classList.add('fixed-cell'); // Añadir clase para estilo específico
-                } else {
-                    cell.classList.add('empty-cell'); // Celdas vacías sin input ni contenido
-                }
-                grid.appendChild(cell);
-            });
+            if (cellValue === null) {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.pattern = "[0-9-]*";
+                cell.appendChild(input);
+                cell.classList.add('input-cell');
+            } else if (cellValue !== '') {
+                cell.textContent = cellValue;
+                cell.classList.add('fixed-cell');
+            } else {
+                cell.classList.add('empty-cell');
+            }
+            grid.appendChild(cell);
         });
       }
 
@@ -208,19 +540,15 @@
             const values = eq.cells.map(pos => {
                 const cell = gridCells[pos[0] * cols + pos[1]];
                 const input = cell.querySelector('input');
-                if (input) {
-                    return input.value;
-                }
-                return cell.textContent;
+                return input ? input.value : cell.textContent;
             });
             
             const num1 = parseFloat(values[0]);
             const operator = values[1];
             const num2 = parseFloat(values[2]);
-            const equalsSign = values[3]; // Debe ser '='
             const result = parseFloat(values[4]);
 
-            if (isNaN(num1) || isNaN(num2) || isNaN(result) || equalsSign !== '=' || values[0] === '' || values[2] === '' || values[4] === '') {
+            if (isNaN(num1) || isNaN(num2) || isNaN(result) || values.includes('')) {
                 allCorrect = false;
                 break;
             }
@@ -232,14 +560,11 @@
                 case '*': calculatedResult = num1 * num2; break;
                 case '/': calculatedResult = num1 / num2; break;
                 default:
-                  allCorrect = false; // Operador no reconocido
+                  allCorrect = false;
                   break;
             }
-            if (!allCorrect) break; // Si ya falló por el operador, salimos
-
-            // Comprobar si el resultado calculado coincide con el resultado esperado
-            // Usar un pequeño margen de error para divisiones con decimales si es necesario,
-            // pero para este tipo de crucigrama, esperamos números enteros precisos.
+            if (!allCorrect) break;
+            
             if (calculatedResult !== result) {
                 allCorrect = false;
                 break;
@@ -249,14 +574,11 @@
         const feedbackEl = document.getElementById('feedback');
         if (allCorrect) {
             score++;
-            // Aquí podrías guardar el progreso del usuario si lo deseas
             feedbackEl.textContent = "¡Crucigrama resuelto! ¡Excelente!";
             feedbackEl.className = 'correct';
-            setTimeout(() => {
-                startGame(currentDifficulty); // Carga un nuevo puzle de la misma dificultad
-            }, 2000);
+            setTimeout(() => startGame(currentDifficulty), 2000);
         } else {
-            feedbackEl.textContent = "Algunas operaciones son incorrectas o faltan números. ¡Sigue intentando!";
+            feedbackEl.textContent = "Algunas operaciones son incorrectas. ¡Sigue intentando!";
             feedbackEl.className = 'incorrect';
         }
       }
@@ -272,8 +594,6 @@
         showScreen('game-screen');
       }
 
-      // --- ASIGNACIÓN DE EVENTOS ---
-      
       document.getElementById('register-button').onclick = () => {
         const email = prompt("Correo:");
         const pass = prompt("Contraseña:");
@@ -315,26 +635,17 @@
       };
 
       document.querySelectorAll('.level-button').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const difficulty = e.target.dataset.difficulty;
-            startGame(difficulty);
-        });
+        button.addEventListener('click', (e) => startGame(e.target.dataset.difficulty));
       });
 
       document.getElementById('submit-answer').onclick = checkAnswer;
-      
       document.getElementById('back-to-level-select').onclick = () => showScreen('level-select-screen');
-      
       document.getElementById('skip-ad-button').onclick = () => { 
         document.getElementById('ad-popup').style.display = 'none'; 
       };
-      
       document.getElementById('settings-button').onclick = () => showScreen('settings-screen');
-      
       document.getElementById('back-to-menu').onclick = () => showScreen('main-menu');
-      
       document.getElementById('back-settings').onclick = () => showScreen('main-menu');
-      
       document.getElementById('buy-premium').onclick = () => {
         if (!currentUser) return alert("Debes iniciar sesión para comprar Premium.");
         window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
@@ -347,220 +658,10 @@
       };
 
       document.getElementById('export-button').onclick = exportProgress;
-      
       document.getElementById('import-button').onclick = importProgress;
     });
   </script>
-
-  <style>
-    /* -------------------------------------------------------------------------- */
-    /* Estilos Base                                */
-    /* -------------------------------------------------------------------------- */
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
-      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); /* Fondo degradado */
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-      color: #eee; /* Color de texto general claro */
-    }
-    .container {
-      width: 90%;
-      max-width: 550px; /* Un poco más ancho */
-      margin: auto;
-      padding: 30px; /* Más padding */
-      background: rgba(255, 255, 255, 0.95); /* Fondo blanco semitransparente */
-      border-radius: 15px; /* Bordes más redondeados */
-      box-shadow: 0 15px 30px rgba(0,0,0,0.3); /* Sombra más pronunciada */
-      text-align: center;
-    }
-    h1, h2 {
-      color: #333;
-      margin-bottom: 20px;
-      font-weight: 700;
-    }
-    p {
-      color: #555;
-      font-size: 1.1em;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /* Pantallas                                   */
-    /* -------------------------------------------------------------------------- */
-    .screen { display: none; }
-    .screen.active { display: block; }
-    
-    /* -------------------------------------------------------------------------- */
-    /* Inputs                                    */
-    /* -------------------------------------------------------------------------- */
-    input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
-        width: calc(100% - 20px); /* Ancho ajustado para padding */
-        padding: 12px;
-        margin-bottom: 15px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-        font-size: 16px;
-        background-color: #f9f9f9;
-        color: #333;
-    }
-    input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus {
-        border-color: #4CAF50;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-        outline: none;
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /* Botones                                    */
-    /* -------------------------------------------------------------------------- */
-    .menu-button, .level-button, .ad-button {
-      display: block;
-      width: 100%;
-      padding: 15px; /* Más padding */
-      margin: 10px 0;
-      font-size: 1.1em; /* Fuente más grande */
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 8px; /* Más redondeado */
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    .menu-button:hover, .level-button:hover, .ad-button:hover {
-        background-color: #45a049;
-        transform: translateY(-2px); /* Efecto ligero de elevación */
-    }
-    .secondary-button { background-color: #f44336; }
-    .secondary-button:hover { background-color: #da190b; }
-    
-    /* -------------------------------------------------------------------------- */
-    /* Ad-Screen                                 */
-    /* -------------------------------------------------------------------------- */
-    .ad-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.9); /* Más oscuro */
-      color: white;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      text-align: center;
-    }
-    .ad-screen h2 { color: #fff; margin-bottom: 15px; }
-    .ad-screen p { color: #ccc; margin-bottom: 30px; }
-    #real-ad-container {
-      width: 336px; /* Tamaño común de anuncio */
-      height: 280px; /* Tamaño común de anuncio */
-      background: #333;
-      margin-bottom: 25px;
-      border: 2px solid #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #eee;
-      font-size: 1.2em;
-      border-radius: 5px;
-    }
-    
-    /* -------------------------------------------------------------------------- */
-    /* Feedback y Mensajes                          */
-    /* -------------------------------------------------------------------------- */
-    #auth-status-message, #feedback {
-      font-weight: bold;
-      margin-bottom: 15px;
-      font-size: 1.1em;
-    }
-    #auth-status-message { color: #f44336; }
-    .correct { color: #4CAF50; }
-    .incorrect { color: #f44336; }
-
-    /* -------------------------------------------------------------------------- */
-    /* Estilos Crucigrama                            */
-    /* -------------------------------------------------------------------------- */
-    #game-screen h2 { color: #333; } /* El título del juego también en el color oscuro del container */
-
-    #puzzle-grid {
-        display: grid;
-        grid-gap: 3px; /* Espacio más pequeño entre celdas */
-        width: 100%;
-        max-width: 400px; /* Un poco más grande */
-        margin: 30px auto;
-        border: 1px solid #777; /* Borde sutil al rededor del grid */
-        background-color: #3a475a; /* Fondo oscuro para el grid */
-        border-radius: 8px; /* Bordes redondeados */
-        padding: 5px;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5); /* Sombra interna */
-    }
-
-    .puzzle-cell {
-        width: 100%;
-        height: 0;
-        padding-bottom: 100%; 
-        position: relative;
-        background-color: #e0e0e0; /* Fondo por defecto de celda */
-        border-radius: 4px;
-        display: flex; /* Para centrar el contenido */
-        justify-content: center;
-        align-items: center;
-        font-size: 1.6em; /* Tamaño de fuente para números y operadores */
-        font-weight: bold;
-        color: #333;
-        box-sizing: border-box;
-    }
-
-    .puzzle-cell.fixed-cell {
-        background-color: #f8f8f8; /* Fondo más claro para celdas fijas */
-        border: 1px solid #bbb;
-        color: #333; /* Texto oscuro para celdas fijas */
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .puzzle-cell.input-cell {
-        background-color: #ffffff; /* Fondo blanco para inputs */
-        border: 1px solid #4CAF50; /* Borde verde para inputs */
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3); /* Sombra suave para inputs */
-    }
-
-    .puzzle-cell.empty-cell {
-        background-color: #3a475a; /* Fondo igual al grid para celdas realmente vacías */
-        border: none;
-        box-shadow: none;
-    }
-
-    .puzzle-cell input {
-        width: 100%;
-        height: 100%;
-        background-color: transparent; /* Fondo transparente para ver el fondo de la celda */
-        border: none;
-        text-align: center;
-        padding: 0;
-        color: #333; /* Color de texto dentro del input */
-        font-size: 1em; /* El font-size de .puzzle-cell lo controlará */
-        font-weight: bold;
-        box-sizing: border-box;
-        border-radius: 4px; /* Heredar redondeo */
-        -moz-appearance: textfield; /* Ocultar flechas en Firefox */
-    }
-    .puzzle-cell input:focus {
-        outline: none;
-        box-shadow: inset 0 0 5px rgba(76, 175, 80, 0.7); /* Sombra al enfocar */
-    }
-    .puzzle-cell input::-webkit-outer-spin-button,
-    .puzzle-cell input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-  </style>
-</head>
+  </head>
 <body>
 
 <div class="container">
@@ -605,9 +706,9 @@
   <div id="game-screen" class="screen">
     <h2 id="game-title">Juego</h2>
     <div id="puzzle-grid"></div>
-    <button id="submit-answer" class="menu-button">Revisar Solución</button>
+    <button class="menu-button" id="submit-answer">Revisar Solución</button>
     <p id="feedback"></p>
-    <button id="back-to-level-select" class="menu-button secondary-button">Cambiar Nivel</button>
+    <button class="menu-button secondary-button" id="back-to-level-select">Cambiar Nivel</button>
   </div>
 </div>
 
