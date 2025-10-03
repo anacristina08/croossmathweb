@@ -5,35 +5,195 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CroossMathWeb</title>
 
-  <!-- AdSense: monetización real -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636" crossorigin="anonymous"></script>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+  <script type="module">
+    // CORRECCIÓN: Importar funciones necesarias desde los SDKs de Firebase v9+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
+      authDomain: "crossmath-sync-db.firebaseapp.com",
+      projectId: "crossmath-sync-db",
+      storageBucket: "crossmath-sync-db.firebasestorage.app",
+      messagingSenderId: "170459630175",
+      appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",
+      measurementId: "G-BBJKKN96SV"
+    };
+
+    // CORRECCIÓN: Inicializar Firebase con la sintaxis v9+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- El resto de tu lógica de la aplicación ---
+    
+    // MEJORA: Envolver el código en DOMContentLoaded para asegurar que el HTML esté cargado
+    document.addEventListener('DOMContentLoaded', () => {
+      let isPremium = false;
+      let currentUser = null;
+
+      // Crear cuenta de demostración si no existe
+      if (!localStorage.getItem("premium_demo@crossmath.com")) {
+        localStorage.setItem("premium_demo@crossmath.com", JSON.stringify({
+          password: "demo123",
+          isPremium: true
+        }));
+      }
+
+      function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+      }
+      
+      // ADVERTENCIA DE SEGURIDAD: Nunca almacenes contraseñas en texto plano en localStorage en una aplicación real.
+      // Esto es solo para que tu código de demostración funcione. Usa Firebase Authentication para un sistema seguro.
+      function authenticate(email, password) {
+        const user = JSON.parse(localStorage.getItem(email));
+        if (user && user.password === password) {
+          currentUser = email;
+          isPremium = user.isPremium;
+          return true;
+        }
+        return false;
+      }
+      
+      // CORRECCIÓN: Función updatePremiumStatus que estaba incompleta
+      function updatePremiumStatus() {
+        const premiumStatusEl = document.getElementById('premium-status');
+        if (isPremium) {
+          premiumStatusEl.textContent = 'Estado Premium: Premium ✨';
+        } else {
+          premiumStatusEl.textContent = 'Estado Premium: No Premium';
+        }
+      }
+
+      // CORRECCIÓN: Función showAd que no estaba definida
+      function showAd() {
+        const adPopup = document.getElementById('ad-popup');
+        adPopup.style.display = 'flex';
+        // Aquí iría el código para solicitar y mostrar un anuncio de AdSense
+        // (adsbygoogle = window.adsbygoogle || []).push({});
+        console.log("Mostrando anuncio...");
+      }
+
+      // --- Asignación de Eventos (Event Listeners) ---
+
+      document.getElementById('register-button').onclick = () => {
+        const email = prompt("Correo:");
+        const pass = prompt("Contraseña:");
+        if (email && pass) {
+          if (localStorage.getItem(email)) {
+             alert("Ese correo ya está registrado.");
+             return;
+          }
+          localStorage.setItem(email, JSON.stringify({ password: pass, isPremium: false }));
+          alert("Cuenta creada. Ahora puedes iniciar sesión.");
+        }
+      };
+
+      document.getElementById('auth-form').onsubmit = e => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-password').value;
+        if (authenticate(email, pass)) {
+          document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
+          updatePremiumStatus();
+          showScreen('main-menu');
+        } else {
+          document.getElementById('auth-status-message').textContent = "Credenciales incorrectas. Intenta de nuevo.";
+        }
+      };
+
+      document.getElementById('logout-button').onclick = () => {
+        currentUser = null;
+        isPremium = false;
+        // Limpiar campos del formulario al cerrar sesión
+        document.getElementById('auth-email').value = '';
+        document.getElementById('auth-password').value = '';
+        document.getElementById('auth-status-message').textContent = '';
+        showScreen('auth-screen');
+      };
+
+      document.getElementById('play-button').onclick = () => {
+        // CORRECCIÓN: El anuncio solo se muestra si NO eres premium
+        if (!isPremium) {
+          showAd();
+        }
+        showScreen('level-select-screen');
+      };
+
+      document.getElementById('skip-ad-button').onclick = () => {
+        document.getElementById('ad-popup').style.display = 'none';
+      };
+      
+      document.getElementById('settings-button').onclick = () => showScreen('settings-screen');
+      document.getElementById('back-to-menu').onclick = () => showScreen('main-menu');
+      document.getElementById('back-settings').onclick = () => showScreen('main-menu');
+
+      document.getElementById('buy-premium').onclick = () => {
+        if (!currentUser) return alert("Debes iniciar sesión para comprar Premium.");
+        
+        // Simular la compra
+        window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
+        
+        const userData = JSON.parse(localStorage.getItem(currentUser));
+        userData.isPremium = true;
+        localStorage.setItem(currentUser, JSON.stringify(userData));
+        isPremium = true;
+        
+        updatePremiumStatus();
+        alert("¡Felicidades! Tu cuenta ahora es Premium.");
+      };
+
+      // CORRECCIÓN: Añadir funcionalidad a botones que no hacían nada
+      document.getElementById('export-button').onclick = () => {
+        alert("Función 'Exportar Progreso' no implementada todavía.");
+      };
+
+      document.getElementById('import-button').onclick = () => {
+        alert("Función 'Importar Progreso' no implementada todavía.");
+      };
+
+    }); // Fin de DOMContentLoaded
+  </script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f0f0f0;
       margin: 0;
-      padding: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
     .container {
       width: 90%;
-      max-width: 600px;
+      max-width: 500px;
       margin: auto;
       padding: 20px;
       background: white;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
     .screen { display: none; }
     .screen.active { display: block; }
+    input[type="email"], input[type="password"], input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
     .menu-button, .level-button, .ad-button {
       display: block;
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin: 10px 0;
       font-size: 16px;
       background-color: #4CAF50;
@@ -41,45 +201,59 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .menu-button:hover, .level-button:hover, .ad-button:hover {
+        background-color: #45a049;
     }
     .secondary-button { background-color: #f44336; }
+    .secondary-button:hover { background-color: #da190b; }
     .ad-screen {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.85);
       color: white;
-      display: flex;
+      display: none; /* Se cambia a 'flex' con JS */
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      text-align: center;
     }
     #real-ad-container {
       width: 320px;
       height: 50px;
       background: #ddd;
       margin-bottom: 20px;
+      border: 1px solid #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #333;
+    }
+    #auth-status-message {
+      color: red;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
+
 <div class="container">
   <h1>CroossMathWeb</h1>
 
-  <!-- Pantalla de autenticación -->
   <div id="auth-screen" class="screen active">
-    <h2>Autenticación</h2>
+    <h2>Iniciar Sesión</h2>
     <div id="auth-status-message"></div>
     <form id="auth-form">
       <input type="email" id="auth-email" placeholder="Correo electrónico" required />
       <input type="password" id="auth-password" placeholder="Contraseña" required />
       <button class="menu-button" type="submit">Iniciar Sesión</button>
     </form>
-    <button class="menu-button secondary-button" id="register-button">Registrarse</button>
+    <button class="menu-button secondary-button" id="register-button">Crear Cuenta</button>
   </div>
 
-  <!-- Menú principal -->
   <div id="main-menu" class="screen">
     <p id="welcome-message"></p>
     <button class="menu-button" id="play-button">Jugar</button>
@@ -87,7 +261,6 @@
     <button class="menu-button secondary-button" id="logout-button">Cerrar Sesión</button>
   </div>
 
-  <!-- Selección de nivel -->
   <div id="level-select-screen" class="screen">
     <h2>Selecciona un Nivel</h2>
     <button class="level-button" data-difficulty="easy">Fácil</button>
@@ -96,108 +269,23 @@
     <button class="menu-button secondary-button" id="back-to-menu">Volver</button>
   </div>
 
-  <!-- Ajustes -->
   <div id="settings-screen" class="screen">
     <h2>Ajustes</h2>
     <p id="premium-status">Estado Premium: No Premium</p>
     <button class="menu-button" id="buy-premium">Comprar Premium</button>
     <button class="menu-button" id="export-button">Exportar Progreso</button>
-    <button class="menu-button secondary-button" id="import-button">Importar Progreso</button>
+    <button class="menu-button" id="import-button">Importar Progreso</button>
     <input type="text" id="sync-pin" placeholder="PIN de 6 dígitos" maxlength="6" />
     <button class="menu-button secondary-button" id="back-settings">Volver</button>
   </div>
 </div>
 
-<!-- Pantalla de anuncio -->
-<div id="ad-popup" class="ad-screen" style="display:none;">
-  <p>¡Mira este anuncio para continuar!</p>
-  <div id="real-ad-container"></div>
-  <button class="ad-button" id="skip-ad-button">Saltar</button>
+<div id="ad-popup" class="ad-screen">
+  <h2>Anuncio</h2>
+  <p>¡Gracias por tu apoyo!</p>
+  <div id="real-ad-container">(Espacio para el anuncio)</div>
+  <button class="ad-button" id="skip-ad-button">Cerrar</button>
 </div>
 
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
-    authDomain: "crossmath-sync-db.firebaseapp.com",
-    projectId: "crossmath-sync-db",
-    storageBucket: "crossmath-sync-db.firebasestorage.app",
-    messagingSenderId: "170459630175",
-    appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",
-    measurementId: "G-BBJKKN96SV"
-  };
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  let isPremium = false;
-  let currentUser = null;
-
-  if (!localStorage.getItem("premium_demo@crossmath.com")) {
-    localStorage.setItem("premium_demo@crossmath.com", JSON.stringify({
-      password: "demo123",
-      isPremium: true
-    }));
-  }
-
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-  }
-
-  function authenticate(email, password) {
-    const user = JSON.parse(localStorage.getItem(email));
-    if (user && user.password === password) {
-      currentUser = email;
-      isPremium = user.isPremium;
-      return true;
-    }
-    return false;
-  }
-
-  document.getElementById('register-button').onclick = () => {
-    const email = prompt("Correo:");
-    const pass = prompt("Contraseña:");
-    if (email && pass) {
-      localStorage.setItem(email, JSON.stringify({ password: pass, isPremium: false }));
-      alert("Cuenta creada. Inicia sesión.");
-    }
-  };
-
-  document.getElementById('auth-form').onsubmit = e => {
-    e.preventDefault();
-    const email = document.getElementById('auth-email').value;
-    const pass = document.getElementById('auth-password').value;
-    if (authenticate(email, pass)) {
-      document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
-      updatePremiumStatus();
-      showScreen('main-menu');
-    } else {
-      document.getElementById('auth-status-message').textContent = "Credenciales incorrectas.";
-    }
-  };
-
-  document.getElementById('logout-button').onclick = () => {
-    currentUser = null;
-    isPremium = false;
-    showScreen('auth-screen');
-  };
-
-  document.getElementById('play-button').onclick = () => {
-    if (!isPremium) showAd();
-    showScreen('level-select-screen');
-  };
-  document.getElementById('settings-button').onclick = () => showScreen('settings-screen');
-  document.getElementById('back-to-menu').onclick = () => showScreen('main-menu');
-  document.getElementById('back-settings').onclick = () => showScreen('main-menu');
-
-  document.getElementById('buy-premium').onclick = () => {
-    if (!currentUser) return alert("Inicia sesión primero.");
-    window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
-    const userData = JSON.parse(localStorage.getItem(currentUser));
-    userData.isPremium = true;
-    localStorage.setItem(currentUser, JSON.stringify(userData));
-    isPremium = true;
-    updatePremiumStatus();
-    alert("Premium activado.");
-  };
-
-  function updatePremiumStatus
+</body>
+</html>
