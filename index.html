@@ -6,9 +6,9 @@
   <title>CroossMathWeb</title>
 
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636" crossorigin="anonymous"></script>
-
+  
   <script type="module">
-    // CORRECCIÓN: Importar funciones necesarias desde los SDKs de Firebase v9+
+    // Importar funciones necesarias desde los SDKs de Firebase v9+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
@@ -23,13 +23,10 @@
       measurementId: "G-BBJKKN96SV"
     };
 
-    // CORRECCIÓN: Inicializar Firebase con la sintaxis v9+
+    // Inicializar Firebase con la sintaxis v9+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // --- El resto de tu lógica de la aplicación ---
     
-    // MEJORA: Envolver el código en DOMContentLoaded para asegurar que el HTML esté cargado
     document.addEventListener('DOMContentLoaded', () => {
       let isPremium = false;
       let currentUser = null;
@@ -47,8 +44,6 @@
         document.getElementById(id).classList.add('active');
       }
       
-      // ADVERTENCIA DE SEGURIDAD: Nunca almacenes contraseñas en texto plano en localStorage en una aplicación real.
-      // Esto es solo para que tu código de demostración funcione. Usa Firebase Authentication para un sistema seguro.
       function authenticate(email, password) {
         const user = JSON.parse(localStorage.getItem(email));
         if (user && user.password === password) {
@@ -59,7 +54,6 @@
         return false;
       }
       
-      // CORRECCIÓN: Función updatePremiumStatus que estaba incompleta
       function updatePremiumStatus() {
         const premiumStatusEl = document.getElementById('premium-status');
         if (isPremium) {
@@ -69,13 +63,73 @@
         }
       }
 
-      // CORRECCIÓN: Función showAd que no estaba definida
       function showAd() {
         const adPopup = document.getElementById('ad-popup');
         adPopup.style.display = 'flex';
-        // Aquí iría el código para solicitar y mostrar un anuncio de AdSense
-        // (adsbygoogle = window.adsbygoogle || []).push({});
         console.log("Mostrando anuncio...");
+      }
+
+      // --> NUEVO: Función para exportar el progreso a un archivo JSON
+      function exportProgress() {
+        if (!currentUser) {
+          alert("Debes iniciar sesión para exportar tu progreso.");
+          return;
+        }
+
+        const userData = localStorage.getItem(currentUser);
+        if (!userData) {
+          alert("No se encontraron datos para exportar.");
+          return;
+        }
+        
+        // Creamos un objeto que contiene el email y los datos para una importación más segura
+        const exportData = {
+            email: currentUser,
+            data: JSON.parse(userData)
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2); // El 'null, 2' formatea el JSON para que sea legible
+        const dataBlob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(dataBlob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'crossmath_progress.json';
+        a.click();
+        URL.revokeObjectURL(url); // Liberar memoria
+        alert("Progreso exportado en 'crossmath_progress.json'. Guarda bien este archivo.");
+      }
+
+      // --> NUEVO: Función para importar el progreso desde un archivo JSON
+      function importProgress() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,application/json';
+
+        input.onchange = e => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = event => {
+            try {
+              const importedData = JSON.parse(event.target.result);
+
+              // Verificación simple para asegurar que el archivo tiene la estructura correcta
+              if (importedData && importedData.email && importedData.data) {
+                localStorage.setItem(importedData.email, JSON.stringify(importedData.data));
+                alert(`¡Éxito! Progreso para '${importedData.email}' importado correctamente.\n\nPor favor, inicia sesión para ver los cambios.`);
+              } else {
+                alert("Error: El archivo de progreso no tiene el formato correcto.");
+              }
+            } catch (error) {
+              alert("Error al leer el archivo. Asegúrate de que sea un archivo de progreso válido.");
+            }
+          };
+          reader.readAsText(file);
+        };
+
+        input.click();
       }
 
       // --- Asignación de Eventos (Event Listeners) ---
@@ -109,7 +163,6 @@
       document.getElementById('logout-button').onclick = () => {
         currentUser = null;
         isPremium = false;
-        // Limpiar campos del formulario al cerrar sesión
         document.getElementById('auth-email').value = '';
         document.getElementById('auth-password').value = '';
         document.getElementById('auth-status-message').textContent = '';
@@ -117,7 +170,6 @@
       };
 
       document.getElementById('play-button').onclick = () => {
-        // CORRECCIÓN: El anuncio solo se muestra si NO eres premium
         if (!isPremium) {
           showAd();
         }
@@ -134,29 +186,20 @@
 
       document.getElementById('buy-premium').onclick = () => {
         if (!currentUser) return alert("Debes iniciar sesión para comprar Premium.");
-        
-        // Simular la compra
         window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
-        
         const userData = JSON.parse(localStorage.getItem(currentUser));
         userData.isPremium = true;
         localStorage.setItem(currentUser, JSON.stringify(userData));
         isPremium = true;
-        
         updatePremiumStatus();
         alert("¡Felicidades! Tu cuenta ahora es Premium.");
       };
 
-      // CORRECCIÓN: Añadir funcionalidad a botones que no hacían nada
-      document.getElementById('export-button').onclick = () => {
-        alert("Función 'Exportar Progreso' no implementada todavía.");
-      };
+      // --> MODIFICADO: Se conectan los botones a las nuevas funciones
+      document.getElementById('export-button').onclick = exportProgress;
+      document.getElementById('import-button').onclick = importProgress;
 
-      document.getElementById('import-button').onclick = () => {
-        alert("Función 'Importar Progreso' no implementada todavía.");
-      };
-
-    }); // Fin de DOMContentLoaded
+    });
   </script>
 
   <style>
@@ -214,7 +257,7 @@
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.85);
       color: white;
-      display: none; /* Se cambia a 'flex' con JS */
+      display: none;
       flex-direction: column;
       justify-content: center;
       align-items: center;
