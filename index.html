@@ -6,14 +6,13 @@
   <title>CroossMathWeb</title>
 
   <!-- AdSense: monetización real -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-TU_ID_DE_CLIENTE" crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636" crossorigin="anonymous"></script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 
   <style>
-    /* Estilos base para pantallas, botones y contenedores */
     body {
       font-family: Arial, sans-serif;
       background: #f0f0f0;
@@ -64,3 +63,135 @@
     }
   </style>
 </head>
+<body>
+<div class="container">
+  <h1>CroossMathWeb</h1>
+
+  <!-- Pantalla de autenticación -->
+  <div id="auth-screen" class="screen active">
+    <h2>Autenticación</h2>
+    <div id="auth-status-message"></div>
+    <form id="auth-form">
+      <input type="email" id="auth-email" placeholder="Correo electrónico" required />
+      <input type="password" id="auth-password" placeholder="Contraseña" required />
+      <button class="menu-button" type="submit">Iniciar Sesión</button>
+    </form>
+    <button class="menu-button secondary-button" id="register-button">Registrarse</button>
+  </div>
+
+  <!-- Menú principal -->
+  <div id="main-menu" class="screen">
+    <p id="welcome-message"></p>
+    <button class="menu-button" id="play-button">Jugar</button>
+    <button class="menu-button" id="settings-button">Ajustes</button>
+    <button class="menu-button secondary-button" id="logout-button">Cerrar Sesión</button>
+  </div>
+
+  <!-- Selección de nivel -->
+  <div id="level-select-screen" class="screen">
+    <h2>Selecciona un Nivel</h2>
+    <button class="level-button" data-difficulty="easy">Fácil</button>
+    <button class="level-button" data-difficulty="medium">Medio</button>
+    <button class="level-button" data-difficulty="hard">Difícil</button>
+    <button class="menu-button secondary-button" id="back-to-menu">Volver</button>
+  </div>
+
+  <!-- Ajustes -->
+  <div id="settings-screen" class="screen">
+    <h2>Ajustes</h2>
+    <p id="premium-status">Estado Premium: No Premium</p>
+    <button class="menu-button" id="buy-premium">Comprar Premium</button>
+    <button class="menu-button" id="export-button">Exportar Progreso</button>
+    <button class="menu-button secondary-button" id="import-button">Importar Progreso</button>
+    <input type="text" id="sync-pin" placeholder="PIN de 6 dígitos" maxlength="6" />
+    <button class="menu-button secondary-button" id="back-settings">Volver</button>
+  </div>
+</div>
+
+<!-- Pantalla de anuncio -->
+<div id="ad-popup" class="ad-screen" style="display:none;">
+  <p>¡Mira este anuncio para continuar!</p>
+  <div id="real-ad-container"></div>
+  <button class="ad-button" id="skip-ad-button">Saltar</button>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
+    authDomain: "crossmath-sync-db.firebaseapp.com",
+    projectId: "crossmath-sync-db",
+    storageBucket: "crossmath-sync-db.firebasestorage.app",
+    messagingSenderId: "170459630175",
+    appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",
+    measurementId: "G-BBJKKN96SV"
+  };
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let isPremium = false;
+  let currentUser = null;
+
+  if (!localStorage.getItem("premium_demo@crossmath.com")) {
+    localStorage.setItem("premium_demo@crossmath.com", JSON.stringify({
+      password: "demo123",
+      isPremium: true
+    }));
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function authenticate(email, password) {
+    const user = JSON.parse(localStorage.getItem(email));
+    if (user && user.password === password) {
+      currentUser = email;
+      isPremium = user.isPremium;
+      return true;
+    }
+    return false;
+  }
+
+  document.getElementById('register-button').onclick = () => {
+    const email = prompt("Correo:");
+    const pass = prompt("Contraseña:");
+    if (email && pass) {
+      localStorage.setItem(email, JSON.stringify({ password: pass, isPremium: false }));
+      alert("Cuenta creada. Inicia sesión.");
+    }
+  };
+
+  document.getElementById('auth-form').onsubmit = e => {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    const pass = document.getElementById('auth-password').value;
+    if (authenticate(email, pass)) {
+      document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
+      updatePremiumStatus();
+      showScreen('main-menu');
+    } else {
+      document.getElementById('auth-status-message').textContent = "Credenciales incorrectas.";
+    }
+  };
+
+  document.getElementById('logout-button').onclick = () => {
+    currentUser = null;
+    isPremium = false;
+    showScreen('auth-screen');
+  };
+
+  document.getElementById('play-button').onclick = () => {
+    if (!isPremium) showAd();
+    showScreen('level-select-screen');
+  };
+  document.getElementById('settings-button').onclick = () => showScreen('settings-screen');
+  document.getElementById('back-to-menu').onclick = () => showScreen('main-menu');
+  document.getElementById('back-settings').onclick = () => showScreen('main-menu');
+
+  document.getElementById('buy-premium').onclick = () => {
+    if (!currentUser) return alert("Inicia sesión primero.");
+    window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
+    const userData = JSON.parse(localStorage.getItem(currentUser));
+    userData.isPremium = true;
+    localStorage.setItem(currentUser, JSON.stringify
