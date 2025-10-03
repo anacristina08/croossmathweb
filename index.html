@@ -194,4 +194,10 @@
     window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
     const userData = JSON.parse(localStorage.getItem(currentUser));
     userData.isPremium = true;
-    localStorage.setItem(currentUser, JSON.stringify
+    localStorage.setItem(currentUser, JSON.stringify(userData));
+    isPremium = true;
+    updatePremiumStatus();
+    alert("Premium activado.");
+  };
+
+  function updatePremiumStatus
