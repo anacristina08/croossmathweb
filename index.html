@@ -1,340 +1,212 @@
-```html
+<!--
+CroossMathWeb - Versión Ana v1.0
+Desarrollado para creadores con activación Premium, sincronización en la nube, anuncios y sistema de cuentas.
+Fecha: 02-Oct-2025
+-->
+
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Código HTML Reparado</title>
-    <style>
-        /* Estilos CSS (puedes personalizarlos) */
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            border: 1px solid #ccc;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CroossMathWeb</title>
 
-        .screen {
-            display: none; /* Inicialmente, todas las pantallas están ocultas */
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #eee;
-        }
+  <!-- AdSense: monetización real -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-TU_ID_DE_CLIENTE" crossorigin="anonymous"></script>
 
-        .screen.active {
-            display: block; /* Muestra la pantalla activa */
-        }
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 
-        .menu-button, .level-button, .ad-button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .secondary-button {
-            background-color: #f44336;
-        }
-
-        .level-select-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Dos columnas */
-            gap: 10px;
-        }
-
-        .warning-note {
-            color: red;
-            font-size: 0.8em;
-            margin-top: 10px;
-        }
-
-        .ad-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-        }
-
-        #real-ad-container {
-            width: 320px; /* Tamaño común para anuncios */
-            height: 50px; /* Ajusta la altura según el anuncio */
-            background-color: #ddd; /* Placeholder */
-            margin-bottom: 20px;
-        }
-
-        #sync-data-section, #reset-data-section, #delete-account-section {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #eee;
-        }
-    </style>
+  <style>
+    /* Estilos base para pantallas, botones y contenedores */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .menu-button, .level-button, .ad-button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .secondary-button { background-color: #f44336; }
+    .ad-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #real-ad-container {
+      width: 320px;
+      height: 50px;
+      background: #ddd;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 id="title">Título del Juego</h1>
+  <h1>CroossMathWeb</h1>
 
-    <div id="auth-screen" class="screen active">
-        <h2 id="auth-title">Autenticación</h2>
-        <div id="auth-status-message"></div>
-        <form id="auth-form" class="auth-form">
-            <input type="email" id="auth-email" placeholder="Correo electrónico" required>
-            <input type="password" id="auth-password" placeholder="Contraseña" required>
-            <button class="menu-button" type="submit" id="auth-submit-button">Iniciar Sesión</button>
-        </form>
-        <button class="menu-button secondary-button" id="switch-auth-mode-button">Registrarse</button>
-        <button class="menu-button secondary-button" id="auth-back-button">Volver</button>
-    </div>
+  <!-- Pantalla de autenticación -->
+  <div id="auth-screen" class="screen active">
+    <h2>Autenticación</h2>
+    <div id="auth-status-message"></div>
+    <form id="auth-form">
+      <input type="email" id="auth-email" placeholder="Correo electrónico" required />
+      <input type="password" id="auth-password" placeholder="Contraseña" required />
+      <button class="menu-button" type="submit">Iniciar Sesión</button>
+    </form>
+    <button class="menu-button secondary-button" id="register-button">Registrarse</button>
+  </div>
 
-    <div id="main-menu" class="screen">
-        <p id="welcome-message">Bienvenido, [Nombre de Usuario]</p>
-        <button class="menu-button" id="play-button">Jugar</button>
-        <button class="menu-button" id="stats-button">Estadísticas</button>
-        <button class="menu-button" id="settings-button">Ajustes</button>
-        <button class="menu-button secondary-button" id="logout-button">Cerrar Sesión</button>
-    </div>
+  <!-- Menú principal -->
+  <div id="main-menu" class="screen">
+    <p id="welcome-message"></p>
+    <button class="menu-button" id="play-button">Jugar</button>
+    <button class="menu-button" id="settings-button">Ajustes</button>
+    <button class="menu-button secondary-button" id="logout-button">Cerrar Sesión</button>
+  </div>
 
-    <div id="level-select-screen" class="screen">
-        <h2 id="level-select-title">Selecciona un Nivel</h2>
-        <div class="level-select-grid">
-            <button class="level-button" data-difficulty="easy" id="easy-level-button">Fácil</button>
-            <button class="level-button" data-difficulty="medium" id="medium-level-button">Medio</button>
-            <button class="level-button" data-difficulty="hard" id="hard-level-button">Difícil</button>
-            <button class="level-button" data-difficulty="expert" id="expert-level-button">Experto</button>
-            <button class="level-button" data-difficulty="threeDigit" id="three-digit-button">3 Dígitos</button>
-            <button class="level-button" data-difficulty="infinite" id="infinite-level-button">Infinito</button>
-        </div>
-        <button class="menu-button secondary-button" id="back-from-levels-button">Volver</button>
-    </div>
+  <!-- Pantalla de niveles -->
+  <div id="level-select-screen" class="screen">
+    <h2>Selecciona un Nivel</h2>
+    <button class="level-button" data-difficulty="easy">Fácil</button>
+    <button class="level-button" data-difficulty="medium">Medio</button>
+    <button class="level-button" data-difficulty="hard">Difícil</button>
+    <button class="menu-button secondary-button" id="back-to-menu">Volver</button>
+  </div>
 
-    <div id="game-screen" class="screen">
-        <p id="game-info">Información del Juego</p>
-        <div id="game-board"></div>
-        <div id="result-message"></div>
-        <button class="menu-button" id="check-button">Comprobar</button>
-        <button class="menu-button secondary-button" id="back-to-menu-button">Volver al Menú</button>
-    </div>
-
-    <div id="stats-screen" class="screen">
-        <div id="stats-container">
-            <h2 id="stats-title">Estadísticas</h2>
-            <p id="games-completed">Juegos Completados: 0</p>
-            <p id="success-rate">Tasa de Éxito: 0%</p>
-            <p id="average-time">Tiempo Promedio: 0s</p>
-            <p id="levels-completed">Niveles Completados: 0</p>
-        </div>
-        <div id="badges-container">
-            <h2 id="badges-title">Insignias</h2>
-            <div id="badges-list"></div>
-        </div>
-        <button class="menu-button secondary-button" id="back-from-stats-button">Volver</button>
-    </div>
-
-    <div id="settings-screen" class="screen">
-        <label id="language-label" for="language-select">Idioma:</label>
-        <select id="language-select">
-            <option value="es">Español</option>
-            <option value="en">Inglés</option>
-        </select>
-
-        <p id="purchase-instruction" class="purchase-instruction">Para disfrutar de todas las funciones, considera comprar la versión Premium.</p>
-
-        <button class="menu-button" id="premium-button">Comprar Premium</button>
-        <p id="premium-status">Estado Premium: No Premium</p>
-
-        <div id="sync-data-section">
-            <h3 id="sync-title">Sincronización Multi-Dispositivo</h3>
-            <p style="font-size: 0.9em; text-align: center;">Ingresa tu PIN de 6 dígitos para guardar o cargar tu progreso y Premium.</p>
-            <input type="number" id="sync-input" placeholder="Introduce tu PIN de 6 dígitos" maxlength="6" pattern="[0-9]{6}">
-            <button class="menu-button" id="export-button">1. Exportar (Guardar)</button>
-            <button class="menu-button secondary-button" id="import-button">2. Importar (Cargar)</button>
-            <div id="sync-message" class="warning-note" style="display: none;"></div>
-        </div>
-
-        <div id="reset-data-section">
-            <h3 id="reset-title">Restablecer Datos</h3>
-            <button class="menu-button secondary-button" id="clear-progress-button">Borrar Progreso</button>
-            <button class="menu-button secondary-button" id="reset-all-button">Restablecer Todo</button>
-            <p id="reset-all-note" class="warning-note">¡Cuidado! Esta acción borrará todos tus datos de juego.</p>
-        </div>
-
-        <div id="delete-account-section">
-            <h3 id="account-management-title">Gestión de Cuenta</h3>
-            <p id="current-user-display">Usuario actual: [Nombre de Usuario]</p>
-            <button class="menu-button secondary-button" id="delete-account-button">Eliminar Cuenta</button>
-            <p id="reimbursement-note" class="warning-note">La eliminación de la cuenta es irreversible. No se ofrecen reembolsos.</p>
-        </div>
-
-        <button class="menu-button secondary-button" id="back-from-settings-button">Volver</button>
-    </div>
+  <!-- Pantalla de ajustes -->
+  <div id="settings-screen" class="screen">
+    <h2>Ajustes</h2>
+    <p id="premium-status">Estado Premium: No Premium</p>
+    <button class="menu-button" id="buy-premium">Comprar Premium</button>
+    <button class="menu-button" id="export-button">Exportar Progreso</button>
+    <button class="menu-button secondary-button" id="import-button">Importar Progreso</button>
+    <input type="text" id="sync-pin" placeholder="PIN de 6 dígitos" maxlength="6" />
+    <button class="menu-button secondary-button" id="back-settings">Volver</button>
+  </div>
 </div>
 
-<div id="ad-popup" class="ad-screen" style="display: none;">
-    <p id="ad-message">¡Mira este anuncio para obtener una recompensa!</p>
-    <div id="real-ad-container">
-        <!-- Aquí se mostrará el anuncio real -->
-    </div>
-    <button class="ad-button" id="skip-ad-button">Saltar Anuncio</button>
+<!-- Pantalla de anuncio -->
+<div id="ad-popup" class="ad-screen" style="display:none;">
+  <p>¡Mira este anuncio para continuar!</p>
+  <div id="real-ad-container"></div>
+  <button class="ad-button" id="skip-ad-button">Saltar</button>
 </div>
 
 <script>
-    // JavaScript para la lógica del juego y la interfaz de usuario
-    // (Este es un ejemplo básico, necesitarás implementar la lógica completa)
+  // 🔐 Firebase Configuración
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_DOMINIO.firebaseapp.com",
+    projectId: "TU_ID_PROYECTO",
+  };
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-    // Variables para simular el estado del juego
-    let isLoggedIn = false;
-    let isPremium = false;
-    let currentScreen = 'auth-screen'; // Pantalla inicial
+  // 🌐 Variables globales
+  let isPremium = false;
+  let currentUser = null;
 
-    // Función para mostrar una pantalla
-    function showScreen(screenId) {
-        // Oculta todas las pantallas
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
+  // 🧠 Función para mostrar pantallas
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
 
-        // Muestra la pantalla especificada
-        document.getElementById(screenId).classList.add('active');
-        currentScreen = screenId;
+  // 🔐 Autenticación simulada
+  function authenticate(email, password) {
+    const demo = email === "premium_demo@crossmath.com";
+    const stored = localStorage.getItem(email);
+    if (stored && JSON.parse(stored).password === password) {
+      currentUser = email;
+      isPremium = demo || JSON.parse(stored).isPremium;
+      return true;
     }
+    return false;
+  }
 
-    // Funciones para la autenticación (simuladas)
-    function authenticate(email, password) {
-        // Simulación de autenticación (reemplazar con lógica real)
-        if (email === 'test@example.com' && password === 'password') {
-            isLoggedIn = true;
-            return true;
-        } else {
-            return false;
-        }
+  // 🧾 Registro de cuenta
+  document.getElementById('register-button').onclick = () => {
+    const email = prompt("Correo:");
+    const pass = prompt("Contraseña:");
+    if (email && pass) {
+      localStorage.setItem(email, JSON.stringify({ password: pass, isPremium: false }));
+      alert("Cuenta creada. Inicia sesión.");
     }
+  };
 
-    // Funciones para la compra de Premium (simuladas)
-    function purchasePremium() {
-        // Simulación de compra (reemplazar con lógica real)
-        isPremium = true;
-        updatePremiumStatus();
+  // 🧠 Evento de login
+  document.getElementById('auth-form').onsubmit = e => {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value;
+    const pass = document.getElementById('auth-password').value;
+    if (authenticate(email, pass)) {
+      document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
+      updatePremiumStatus();
+      showScreen('main-menu');
+    } else {
+      document.getElementById('auth-status-message').textContent = "Credenciales incorrectas.";
     }
+  };
 
-    // Funciones para mostrar anuncios (simuladas)
-    function showAd() {
-        document.getElementById('ad-popup').style.display = 'flex';
-        // Después de un tiempo, oculta el anuncio (simulación)
-        setTimeout(() => {
-            hideAd();
-        }, 5000); // Muestra el anuncio por 5 segundos
-    }
+  // 💎 Activación Premium
+  document.getElementById('buy-premium').onclick = () => {
+    if (!currentUser) return alert("Inicia sesión primero.");
+    window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
+    const userData = JSON.parse(localStorage.getItem(currentUser));
+    userData.isPremium = true;
+    localStorage.setItem(currentUser, JSON.stringify(userData));
+    isPremium = true;
+    updatePremiumStatus();
+    alert("Premium activado.");
+  };
 
-    function hideAd() {
-        document.getElementById('ad-popup').style.display = 'none';
-    }
+  // ☁️ Exportar progreso
+  document.getElementById('export-button').onclick = async () => {
+    const pin = document.getElementById('sync-pin').value;
+    if (pin.length !== 6 || !currentUser) return alert("PIN inválido o sin sesión.");
+    await db.collection("sync").doc(pin).set({ user: currentUser, isPremium });
+    alert("Progreso guardado.");
+  };
 
-    // Actualizar el estado de Premium en la interfaz
-    function updatePremiumStatus() {
-        const premiumStatusElement = document.getElementById('premium-status');
-        premiumStatusElement.textContent = `Estado Premium: ${isPremium ? 'Premium' : 'No Premium'}`;
-    }
+  // ☁️ Importar progreso
+  document.getElementById('import-button').onclick = async () => {
+    const pin = document.getElementById('sync-pin').value;
+    const doc = await db.collection("sync").doc(pin).get();
+    if (!doc.exists || doc.data().user !== currentUser) return alert("PIN inválido.");
+    isPremium = doc.data().isPremium;
+    updatePremiumStatus();
+    alert("Progreso cargado.");
+  };
 
-    // Event listeners para los botones
-    document.getElementById('auth-form').addEventListener('submit', function(event) {
-        event.preventDefault(); // Evita que el formulario se envíe
-
-        const email = document.getElementById('auth-email').value;
-        const password = document.getElementById('auth-password').value;
-
-        if (authenticate(email, password)) {
-            showScreen('main-menu');
-            document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`; // Actualiza el mensaje de bienvenida
-        } else {
-            document.getElementById('auth-status-message').textContent = 'Credenciales incorrectas.';
-        }
-    });
-
-    document.getElementById('switch-auth-mode-button').addEventListener('click', function() {
-        // Implementa la lógica para cambiar entre iniciar sesión y registrarse
-        alert('Función de registro no implementada en este ejemplo.');
-    });
-
-    document.getElementById('auth-back-button').addEventListener('click', function() {
-        // Implementa la lógica para volver a la pantalla anterior (si es necesario)
-        alert('Función de volver no implementada en este ejemplo.');
-    });
-
-    document.getElementById('play-button').addEventListener('click', function() {
-        showScreen('level-select-screen');
-    });
-
-    document.getElementById('stats-button').addEventListener('click', function() {
-        showScreen('stats-screen');
-    });
-
-    document.getElementById('settings-button').addEventListener('click', function() {
-        showScreen('settings-screen');
-    });
-
-    document.getElementById('logout-button').addEventListener('click', function() {
-        isLoggedIn = false;
-        showScreen('auth-screen');
-    });
-
-    document.getElementById('back-from-levels-button').addEventListener('click', function() {
-        showScreen('main-menu');
-    });
-
-    document.getElementById('back-to-menu-button').addEventListener('click', function() {
-        showScreen('main-menu');
-    });
-
-    document.getElementById('back-from-stats-button').addEventListener('click', function() {
-        showScreen('main-menu');
-    });
-
-    document.getElementById('back-from-settings-button').addEventListener('click', function() {
-        showScreen('main-menu');
-    });
-
-    document.getElementById('premium-button').addEventListener('click', function() {
-        if (!isPremium) {
-            purchasePremium();
-            alert('¡Premium comprado! Disfruta de todas las funciones.');
-        } else {
-            alert('Ya eres Premium.');
-        }
-    });
-
-    document.getElementById('skip-ad-button').addEventListener('click', function() {
-        hideAd();
-    });
-
-    // Event listeners para los botones de nivel (ejemplo)
-    document.querySelectorAll('.level-button').forEach(button => {
-        button.addEventListener('click', function() {
-            const difficulty = this.dataset.difficulty;
-            // Aquí puedes cargar el nivel según la dificultad seleccionada
-            alert(`Nivel ${difficulty} seleccionado.  Implementa la lógica del juego aquí.`);
-            showScreen('game-screen');
-        });
-    });
-
-    // Inicialización
-    updatePremiumStatus(); // Actualiza el estado de Premium al cargar la página
-    showScreen('auth-screen'); // Muestra la pantalla de autenticación al inicio
-</script>
-</body>
-</html>
-```
+  // 📢 Mostrar anuncio
