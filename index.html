@@ -8,11 +8,9 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6018346455368636" crossorigin="anonymous"></script>
   
   <script type="module">
-    // Importar funciones necesarias desde los SDKs de Firebase v9+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    // Tu configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
       authDomain: "crossmath-sync-db.firebaseapp.com",
@@ -23,15 +21,16 @@
       measurementId: "G-BBJKKN96SV"
     };
 
-    // Inicializar Firebase con la sintaxis v9+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     
     document.addEventListener('DOMContentLoaded', () => {
       let isPremium = false;
       let currentUser = null;
+      let currentDifficulty = '';
+      let score = 0;
+      let currentProblem = {};
 
-      // Crear cuenta de demostración si no existe
       if (!localStorage.getItem("premium_demo@crossmath.com")) {
         localStorage.setItem("premium_demo@crossmath.com", JSON.stringify({
           password: "demo123",
@@ -64,75 +63,103 @@
       }
 
       function showAd() {
-        const adPopup = document.getElementById('ad-popup');
-        adPopup.style.display = 'flex';
+        document.getElementById('ad-popup').style.display = 'flex';
         console.log("Mostrando anuncio...");
       }
 
-      // --> NUEVO: Función para exportar el progreso a un archivo JSON
-      function exportProgress() {
-        if (!currentUser) {
-          alert("Debes iniciar sesión para exportar tu progreso.");
-          return;
-        }
+      function startGame(difficulty) {
+        currentDifficulty = difficulty;
+        score = 0;
+        document.getElementById('score').textContent = score;
+        document.getElementById('game-title').textContent = `Juego - Nivel ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+        generateProblem();
+        showScreen('game-screen');
+      }
 
-        const userData = localStorage.getItem(currentUser);
-        if (!userData) {
-          alert("No se encontraron datos para exportar.");
-          return;
-        }
+      function generateProblem() {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
         
-        // Creamos un objeto que contiene el email y los datos para una importación más segura
-        const exportData = {
-            email: currentUser,
-            data: JSON.parse(userData)
-        };
+        switch (currentDifficulty) {
+            case 'easy':
+                currentProblem = { question: `${num1} + ${num2}`, answer: num1 + num2 };
+                break;
+            case 'medium':
+                const num3 = Math.floor(Math.random() * 20) + 1;
+                const num4 = Math.floor(Math.random() * 20) + 1;
+                currentProblem = { question: `${num3} - ${num4}`, answer: num3 - num4 };
+                break;
+            case 'hard':
+                currentProblem = { question: `${num1} × ${num2}`, answer: num1 * num2 };
+                break;
+        }
+        document.getElementById('problem').textContent = currentProblem.question + " = ?";
+        document.getElementById('answer-input').value = '';
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('answer-input').focus();
+      }
+      
+      function checkAnswer() {
+        const userAnswer = parseInt(document.getElementById('answer-input').value);
+        const feedbackEl = document.getElementById('feedback');
+        if (isNaN(userAnswer)) {
+            feedbackEl.textContent = "Por favor, introduce un número.";
+            feedbackEl.className = 'incorrect';
+            return;
+        }
+        if (userAnswer === currentProblem.answer) {
+            score++;
+            document.getElementById('score').textContent = score;
+            feedbackEl.textContent = "¡Correcto! Siguiente pregunta...";
+            feedbackEl.className = 'correct';
+            setTimeout(generateProblem, 1000);
+        } else {
+            feedbackEl.textContent = "Incorrecto. ¡Intenta de nuevo!";
+            feedbackEl.className = 'incorrect';
+        }
+      }
 
-        const dataStr = JSON.stringify(exportData, null, 2); // El 'null, 2' formatea el JSON para que sea legible
+      function exportProgress() {
+        if (!currentUser) return alert("Debes iniciar sesión para exportar tu progreso.");
+        const userData = localStorage.getItem(currentUser);
+        if (!userData) return alert("No se encontraron datos para exportar.");
+        const exportData = { email: currentUser, data: JSON.parse(userData) };
+        const dataStr = JSON.stringify(exportData, null, 2);
         const dataBlob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(dataBlob);
-
         const a = document.createElement('a');
         a.href = url;
         a.download = 'crossmath_progress.json';
         a.click();
-        URL.revokeObjectURL(url); // Liberar memoria
-        alert("Progreso exportado en 'crossmath_progress.json'. Guarda bien este archivo.");
+        URL.revokeObjectURL(url);
+        alert("Progreso exportado en 'crossmath_progress.json'.");
       }
 
-      // --> NUEVO: Función para importar el progreso desde un archivo JSON
       function importProgress() {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json,application/json';
-
         input.onchange = e => {
           const file = e.target.files[0];
           if (!file) return;
-
           const reader = new FileReader();
           reader.onload = event => {
             try {
               const importedData = JSON.parse(event.target.result);
-
-              // Verificación simple para asegurar que el archivo tiene la estructura correcta
               if (importedData && importedData.email && importedData.data) {
                 localStorage.setItem(importedData.email, JSON.stringify(importedData.data));
-                alert(`¡Éxito! Progreso para '${importedData.email}' importado correctamente.\n\nPor favor, inicia sesión para ver los cambios.`);
+                alert(`¡Éxito! Progreso para '${importedData.email}' importado.`);
               } else {
-                alert("Error: El archivo de progreso no tiene el formato correcto.");
+                alert("Error: El archivo no tiene el formato correcto.");
               }
             } catch (error) {
-              alert("Error al leer el archivo. Asegúrate de que sea un archivo de progreso válido.");
+              alert("Error al leer el archivo.");
             }
           };
           reader.readAsText(file);
         };
-
         input.click();
       }
-
-      // --- Asignación de Eventos (Event Listeners) ---
 
       document.getElementById('register-button').onclick = () => {
         const email = prompt("Correo:");
@@ -170,20 +197,32 @@
       };
 
       document.getElementById('play-button').onclick = () => {
-        if (!isPremium) {
-          showAd();
-        }
+        if (!isPremium) showAd();
         showScreen('level-select-screen');
       };
 
-      document.getElementById('skip-ad-button').onclick = () => {
-        document.getElementById('ad-popup').style.display = 'none';
+      document.querySelectorAll('.level-button').forEach(button => {
+        button.addEventListener('click', (e) => startGame(e.target.dataset.difficulty));
+      });
+
+      document.getElementById('submit-answer').onclick = checkAnswer;
+
+      document.getElementById('answer-input').addEventListener('keyup', (event) => {
+        if (event.key === "Enter") checkAnswer();
+      });
+      
+      document.getElementById('back-to-level-select').onclick = () => showScreen('level-select-screen');
+      
+      document.getElementById('skip-ad-button').onclick = () => { 
+        document.getElementById('ad-popup').style.display = 'none'; 
       };
       
       document.getElementById('settings-button').onclick = () => showScreen('settings-screen');
+      
       document.getElementById('back-to-menu').onclick = () => showScreen('main-menu');
+      
       document.getElementById('back-settings').onclick = () => showScreen('main-menu');
-
+      
       document.getElementById('buy-premium').onclick = () => {
         if (!currentUser) return alert("Debes iniciar sesión para comprar Premium.");
         window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
@@ -195,90 +234,29 @@
         alert("¡Felicidades! Tu cuenta ahora es Premium.");
       };
 
-      // --> MODIFICADO: Se conectan los botones a las nuevas funciones
       document.getElementById('export-button').onclick = exportProgress;
+      
       document.getElementById('import-button').onclick = importProgress;
-
     });
   </script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
-    .container {
-      width: 90%;
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
+    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
+    .container { width: 90%; max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
     .screen { display: none; }
     .screen.active { display: block; }
-    input[type="email"], input[type="password"], input[type="text"] {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        box-sizing: border-box;
-    }
-    .menu-button, .level-button, .ad-button {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    .menu-button:hover, .level-button:hover, .ad-button:hover {
-        background-color: #45a049;
-    }
+    input[type="email"], input[type="password"], input[type="text"], input[type="number"] { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+    .menu-button, .level-button, .ad-button { display: block; width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
+    .menu-button:hover, .level-button:hover, .ad-button:hover { background-color: #45a049; }
     .secondary-button { background-color: #f44336; }
     .secondary-button:hover { background-color: #da190b; }
-    .ad-screen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      color: white;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      text-align: center;
-    }
-    #real-ad-container {
-      width: 320px;
-      height: 50px;
-      background: #ddd;
-      margin-bottom: 20px;
-      border: 1px solid #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #333;
-    }
-    #auth-status-message {
-      color: red;
-      margin-bottom: 10px;
-    }
+    .ad-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); color: white; display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; text-align: center; }
+    #real-ad-container { width: 320px; height: 50px; background: #ddd; margin-bottom: 20px; border: 1px solid #fff; display: flex; justify-content: center; align-items: center; color: #333; }
+    #auth-status-message { color: red; margin-bottom: 10px; }
+    #problem { font-size: 2.5em; font-weight: bold; text-align: center; margin: 20px 0; color: #333; }
+    #feedback { text-align: center; font-size: 1.2em; min-height: 25px; }
+    .correct { color: #4CAF50; }
+    .incorrect { color: #f44336; }
   </style>
 </head>
 <body>
@@ -320,6 +298,16 @@
     <button class="menu-button" id="import-button">Importar Progreso</button>
     <input type="text" id="sync-pin" placeholder="PIN de 6 dígitos" maxlength="6" />
     <button class="menu-button secondary-button" id="back-settings">Volver</button>
+  </div>
+  
+  <div id="game-screen" class="screen">
+    <h2 id="game-title">Juego</h2>
+    <p>Puntuación: <span id="score">0</span></p>
+    <div id="problem">10 + 5 = ?</div>
+    <input type="number" id="answer-input" placeholder="Escribe tu respuesta aquí" />
+    <button id="submit-answer" class="menu-button">Revisar</button>
+    <p id="feedback"></p>
+    <button id="back-to-level-select" class="menu-button secondary-button">Salir del Nivel</button>
   </div>
 </div>
 
