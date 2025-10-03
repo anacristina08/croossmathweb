@@ -4,313 +4,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crossmath - Desafío de Números</title>
-    <script async src="https://www.google.com/search?q=https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js%3Fclient%3Dca-pub-6018346455368636"
-    crossorigin="anonymous"></script>
-
+    <title>Reparación de Código HTML</title>
     <style>
-        :root {
-            --bg-color: #f0f0f0;
-            --text-color: #333;
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --border-color: #ccc;
-            --cell-bg-color: #fff;
-            --input-bg-color: #f8f9fa;
-            --invalid-input-bg: #ffcccc;
-            --valid-input-bg: #ccffcc;
-        }
-
+        /* Estilos básicos para la estructura del juego */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: sans-serif;
             margin: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
         }
-
         .container {
-            text-align: center;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
-            width: 500px;
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-
         .screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+            display: none; /* Inicialmente, todas las pantallas están ocultas */
+            padding: 20px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            border-radius: 4px;
         }
         .screen.active {
-            display: flex;
+            display: block; /* Muestra la pantalla activa */
         }
-
-        .menu-button, .level-button {
-            width: 80%;
-            padding: 15px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #fff;
-            background-color: var(--primary-color);
+        .menu-button, .level-button, .ad-button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: #4CAF50;
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+            text-decoration: none;
         }
-        .menu-button:hover, .level-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+        .menu-button:hover, .level-button:hover, .ad-button:hover {
+            background-color: #3e8e41;
         }
-
         .secondary-button {
-            background-color: var(--secondary-color);
+            background-color: #bbb;
         }
         .secondary-button:hover {
-            background-color: #5a6268;
-        }
-
-        /* Estilos para formularios de autenticación */
-        .auth-form {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            background-color: #999;
         }
         .auth-form input {
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
-            text-align: left;
-            width: calc(100% - 24px);
-        }
-
-        #delete-account-section, #reset-data-section, #sync-data-section {
             width: 100%;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .warning-note {
-            font-size: 0.85rem;
-            color: red;
-            margin-top: 10px;
             padding: 10px;
-            background: #ffebeb;
-            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Importante para que el padding no afecte el ancho */
         }
-
-        /* Estilo específico para la nota de compra */
-        .purchase-instruction {
-            font-size: 0.9em;
-            color: var(--text-color);
-            padding: 5px 0;
-            max-width: 80%;
-            text-align: center;
-        }
-
-        #language-select {
-            margin-bottom: 1rem;
-            padding: 8px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-        }
-
-        /* --- CSS CORREGIDO DEL TABLERO (Móvil) --- */
-        #game-board {
-            display: grid;
-            gap: 5px; /* Espacio entre celdas */
-            margin-bottom: 1rem;
-            justify-content: center;
-            transition: all 0.3s ease;
-            /* gridTemplateColumns se define en el JS para 5 columnas */
-        }
-
-        .cell {
-            /* Tamaños fijos para el aspecto cuadrado tipo móvil */
-            width: 45px;
-            height: 45px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 8px;
-            background-color: var(--cell-bg-color);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-            transition: all 0.2s ease;
-        }
-
-        .operand, .equals, .given {
-            background-color: #e9ecef;
-            color: #555;
-            border: none;
-            box-shadow: none;
-        }
-        .empty {
-            background-color: var(--input-bg-color);
-        }
-        .empty.invalid {
-            background-color: var(--invalid-input-bg);
-            border: 2px solid red;
-        }
-        .empty.correct {
-            background-color: var(--valid-input-bg);
-            border: 2px solid green;
-        }
-
-        input {
-            width: 100%;
-            height: 100%;
-            border: none;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            background: transparent;
-            outline: none;
-            color: var(--text-color);
-        }
-
         .level-select-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
-            width: 100%;
         }
-
-        /* Estilo para la capa de anuncio real */
+        .level-button {
+            background-color: #008CBA;
+        }
+        .level-button:hover {
+            background-color: #0077A0;
+        }
+        .warning-note {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
         .ad-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            gap: 20px;
-            font-size: 1.5rem;
+            color: white;
             text-align: center;
         }
-
-        #real-ad-container {
-            /* Contenedor donde se inyectará el banner publicitario */
-            background: white;
-            padding: 10px;
-            max-width: 90%;
-            width: 320px; /* Tamaño típico de banner móvil */
-            min-height: 50px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        }
-
         .ad-button {
-            padding: 10px 20px;
-            background-color: #ffc107;
-            color: #333;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
+            background-color: #f44336;
+            margin-top: 20px;
+        }
+        .ad-button:hover {
+            background-color: #d32f2f;
+        }
+        #sync-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 id="title"></h1>
+    <h1 id="title">Título del Juego</h1>
 
     <div id="auth-screen" class="screen">
-        <h2 id="auth-title"></h2>
+        <h2 id="auth-title">Autenticación</h2>
         <div id="auth-status-message"></div>
         <form id="auth-form" class="auth-form">
             <input type="email" id="auth-email" placeholder="Correo electrónico" required>
             <input type="password" id="auth-password" placeholder="Contraseña" required>
-            <button class="menu-button" type="submit" id="auth-submit-button"></button>
+            <button class="menu-button" type="submit" id="auth-submit-button">Iniciar Sesión</button>
         </form>
-        <button class="menu-button secondary-button" id="switch-auth-mode-button"></button>
-        <button class="menu-button secondary-button" id="auth-back-button"></button>
+        <button class="menu-button secondary-button" id="switch-auth-mode-button">Registrarse</button>
+        <button class="menu-button secondary-button" id="auth-back-button">Volver</button>
     </div>
 
     <div id="main-menu" class="screen">
-        <p id="welcome-message"></p>
-        <button class="menu-button" id="play-button"></button>
-        <button class="menu-button" id="stats-button"></button>
-        <button class="menu-button" id="settings-button"></button>
-        <button class="menu-button secondary-button" id="logout-button"></button>
+        <p id="welcome-message">Bienvenido, [Nombre de Usuario]</p>
+        <button class="menu-button" id="play-button">Jugar</button>
+        <button class="menu-button" id="stats-button">Estadísticas</button>
+        <button class="menu-button" id="settings-button">Ajustes</button>
+        <button class="menu-button secondary-button" id="logout-button">Cerrar Sesión</button>
     </div>
 
     <div id="level-select-screen" class="screen">
-        <h2 id="level-select-title"></h2>
+        <h2 id="level-select-title">Selecciona un Nivel</h2>
         <div class="level-select-grid">
-            <button class="level-button" data-difficulty="easy" id="easy-level-button"></button>
-            <button class="level-button" data-difficulty="medium" id="medium-level-button"></button>
-            <button class="level-button" data-difficulty="hard" id="hard-level-button"></button>
-            <button class="level-button" data-difficulty="expert" id="expert-level-button"></button>
-            <button class="level-button" data-difficulty="threeDigit" id="three-digit-button"></button>
-            <button class="level-button" data-difficulty="infinite" id="infinite-level-button"></button>
+            <button class="level-button" data-difficulty="easy" id="easy-level-button">Fácil</button>
+            <button class="level-button" data-difficulty="medium" id="medium-level-button">Medio</button>
+            <button class="level-button" data-difficulty="hard" id="hard-level-button">Difícil</button>
+            <button class="level-button" data-difficulty="expert" id="expert-level-button">Experto</button>
+            <button class="level-button" data-difficulty="threeDigit" id="three-digit-button">3 Dígitos</button>
+            <button class="level-button" data-difficulty="infinite" id="infinite-level-button">Infinito</button>
         </div>
-        <button class="menu-button secondary-button" id="back-from-levels-button"></button>
+        <button class="menu-button secondary-button" id="back-from-levels-button">Volver al Menú</button>
     </div>
 
     <div id="game-screen" class="screen">
-        <p id="game-info"></p>
+        <p id="game-info">Nivel: [Nivel Actual] | Puntuación: [Puntuación]</p>
         <div id="game-board"></div>
         <div id="result-message"></div>
-        <button class="menu-button" id="check-button"></button>
-        <button class="menu-button secondary-button" id="back-to-menu-button"></button>
+        <button class="menu-button" id="check-button">Comprobar</button>
+        <button class="menu-button secondary-button" id="back-to-menu-button">Volver al Menú</button>
     </div>
 
     <div id="stats-screen" class="screen">
         <div id="stats-container">
-            <h2 id="stats-title"></h2>
-            <p id="games-completed"></p>
-            <p id="success-rate"></p>
-            <p id="average-time"></p>
-            <p id="levels-completed"></p>
+            <h2 id="stats-title">Estadísticas</h2>
+            <p id="games-completed">Juegos Completados: [Número]</p>
+            <p id="success-rate">Tasa de Éxito: [Porcentaje]%</p>
+            <p id="average-time">Tiempo Promedio: [Tiempo]</p>
+            <p id="levels-completed">Niveles Completados: [Número]</p>
         </div>
         <div id="badges-container">
-            <h2 id="badges-title"></h2>
+            <h2 id="badges-title">Insignias</h2>
             <div id="badges-list"></div>
         </div>
-        <button class="menu-button secondary-button" id="back-from-stats-button"></button>
+        <button class="menu-button secondary-button" id="back-from-stats-button">Volver al Menú</button>
     </div>
 
     <div id="settings-screen" class="screen">
-        <label id="language-label" for="language-select"></label>
-        <select id="language-select"></select>
+        <label id="language-label" for="language-select">Idioma:</label>
+        <select id="language-select">
+            <option value="es">Español</option>
+            <option value="en">Inglés</option>
+            <!-- Agrega más opciones de idioma aquí -->
+        </select>
 
-        <p id="purchase-instruction" class="purchase-instruction"></p>
+        <p id="purchase-instruction" class="purchase-instruction">¡Obtén la versión Premium para disfrutar de funciones exclusivas!</p>
 
-        <button class="menu-button" id="premium-button"></button>
-        <p id="premium-status"></p>
+        <button class="menu-button" id="premium-button">Comprar Premium</button>
+        <p id="premium-status">Estado Premium: [Activo/Inactivo]</p>
 
         <div id="sync-data-section">
             <h3 id="sync-title">Sincronización Multi-Dispositivo</h3>
@@ -322,66 +195,235 @@
         </div>
 
         <div id="reset-data-section">
-            <h3 id="reset-title"></h3>
-
-            <button class="menu-button secondary-button" id="clear-progress-button"></button>
-
-            <button class="menu-button secondary-button" id="reset-all-button"></button>
-            <p id="reset-all-note" class="warning-note"></p>
+            <h3 id="reset-title">Restablecer Datos</h3>
+            <button class="menu-button secondary-button" id="clear-progress-button">Borrar Progreso</button>
+            <button class="menu-button secondary-button" id="reset-all-button">Restablecer Todo</button>
+            <p id="reset-all-note" class="warning-note">¡Esta acción es irreversible!</p>
         </div>
 
         <div id="delete-account-section">
-            <h3 id="account-management-title"></h3>
-            <p id="current-user-display"></p>
-            <button class="menu-button secondary-button" id="delete-account-button"></button>
-            <p id="reimbursement-note" class="warning-note"></p>
+            <h3 id="account-management-title">Gestión de Cuenta</h3>
+            <p id="current-user-display">Usuario Actual: [Nombre de Usuario]</p>
+            <button class="menu-button secondary-button" id="delete-account-button">Eliminar Cuenta</button>
+            <p id="reimbursement-note" class="warning-note">Por favor, contacta con soporte para solicitar un reembolso.</p>
         </div>
 
-        <button class="menu-button secondary-button" id="back-from-settings-button"></button>
+        <button class="menu-button secondary-button" id="back-from-settings-button">Volver al Menú</button>
     </div>
 </div>
 
 <div id="ad-popup" class="ad-screen" style="display: none;">
-    <p id="ad-message"></p>
+    <p id="ad-message">¡Mira este anuncio para obtener una recompensa!</p>
     <div id="real-ad-container">
+        <!-- Aquí se mostrará el anuncio real -->
     </div>
-    <button class="ad-button" id="skip-ad-button"></button>
+    <button class="ad-button" id="skip-ad-button">Saltar Anuncio</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
 <script>
-    // -----------------------------------------------------------\n
-    // 🛑 CONFIGURACIÓN DE FIREBASE (TU BASE DE DATOS EN LA NUBE) 🛑\n
-    // -----------------------------------------------------------\n
-    \n
-    // TUS CREDENCIALES\n
-    const firebaseConfig = {\n
-        apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",\n
-        authDomain: "crossmath-sync-db.firebaseapp.com",\n
-        projectId: "crossmath-sync-db",\n
-        storageBucket: "crossmath-sync-db.firebasestorage.app",\n
-        messagingSenderId: "170459630175",\n
-        appId: "1:170459630175:web:6a2a4ccba5dad1fa0ee9ea",\n
-        measurementId: "G-BBJKKN96SV"\n
-    };\n
-\n
-    // Variables globales de Firebase (se inicializarán abajo)\n
-    let db;\n
-    \n
-    // Inicializar Firebase y Firestore\n
-    const app = firebase.initializeApp(firebaseConfig);\n
-    db = firebase.firestore(); \n
-\n
-    // -----------------------------------------------------------\n
-    // LÓGICA PRINCIPAL DEL JUEGO\n
-    // -----------------------------------------------------------\n
-    \n
-    const GUMROAD_PAYMENT_URL = "https://anacristinacz.gumroad.com/l/rnlle";\n
-\n
-    const translations = {\n
-        es: {\n
-            mainMenu: 'Menú Principal', play: 'Jugar', viewStats: 'Ver Estadísticas', settings: 'Configuración',\n
-            levelCompleted: '¡Nivel Completado!', incorrect: 'Incorrecto. ¡Sigue intentando!',\n
-            fillAllFields: 'Por favor, rellena todas las casillas.',\n
-            gamesCompleted: 'Juegos Completados: {count}', successRate: 'Tasa de Éxito: {rate}', averageTime: 'Tiempo Promedio: {time}',\n            badges: 'Insignias', unlocked: 'Desbloqueadas',\n            firstTriumph: 'Primer Triunfo', firstTriumphDesc: 'Completa tu primer nivel',\n            speedDemon: 'Demonio de la Velocidad', speedDemonDesc: 'Completa un nivel en menos de 30 segundos',\n            perfectionist: 'Perfeccionista', perfectionistDesc: 'Completa 5 niveles sin usar pistas',\n            mathematician: 'Matemático', mathematicianDesc: 'Completa 10 niveles',\n            backToMenu: 'Volver al Menú', language: 'Idioma', selectLevel: 'Selecciona un Nivel',\n            easy: 'Fácil', medium: 'Medio', hard: 'Difícil', experto: 'Experto',\n            threeDigitNumbers: 'Números de 3 Cifras', infinite: 'Infinito',\n            check: 'Comprobar',\n            removeAds: 'Eliminar Anuncios', \n            premiumPrice: 'USD $174.00', \n            adMessage: 'Patrocinado: Espera unos segundos mientras cargamos el siguiente puzzle.',\n            adSkip: 'Continuar al Siguiente Puzzle',\n            premiumPurchased: '¡Premium Activo! Disfruta sin anuncios.',\n            premiumPurchaseFailed: 'Compra no registrada. Si ya pagaste, haz clic en el enlace de activación que recibiste en Gumroad.',\n            adSupported: 'Con Anuncios',\n            // --- Claves de Autenticación y Cuentas ---\n            loginTitle: 'Iniciar Sesión', registerTitle: 'Crear Cuenta',\n            loginButton: 'Iniciar Sesión', registerButton: 'Registrarme',\n            loginSwitch: '¿No tienes cuenta? Regístrate', registerSwitch: '¿Ya tienes cuenta? Inicia Sesión',\n            authSuccess: '¡Bienvenido(a)!', authFailed: 'Credenciales inválidas.',\n            userExists: 'El correo ya está registrado.', registrationSuccess: 'Cuenta creada. ¡Inicia Sesión!',\n            logout: 'Cerrar Sesión', welcome: '¡Hola, {user}!',\n            accountManagement: 'Gestión de Cuenta', deleteAccount: 'Eliminar Cuenta',\n            currentUser: 'Sesión activa: {user}',\n            deleteConfirm: '¿Estás seguro de que quieres ELIMINAR tu cuenta? Esta acción es PERMANENTE y borrará tu progreso y estadísticas guardadas.',\n            deleteSuccess: 'Tu cuenta ha sido eliminada. Todos los datos locales han sido borrados.',\n            reimbursementNote: 'NOTA: La eliminación de la cuenta no conlleva el reembolso del dinero pagado por la membresía Premium.',\n            authBack: 'Volver al Inicio',\n            // --- Claves de Instrucción de Compra ---\n            purchaseInstruction: 'IMPORTANTE: Para activar el Premium, la compra debe hacerse con el MISMO correo electrónico que usas para iniciar sesión en este juego.',\n            // --- Nuevas Claves de Borrado de Datos ---\n            resetTitle: 'Restablecer Datos Locales',\n            clearProgress: 'Borrar Progreso del Juego',\n            clearProgressConfirm: '¿Estás seguro de que quieres borrar tus estadísticas y progreso de puzzle actual? ¡El Premium se MANTENDRÁ!',\n            resetAll: 'Borrar TODO (Progreso y Premium)',\n            resetAllConfirm: 'ADVERTENCIA: ¿Estás seguro de que quieres borrar TODOS los datos, incluyendo tu estado PREMIUM? Perderás el beneficio de no tener anuncios.',\n            resetAllNote: 'Al borrar tus datos y tu estado Premium, el beneficio de no tener anuncios se perderá. ESTE JUEGO NO OFRECE REEMBOLSOS por membresías ya compradas.',\n            progressCleared: 'Progreso de juego (estadísticas y puzzles) borrado.',\n            allDataReset: 'Todos los datos (progreso y estado Premium) han sido borrados.',\n            syncError: 'Error: El PIN debe tener 6 dígitos y la cuenta debe estar activa.',\n            syncSuccessExport: 'ÉXITO: Progreso guardado en la nube con PIN {pin}.',\n            syncSuccessImport: 'ÉXITO: Datos cargados. La página se actualizará.',\n            syncErrorNotFound: 'ERROR: No se encontraron datos para ese PIN o el PIN es incorrecto.',\n            syncErrorUserMismatch: 'ERROR: Los datos de este PIN no corresponden a tu usuario actual.'\n        },\n        en: {\n            mainMenu: 'Main Menu', play: 'Play', viewStats: 'View Statistics', settings: 'Settings',\n            levelCompleted: 'Level Completed!', incorrect: 'Incorrect. Keep trying!',\n            fillAllFields: 'Please fill all fields.',\n            gamesCompleted: 'Games Completed: {count}', successRate: 'Success Rate: {rate}', averageTime: 'Average Time: {time}',\n            badges: 'Badges', unlocked: 'Unlocked',\n            firstTriumph: 'First Triumph', firstTriumphDesc: 'Complete your first level',\n            speedDemon: 'Speed Demon', speedDemonDesc: 'Complete a level in less than 30 seconds',\n            perfectionist: 'Perfectionist', perfectionistDesc: 'Complete 5 levels without using hints',\n            mathematician: 'Mathematician', mathematicianDesc: 'Complete 10 levels',\n            backToMenu: 'Back to Menu', language: 'Language', selectLevel: 'Select a Level',\n            easy: 'Easy', medium: 'Medium', hard: 'Hard', expert: 'Expert',\n            threeDigitNumbers: '3-Digit Numbers', infinite: 'Infinite',\n            check: 'Check',\n            removeAds: 'Remove Ads', \n            premiumPrice: 'USD $174.00', \n            adMessage: 'Sponsored: Please wait while we load the next puzzle.',\n            adSkip: 'Continue to Next Puzzle',\n            premiumPurchased: 'Premium Active! Enjoy ad-free playing.',\n            premiumPurchaseFailed: 'Purchase not registered. If you already paid, please click the activation link you received from Gumroad.',\n            adSupported: 'Ad Supported',\n            // --- Claves de Instrucción de Compra ---\n            purchaseInstruction: 'IMPORTANT: To activate Premium benefits, the purchase must be made using the SAME email address you use to log into this game.',\n            // --- Claves de Autenticación y Cuentas ---\n            loginTitle: 'Log In', registerTitle: 'Create Account',\n            loginButton: 'Log In', registerButton: 'Sign Up',\n            loginSwitch: 'Don\\'t have an account? Sign Up', registerSwitch: 'Already have an account? Log In',\n            authSuccess: 'Welcome back!', authFailed: 'Invalid credentials.',\n            userExists: 'Email is already registered.', registrationSuccess: 'Account created. Please log in!',\n            logout: 'Log Out', welcome: 'Hello, {user}!',\n            accountManagement: 'Account Management', deleteAccount: 'Delete Account',\n            currentUser: 'Active session: {user}',\n            deleteConfirm: 'Are you sure you want to DELETE your account? This action is PERMANENT and will erase your saved progress and statistics.',\n            deleteSuccess: 'Your account has been deleted. All local data has been erased.',\n            reimbursementNote: 'NOTE: Account deletion does not automatically trigger a refund for the Premium membership.',\n            authBack: 'Back to Home',\n            // --- Nuevas Claves de Borrado de Datos ---\n            resetTitle: 'Reset Local Data',\n            clearProgress: 'Clear Game Progress',\n            clearProgressConfirm: 'Are you sure you want to clear your stats and current puzzle progress? Premium status will be KEPT!',\n            resetAll: 'Reset ALL Data (Progress &amp; Premium)',\n            resetAllConfirm: 'WARNING: Are you sure you want to delete ALL data, including your PREMIUM status? You will lose the ad-free benefit.',\n            resetAllNote: 'Clearing all data, including your Premium status, means you will lose the ad-free benefit. THIS GAME DOES NOT OFFER REFUNDS for memberships already purchased.',\n            progressCleared: 'Game progress (stats and puzzles) cleared.',\n            allDataReset: 'All data (progress and Premium status) has been reset.',\n            syncError: 'Error: PIN must be 6 digits and account must be active.',\n            syncSuccessExport: 'SUCCESS: Progress saved in the cloud with PIN {pin}.',\n            syncSuccessImport: 'SUCCESS: Data loaded. The page will update.',\n            syncErrorNotFound: 'ERROR: No data found for that PIN or PIN is incorrect.',\n            syncErrorUserMismatch: 'ERROR: This PIN data does not belong to your current user.'\n        },\n        // (Otros idiomas omitidos por brevedad)\n    };\n    \n    const languageNames = {\n        es: 'Español', en: 'English', fr: 'Français', de: 'Deutsch', pt: 'Português', it: 'Italiano'\n    };\n\n    const screens = {\n        'auth-screen': document.getElementById('auth-screen'), \n        'main-menu': document.getElementById('main-menu'),\n        'level-select-screen': document.getElementById('level-select-screen'),\n        'game-screen': document.getElementById('game-screen'),\n        'stats-screen': document.getElementById('stats-screen'),\n        'settings-screen': document.getElementById('settings-screen')\n    };\n\n    const elements = {\n        title: document.getElementById('title'),\n        playButton: document.getElementById('play-button'),\n        statsButton: document.getElementById('stats-button'),\n        settingsButton: document.getElementById('settings-button'),\n        // Autenticación\n        authTitle: document.getElementById('auth-title'),\n        authEmail: document.getElementById('auth-email'),\n        authPassword: document.getElementById('auth-password'),\n        authSubmitButton: document.getElementById('auth-submit-button'),\n        authStatusMessage: document.getElementById('auth-status-message'),\n        switchAuthModeButton: document.getElementById('switch-auth-mode-button'),\n        authBackButton: document.getElementById('auth-back-button'),\n        logoutButton: document.getElementById('logout-button'),\n        welcomeMessage: document.getElementById('welcome-message'),\n        // Gestión de cuenta\n        accountManagementTitle: document.getElementById('account-management-title'),\n        currentUserDisplay: document.getElementById('current-user-display'),\n        deleteAccountButton: document.getElementById('delete-account-button'),\n        reimbursementNote: document.getElementById('reimbursement-note'),\n        // Reset de datos\n        resetTitle: document.getElementById('reset-title'),\n        clearProgressButton: document.getElementById('clear-progress-button'),\n        resetAllButton: document.getElementById('reset-all-button'),\n        resetAllNote: document.getElementById('reset-all-note'),\n        // Sincronización (NUEVO)\n        syncInput: document.getElementById('sync-input'),\n        exportButton: document.getElementById('export-button'),\n        importButton: document.getElementById('import-button'),\n        syncMessage: document.getElementById('sync-message'),\n        // Otros elementos\n        levelSelectTitle: document.getElementById('level-select-title'),\n        levelButtons: document.querySelectorAll('.level-button'),\n        gameBoard: document.getElementById('game-board'),\n        resultMessage: document.getElementById('result-message'),\n        checkButton: document.getElementById('check-button'),\n        backToMenuButton: document.getElementById('back-to-menu-button'),\n        backFromLevelsButton: document.getElementById('back-from-levels-button'),\n        backFromStatsButton: document.getElementById('back-from-stats-button'),\n        backFromSettingsButton: document.getElementById('back-from-settings-button'),\n        languageSelect: document.getElementById('language-select'),\n        languageLabel: document.getElementById('language-label'),\n        gamesCompleted: document.getElementById('games-completed'),\n        successRate: document.getElementById('success-rate'),\n        averageTime: document.getElementById('average-time'),\n        badgesTitle: document.getElementById('badges-title'),\n        badgesList: document.getElementById('badges-list'),\n        premiumButton: document.getElementById('premium-button'),\n        premiumStatus: document.getElementById('premium-status'),\n        adPopup: document.getElementById('ad-popup'),\n        adMessage: document.getElementById('ad-message'),\n        skipAdButton: document.getElementById('skip-ad-button'),\n        realAdContainer: document.getElementById('real-ad-container'), \n        purchaseInstruction: document.getElementById('purchase-instruction')\n    };\n\n    let boardState = [];\n    let solution = [];\n    let currentLang = 'es';\n    let isPremium = false; \n    let currentAuthMode = 'login'; \n    let currentUserID = null; \n    let stats = {\n        gamesCompleted: 0,\n        gamesCorrect: 0,\n        totalTime: 0,\n        badges: []\n    };\n    let difficultySettings = {\n        level: 'easy'\n    };\n\n    const badges = [\n        { id: 'firstTriumph', desc: 'firstTriumphDesc' },\n        { id: 'speedDemon', desc: 'speedDemonDesc' },\n        { id: 'perfectionist', desc: 'perfectionistDesc' },\n        { id: 'mathematician', desc: 'mathematicianDesc' }\n    ];\n\n    // Prefijo para almacenar datos de cuentas\n    const USER_DATA_PREFIX = 'crossmath_user_';\n\n    function getLocalAccountData(email) {\n        const data = localStorage.getItem(USER_DATA_PREFIX + email);\n        return data ? JSON.parse(data) : null;\n    }\n\n    function saveLocalAccountData(email, data) {\n        localStorage.setItem(USER_DATA_PREFIX + email, JSON.stringify(data));\n    }\n\n    function removeLocalAccountData(email) {\n        localStorage.removeItem(USER_DATA_PREFIX + email);\n    }\n\n    function saveCurrentUserState() {\n        if (currentUserID) {\n            const currentData = getLocalAccountData(currentUserID) || {};\n            saveLocalAccountData(currentUserID, {\n                password: currentData.password, \n                stats: stats,\n                isPremium: isPremium,\n                boardState: boardState,\n                solution: solution,\n                difficultySettings: difficultySettings\n            });\n        }\n    }\n\n    function loadCurrentUserState(email) {\n        const userData = getLocalAccountData(email);\n        if (userData) {\n            stats = userData.stats || { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };\n            isPremium = userData.isPremium || false;\n            boardState = userData.boardState || [];\n            solution = userData.solution || [];\n            difficultySettings = userData.difficultySettings || { level: 'easy' };\n        } else {\n            stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };\n            isPremium = false;\n            boardState = [];\n            solution = [];\n            difficultySettings = { level: 'easy' };\n        }\n        currentUserID = email;\n        // Limpiar las variables globales de localStorage si había datos sin cuenta\n        localStorage.removeItem('crossmath_stats');\n        localStorage.removeItem('crossmath_isPremium');\n        localStorage.removeItem('crossmath_boardState');\n        localStorage.removeItem('crossmath_solution');\n        localStorage.removeItem('crossmath_difficulty');\n    }\n    \n    function updateAuthScreenUI() {\n        const t = translations[currentLang];\n        elements.authTitle.textContent = currentAuthMode === 'login' ? t.loginTitle : t.registerTitle;\n        elements.authSubmitButton.textContent = currentAuthMode === 'login' ? t.loginButton : t.registerButton;\n        elements.switchAuthModeButton.textContent = currentAuthMode === 'login' ? t.loginSwitch : t.registerSwitch;\n        elements.authStatusMessage.textContent = '';\n        elements.authEmail.value = '';\n        elements.authPassword.value = '';\n    }\n\n    // --- FUNCIONES DE BORRADO DE DATOS ---\n\n    // Botón 1: Borra solo progreso y estadísticas (Mantiene Premium)\n    function deleteLocalProgress() {\n        const t = translations[currentLang];\n        if (confirm(t.clearProgressConfirm)) {\n            stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };\n            boardState = [];\n            solution = [];\n            \n            saveCurrentUserState();\n            alert(t.progressCleared);\n            updateStatsView();\n            updateMainMenuUI();\n        }\n    }\n\n    // Botón 2: Borra todo (Incluye Premium + Advertencia)\n    function resetAllData() {\n        const t = translations[currentLang];\n        if (confirm(t.resetAllConfirm)) {\n            stats = { gamesCompleted: 0, gamesCorrect: 0, totalTime: 0, badges: [] };\n            boardState = [];\n            solution = [];\n            isPremium = false; \n            \n            saveCurrentUserState();\n            alert(t.allDataReset);\n            updateStatsView();\n            updateMainMenuUI();\n            updatePremiumView();\n        }\n    }\n    // --- FIN FUNCIONES DE BORRADO DE DATOS ---\n    \n    // --- FUNCIONES DE SINCRONIZACIÓN POR PIN (FIREBASE) ---\n\n    // Función que simula guardar datos en la 'nube' usando el PIN como clave\n    async function saveToExternalDB
+    // JavaScript para la lógica del juego y la interacción con el usuario
+    // Se recomienda separar este código en archivos .js para mejor organización.
+
+    // Variables para controlar las pantallas
+    const authScreen = document.getElementById('auth-screen');
+    const mainMenu = document.getElementById('main-menu');
+    const levelSelectScreen = document.getElementById('level-select-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const statsScreen = document.getElementById('stats-screen');
+    const settingsScreen = document.getElementById('settings-screen');
+    const adPopup = document.getElementById('ad-popup');
+
+    // Botones y elementos de la interfaz
+    const authForm = document.getElementById('auth-form');
+    const authSubmitButton = document.getElementById('auth-submit-button');
+    const switchAuthModeButton = document.getElementById('switch-auth-mode-button');
+    const authBackButton = document.getElementById('auth-back-button');
+    const playButton = document.getElementById('play-button');
+    const statsButton = document.getElementById('stats-button');
+    const settingsButton = document.getElementById('settings-button');
+    const logoutButton = document.getElementById('logout-button');
+    const backFromLevelsButton = document.getElementById('back-from-levels-button');
+    const backToMenuButton = document.getElementById('back-to-menu-button');
+    const backFromStatsButton = document.getElementById('back-from-stats-button');
+    const backFromSettingsButton = document.getElementById('back-from-settings-button');
+    const easyLevelButton = document.getElementById('easy-level-button');
+    const mediumLevelButton = document.getElementById('medium-level-button');
+    const hardLevelButton = document.getElementById('hard-level-button');
+    const expertLevelButton = document.getElementById('expert-level-button');
+    const threeDigitButton = document.getElementById('three-digit-button');
+    const infiniteLevelButton = document.getElementById('infinite-level-button');
+    const premiumButton = document.getElementById('premium-button');
+    const skipAdButton = document.getElementById('skip-ad-button');
+    const exportButton = document.getElementById('export-button');
+    const importButton = document.getElementById('import-button');
+    const clearProgressButton = document.getElementById('clear-progress-button');
+    const resetAllButton = document.getElementById('reset-all-button');
+    const deleteAccountButton = document.getElementById('delete-account-button');
+
+    // Funciones para mostrar y ocultar pantallas
+    function showScreen(screenId) {
+        // Oculta todas las pantallas
+        const screens = document.querySelectorAll('.screen');
+        screens.forEach(screen => screen.classList.remove('active'));
+
+        // Muestra la pantalla especificada
+        const screenToShow = document.getElementById(screenId);
+        if (screenToShow) {
+            screenToShow.classList.add('active');
+        }
+    }
+
+    // Event listeners para los botones
+    authSubmitButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        // Aquí iría la lógica de autenticación (ej: verificar usuario y contraseña)
+        // Después de la autenticación exitosa, mostrar mainMenu
+        showScreen('main-menu');
+    });
+
+    switchAuthModeButton.addEventListener('click', () => {
+        // Implementar lógica para cambiar entre modo de inicio de sesión y registro
+        // Por ejemplo, cambiar el texto del botón y la funcionalidad del formulario
+    });
+
+    authBackButton.addEventListener('click', () => {
+        // Implementar lógica para volver a la pantalla anterior (si la hay)
+    });
+
+    playButton.addEventListener('click', () => {
+        showScreen('level-select-screen');
+    });
+
+    statsButton.addEventListener('click', () => {
+        showScreen('stats-screen');
+    });
+
+    settingsButton.addEventListener('click', () => {
+        showScreen('settings-screen');
+    });
+
+    logoutButton.addEventListener('click', () => {
+        // Implementar lógica para cerrar sesión
+        showScreen('auth-screen'); // Volver a la pantalla de autenticación
+    });
+
+    backFromLevelsButton.addEventListener('click', () => {
+        showScreen('main-menu');
+    });
+
+    backToMenuButton.addEventListener('click', () => {
+        showScreen('main-menu');
+    });
+
+    backFromStatsButton.addEventListener('click', () => {
+        showScreen('main-menu');
+    });
+
+    backFromSettingsButton.addEventListener('click', () => {
+        showScreen('main-menu');
+    });
+
+    easyLevelButton.addEventListener('click', () => {
+        // Iniciar el juego en el nivel fácil
+        startGame('easy');
+    });
+
+    mediumLevelButton.addEventListener('click', () => {
+        startGame('medium');
+    });
+
+    hardLevelButton.addEventListener('click', () => {
+        startGame('hard');
+    });
+
+    expertLevelButton.addEventListener('click', () => {
+        startGame('expert');
+    });
+
+    threeDigitButton.addEventListener('click', () => {
+        startGame('threeDigit');
+    });
+
+    infiniteLevelButton.addEventListener('click', () => {
+        startGame('infinite');
+    });
+
+    premiumButton.addEventListener('click', () => {
+        // Implementar lógica para la compra de Premium
+        // Mostrar un mensaje o redirigir a la tienda
+    });
+
+    skipAdButton.addEventListener('click', () => {
+        // Ocultar el anuncio y continuar con el juego
+        adPopup.style.display = 'none';
+    });
+
+    exportButton.addEventListener('click', () => {
+        // Implementar lógica para exportar datos (guardar en la nube)
+        // Mostrar un mensaje de éxito o error
+    });
+
+    importButton.addEventListener('click', () => {
+        // Implementar lógica para importar datos (cargar desde la nube)
+        // Mostrar un mensaje de éxito o error
+    });
+
+    clearProgressButton.addEventListener('click', () => {
+        // Implementar lógica para borrar el progreso del jugador
+        // Mostrar un mensaje de confirmación
+    });
+
+    resetAllButton.addEventListener('click', () => {
+        // Implementar lógica para restablecer todos los datos del juego
+        // Mostrar un mensaje de confirmación
+    });
+
+    deleteAccountButton.addEventListener('click', () => {
+        // Implementar lógica para eliminar la cuenta del jugador
+        // Mostrar un mensaje de confirmación
+    });
+
+    // Función para iniciar el juego en un nivel específico
+    function startGame(difficulty) {
+        // Aquí se debe implementar la lógica para iniciar el juego
+        // según la dificultad seleccionada.
+        // Por ejemplo:
+        // 1. Cargar los datos del nivel.
+        // 2. Mostrar la pantalla del juego.
+        // 3. Iniciar el temporizador (si es necesario).
+        // 4. Mostrar la interfaz del juego.
+        showScreen('game-screen');
+        // Puedes usar la variable 'difficulty' para determinar la dificultad del juego.
+        console.log(`Iniciando juego en dificultad: ${difficulty}`);
+    }
+
+    // Mostrar la pantalla de autenticación al inicio
+    showScreen('auth-screen');
+
+    // Funciones relacionadas con la sincronización de datos y Premium
+    function syncData() {
+        // Implementar la lógica para sincronizar datos con la nube
+        // Esto incluirá guardar y cargar el progreso del jugador,
+        // así como verificar el estado de Premium.
+    }
+
+    function checkPremiumStatus() {
+        // Implementar la lógica para verificar si el usuario tiene Premium.
+        // Actualizar la interfaz en consecuencia (ej: mostrar/ocultar funciones Premium).
+    }
+
+    function showAd() {
+        // Implementar la lógica para mostrar un anuncio.
+        // Esto podría incluir:
+        // 1. Mostrar el popup del anuncio.
+        // 2. Cargar el anuncio real (ej: usando una API de anuncios).
+        // 3. Mostrar un temporizador para saltar el anuncio.
+        adPopup.style.display = 'flex'; // Mostrar el popup
+    }
+
+    // Ejemplo de cómo mostrar un anuncio (puedes llamarlo en ciertos eventos)
+    // showAd();
+</script>
+</body>
+</html>
+```
