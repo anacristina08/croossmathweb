@@ -866,7 +866,7 @@
 
       // Inicial UI state
       actualizarEstadoPremiumUI();
-      document.getElementById("demo-info").innerHTML = "<strong>Cuenta demo</strong><br>Correo: premium_demo@crossmath.com<br>Contraseña: demo123";
+      // Nota: se removió la salida visible de demo-info para ocultar el aviso en UI.
     });
 
     /************************************************************************
@@ -884,6 +884,22 @@
       autenticar,
       registrarUsuario
     };
+
+    /* --- Fix robust back-settings listener (en caso de que onclick falte) --- */
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const btn = document.getElementById('back-settings');
+        if (btn && !btn._backListenerAdded) {
+          btn.addEventListener('click', function(e){
+            e.preventDefault();
+            try { showScreen('pantalla-principal'); } catch (err) { console.warn('showScreen no disponible aún'); }
+          });
+          btn._backListenerAdded = true;
+        }
+      } catch (e) { console.warn('Error instalando back-settings listener', e); }
+    });
+    /* --- end fix --- */
+
   </script>
 </head>
 <body>
@@ -906,10 +922,8 @@
             <button type="button" id="register-button" class="menu-button secondary">Crear Cuenta</button>
           </div>
         </form>
-        <div id="demo-info" style="margin-top:12px;color:#444;"></div>
-        <p style="margin-top:8px;font-size:0.9rem;color:#666;">
-          Nota: La cuenta demo ya está creada y tiene Premium activado para creadores de contenido.
-        </p>
+        <!-- El bloque visible de demo ha sido eliminado intencionalmente -->
+        <!-- El usuario demo sigue existiendo en localStorage y se intenta crear en Firestore, pero no se muestra -->
       </section>
 
       <!-- PANTALLA: Menú principal -->
