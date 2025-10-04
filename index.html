@@ -16,6 +16,7 @@
       align-items: center;
       min-height: 100vh;
       box-sizing: border-box;
+      color: #333; /* Color de texto por defecto */
     }
     .container {
       width: 90%;
@@ -26,15 +27,20 @@
       border-radius: 15px;
       box-shadow: 0 15px 30px rgba(0,0,0,0.3);
       text-align: center;
+      position: relative; /* Para efectos 3D */
+      transform-style: preserve-3d; /* Para efectos 3D */
+      perspective: 1000px; /* Para efectos 3D */
     }
     h1, h2 {
       color: #333;
       margin-bottom: 20px;
       font-weight: 700;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra sutil para títulos */
     }
     p {
       color: #555;
       font-size: 1.1em;
+      line-height: 1.6;
     }
     .screen { display: none; }
     .screen.active { display: block; }
@@ -48,10 +54,11 @@
         font-size: 16px;
         background-color: #f9f9f9;
         color: #333;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
     input:focus {
         border-color: #4CAF50;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        box-shadow: 0 0 10px rgba(76, 175, 80, 0.5); /* Sombra más pronunciada al enfocar */
         outline: none;
     }
     .menu-button, .level-button, .ad-button {
@@ -65,13 +72,15 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
       font-weight: bold;
       text-transform: uppercase;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Sombra para efecto 3D */
     }
     .menu-button:hover, .level-button:hover, .ad-button:hover {
         background-color: #45a049;
-        transform: translateY(-2px);
+        transform: translateY(-3px); /* Levantar el botón */
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3); /* Sombra más pronunciada al pasar el ratón */
     }
     .secondary-button { background-color: #f44336; }
     .secondary-button:hover { background-color: #da190b; }
@@ -87,6 +96,8 @@
       align-items: center;
       z-index: 1000;
       text-align: center;
+      transform-style: preserve-3d;
+      perspective: 1000px;
     }
     #real-ad-container {
       width: 320px;
@@ -99,6 +110,7 @@
       align-items: center;
       color: #eee;
       border-radius: 5px;
+      font-style: italic;
     }
     #auth-status-message, #feedback {
       font-weight: bold;
@@ -118,14 +130,22 @@
         background-color: #3a475a;
         border-radius: 8px;
         padding: 10px;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3); /* Sombra para efecto 3D */
+        transform: rotateX(5deg); /* Ligera inclinación para efecto 3D */
     }
     .puzzle-cell {
         width: 100%;
         height: 0;
-        padding-bottom: 100%; 
+        padding-bottom: 100%;
         position: relative;
         border-radius: 4px;
+        background-color: #fff; /* Fondo por defecto para celdas */
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 2px 5px rgba(0,0,0,0.15); /* Sombra interna y externa */
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .puzzle-cell:hover {
+        transform: translateY(-2px); /* Levantar al pasar el ratón */
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.25); /* Sombra más pronunciada */
     }
     .puzzle-cell > * {
         position: absolute;
@@ -141,11 +161,11 @@
     }
     .puzzle-cell.fixed-cell {
         background-color: #e8e8e8;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        color: #555; /* Color de texto para celdas fijas */
     }
     .puzzle-cell.input-cell {
         background-color: #ffffff;
-        border: 2px solid #4CAF50;
+        border: 2px solid #4CAF50; /* Borde resaltado para celdas de entrada */
     }
     .puzzle-cell.empty-cell {
         background-color: transparent;
@@ -174,12 +194,29 @@
         -webkit-appearance: none;
         margin: 0;
     }
+    /* Estilos para la pantalla de anuncio */
+    .ad-screen h2 {
+        color: white;
+        text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .ad-screen p {
+        color: #eee;
+    }
+    .ad-button {
+        background-color: #f44336;
+        margin-top: 20px;
+    }
+    .ad-button:hover {
+        background-color: #da190b;
+    }
   </style>
 
   <script type="module">
+    // Importaciones de Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
+    // Configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
       authDomain: "crossmath-sync-db.firebaseapp.com",
@@ -192,55 +229,351 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    
+
     document.addEventListener('DOMContentLoaded', () => {
       let isPremium = false;
       let currentUser = null;
       let currentDifficulty = '';
       let score = 0;
       let currentPuzzle = null;
+      let puzzlesSolved = {}; // Para llevar registro de puzzles resueltos por dificultad
 
+      // --- Inicialización y Configuración ---
+
+      // Crear usuario demo si no existe
       if (!localStorage.getItem("premium_demo@crossmath.com")) {
         localStorage.setItem("premium_demo@crossmath.com", JSON.stringify({
           password: "demo123",
-          isPremium: true
+          isPremium: true,
+          score: 0,
+          puzzlesSolved: {}
         }));
+        console.log("Usuario demo 'premium_demo@crossmath.com' creado.");
       }
 
       function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
       }
-      
+
+      function updatePremiumStatus() {
+        const premiumStatusEl = document.getElementById('premium-status');
+        if (isPremium) {
+          premiumStatusEl.textContent = 'Estado Premium: Premium ✨';
+          premiumStatusEl.style.color = '#4CAF50';
+        } else {
+          premiumStatusEl.textContent = 'Estado Premium: No Premium';
+          premiumStatusEl.style.color = '#f44336';
+        }
+      }
+
+      // --- Autenticación y Gestión de Usuario ---
+
       function authenticate(email, password) {
         const user = JSON.parse(localStorage.getItem(email));
         if (user && user.password === password) {
           currentUser = email;
           isPremium = user.isPremium;
+          score = user.score || 0;
+          puzzlesSolved = user.puzzlesSolved || {};
+          console.log(`Usuario ${email} autenticado. Premium: ${isPremium}, Puntuación: ${score}`);
           return true;
         }
         return false;
       }
-      
-      function updatePremiumStatus() {
-        const premiumStatusEl = document.getElementById('premium-status');
-        if (isPremium) {
-          premiumStatusEl.textContent = 'Estado Premium: Premium ✨';
-        } else {
-          premiumStatusEl.textContent = 'Estado Premium: No Premium';
+
+      function registerUser(email, password) {
+        if (localStorage.getItem(email)) {
+           alert("Ese correo ya está registrado.");
+           return false;
+        }
+        localStorage.setItem(email, JSON.stringify({
+          password: password,
+          isPremium: false,
+          score: 0,
+          puzzlesSolved: {}
+        }));
+        alert("Cuenta creada. Ahora puedes iniciar sesión.");
+        return true;
+      }
+
+      function logout() {
+        currentUser = null;
+        isPremium = false;
+        score = 0;
+        puzzlesSolved = {};
+        document.getElementById('auth-email').value = '';
+        document.getElementById('auth-password').value = '';
+        document.getElementById('auth-status-message').textContent = '';
+        document.getElementById('welcome-message').textContent = '';
+        updatePremiumStatus();
+        showScreen('auth-screen');
+      }
+
+      // --- Funciones de Juego ---
+
+      const puzzles = {
+        easy: [
+          { id: 'e1', grid: [[8, '/', null, '=', 2], ['+', '', '-', '', '*'], [2, '+', 3, '=', null], ['=', '', '=', '', '='], [null, '', 1, '', 10]] },
+          { id: 'e2', grid: [[5, '+', null, '=', 12], ['-', '', '*', '', '+'], [3, '*', 4, '=', null], ['=', '', '=', '', '='], [null, '', 7, '', 15]] },
+          { id: 'e3', grid: [[10, '-', null, '=', 3], ['*', '', '+', '', '/'], [2, '+', 5, '=', null], ['=', '', '=', '', '='], [null, '', 8, '', 4]] }
+        ],
+        medium: [
+          { id: 'm1', grid: [[null, '*', 3, '=', 21], ['-', '', '+', '', '/'], [4, '*', null, '=', 32], ['=', '', '=', '', '='], [3, '', 11, '', null]] },
+          { id: 'm2', grid: [[7, '+', null, '=', 15], ['/', '', '-', '', '*'], [6, '-', 2, '=', null], ['=', '', '=', '', '='], [null, '', 9, '', 18]] },
+          { id: 'm3', grid: [[null, '*', 5, '=', 30], ['+', '', '/', '', '-'], [8, '/', null, '=', 4], ['=', '', '=', '', '='], [2, '', 10, '', null]] }
+        ],
+        hard: [
+          { id: 'h1', grid: [[9, '-', null, '=', 2], ['*', '', '+', '', '*'], [null, '/', 3, '=', 3], ['=', '', '=', '', '='], [81, '', 12, '', null]] },
+          { id: 'h2', grid: [[null, '*', 6, '=', 42], ['-', '', '+', '', '/'], [5, '+', null, '=', 19], ['=', '', '=', '', '='], [7, '', 13, '', null]] },
+          { id: 'h3', grid: [[12, '/', null, '=', 4], ['+', '', '*', '', '-'], [null, '*', 5, '=', 20], ['=', '', '=', '', '='], [3, '', 15, '', null]] }
+        ]
+      };
+
+      // Función para obtener un puzzle que no haya sido resuelto recientemente
+      function getRandomPuzzle(difficulty) {
+        const availablePuzzles = puzzles[difficulty];
+        const solvedInSession = puzzlesSolved[difficulty] || [];
+        const unsolvedPuzzles = availablePuzzles.filter(p => !solvedInSession.includes(p.id));
+
+        if (unsolvedPuzzles.length === 0) {
+          // Si todos han sido resueltos en esta sesión, reinicia la lista de resueltos para esta dificultad
+          puzzlesSolved[difficulty] = [];
+          return availablePuzzles[Math.floor(Math.random() * availablePuzzles.length)];
+        }
+
+        const selectedPuzzle = unsolvedPuzzles[Math.floor(Math.random() * unsolvedPuzzles.length)];
+        // Añadir el puzzle seleccionado a la lista de resueltos en esta sesión
+        puzzlesSolved[difficulty] = [...(puzzlesSolved[difficulty] || []), selectedPuzzle.id];
+        return selectedPuzzle;
+      }
+
+      function renderPuzzle(puzzle) {
+        const gridElement = document.getElementById('puzzle-grid');
+        gridElement.innerHTML = ''; // Limpiar grid anterior
+        const rows = puzzle.grid.length;
+        const cols = puzzle.grid[0].length;
+        gridElement.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        gridElement.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+        let cellIndex = 0;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const cellValue = puzzle.grid[r][c];
+            const cell = document.createElement('div');
+            cell.classList.add('puzzle-cell');
+
+            if (cellValue === null) {
+              const input = document.createElement('input');
+              input.type = 'number';
+              input.setAttribute('data-row', r);
+              input.setAttribute('data-col', c);
+              input.pattern = "[0-9-]*"; // Permitir números y guiones (para negativos si se implementan)
+              input.addEventListener('input', (e) => {
+                // Limitar a un dígito si se desea, o permitir varios
+                if (e.target.value.length > 1) {
+                  e.target.value = e.target.value.slice(0, 1);
+                }
+              });
+              cell.appendChild(input);
+              cell.classList.add('input-cell');
+            } else if (cellValue !== '') {
+              cell.textContent = cellValue;
+              cell.classList.add('fixed-cell');
+            } else {
+              cell.classList.add('empty-cell'); // Celdas completamente vacías
+            }
+            gridElement.appendChild(cell);
+            cellIndex++;
+          }
         }
       }
 
+      function checkAnswer() {
+        const gridCells = Array.from(document.getElementById('puzzle-grid').querySelectorAll('.puzzle-cell'));
+        const cols = currentPuzzle.grid[0].length;
+        let allCorrect = true;
+        const feedbackEl = document.getElementById('feedback');
+        feedbackEl.textContent = '';
+        feedbackEl.className = '';
+
+        // Obtener los valores actuales de las celdas de entrada
+        const currentGridValues = {};
+        gridCells.forEach((cell, index) => {
+            const input = cell.querySelector('input');
+            const r = parseInt(cell.querySelector('input')?.getAttribute('data-row') || cell.parentElement.querySelectorAll('.puzzle-cell').indexOf(cell) / cols);
+            const c = parseInt(cell.querySelector('input')?.getAttribute('data-col') || cell.parentElement.querySelectorAll('.puzzle-cell').indexOf(cell) % cols);
+
+            if (input) {
+                currentGridValues[`${r},${c}`] = input.value === '' ? null : parseFloat(input.value);
+            } else {
+                const textValue = cell.textContent;
+                currentGridValues[`${r},${c}`] = textValue === '' ? null : parseFloat(textValue);
+            }
+        });
+
+        // Validar las ecuaciones
+        for (const eq of currentPuzzle.equations) {
+            const equationCells = eq.cells.map(pos => `${pos[0]},${pos[1]}`);
+            const values = equationCells.map(key => currentGridValues[key]);
+
+            const num1 = values[0];
+            const operator = values[1];
+            const num2 = values[2];
+            const equalsSign = values[3]; // Debería ser '='
+            const result = values[4];
+
+            // Verificar que todos los valores necesarios estén presentes y sean numéricos
+            if (num1 === null || operator === null || num2 === null || result === null || equalsSign !== '=' || values.includes(null)) {
+                allCorrect = false;
+                break;
+            }
+
+            let calculatedResult;
+            switch(operator) {
+                case '+': calculatedResult = num1 + num2; break;
+                case '-': calculatedResult = num1 - num2; break;
+                case '*': calculatedResult = num1 * num2; break;
+                case '/':
+                    if (num2 === 0) { // Evitar división por cero
+                        allCorrect = false;
+                        break;
+                    }
+                    calculatedResult = num1 / num2;
+                    break;
+                default:
+                  allCorrect = false; // Operador desconocido
+                  break;
+            }
+            if (!allCorrect) break;
+
+            // Comparar el resultado calculado con el resultado esperado
+            // Usar una pequeña tolerancia para comparaciones de punto flotante si es necesario
+            if (Math.abs(calculatedResult - result) > 0.0001) {
+                allCorrect = false;
+                break;
+            }
+        }
+
+        if (allCorrect) {
+            score++;
+            feedbackEl.textContent = "¡Crucigrama resuelto! ¡Excelente!";
+            feedbackEl.className = 'correct';
+            saveProgress(); // Guardar progreso al resolver
+            setTimeout(() => startGame(currentDifficulty), 2000); // Pasar al siguiente puzzle
+        } else {
+            feedbackEl.textContent = "Algunas operaciones son incorrectas. ¡Sigue intentando!";
+            feedbackEl.className = 'incorrect';
+        }
+      }
+
+      function startGame(difficulty) {
+        currentDifficulty = difficulty;
+        const puzzleToPlay = getRandomPuzzle(difficulty);
+        if (!puzzleToPlay) {
+            alert("¡Has completado todos los puzzles de este nivel!");
+            showScreen('level-select-screen');
+            return;
+        }
+        currentPuzzle = puzzleToPlay;
+
+        document.getElementById('game-title').textContent = `Nivel ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
+        renderPuzzle(currentPuzzle);
+        document.getElementById('feedback').textContent = '';
+        showScreen('game-screen');
+        if (!isPremium) { // Mostrar anuncio si no es premium
+            setTimeout(showAd, 5000); // Mostrar anuncio después de unos segundos
+        }
+      }
+
+      // --- Funciones de Anuncios ---
       function showAd() {
         document.getElementById('ad-popup').style.display = 'flex';
         console.log("Mostrando anuncio...");
       }
 
+      // --- Funciones de Progreso y Sincronización ---
+
+      function saveProgress() {
+        if (!currentUser) return;
+        const userData = {
+          password: JSON.parse(localStorage.getItem(currentUser)).password, // Mantener contraseña original
+          isPremium: isPremium,
+          score: score,
+          puzzlesSolved: puzzlesSolved
+        };
+        localStorage.setItem(currentUser, JSON.stringify(userData));
+        console.log(`Progreso guardado localmente para ${currentUser}:`, userData);
+
+        // Guardar en Firebase Firestore
+        const userDocRef = doc(db, "users", currentUser);
+        setDoc(userDocRef, userData, { merge: true })
+          .then(() => console.log(`Progreso guardado en Firebase para ${currentUser}`))
+          .catch(error => console.error("Error al guardar en Firebase:", error));
+      }
+
+      function loadProgress(email) {
+        const userDocRef = doc(db, "users", email);
+        getDoc(userDocRef)
+          .then(docSnap => {
+            if (docSnap.exists()) {
+              const firebaseData = docSnap.data();
+              console.log("Datos cargados desde Firebase:", firebaseData);
+              // Actualizar estado local con datos de Firebase
+              isPremium = firebaseData.isPremium || false;
+              score = firebaseData.score || 0;
+              puzzlesSolved = firebaseData.puzzlesSolved || {};
+              updatePremiumStatus();
+              document.getElementById('welcome-message').textContent = `Bienvenido de vuelta, ${email}`;
+              showScreen('main-menu');
+            } else {
+              console.log("No se encontraron datos en Firebase para este usuario. Cargando desde localStorage.");
+              // Si no hay datos en Firebase, intentar cargar desde localStorage
+              const localData = JSON.parse(localStorage.getItem(email));
+              if (localData) {
+                isPremium = localData.isPremium || false;
+                score = localData.score || 0;
+                puzzlesSolved = localData.puzzlesSolved || {};
+                updatePremiumStatus();
+                document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
+                showScreen('main-menu');
+              } else {
+                // Si tampoco hay en localStorage, es un usuario nuevo o error
+                alert("Error al cargar el progreso. Por favor, inicia sesión de nuevo.");
+                logout();
+              }
+            }
+          })
+          .catch(error => {
+            console.error("Error al cargar desde Firebase:", error);
+            // Fallback a localStorage si hay error de red o Firebase
+            const localData = JSON.parse(localStorage.getItem(email));
+            if (localData) {
+              isPremium = localData.isPremium || false;
+              score = localData.score || 0;
+              puzzlesSolved = localData.puzzlesSolved || {};
+              updatePremiumStatus();
+              document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
+              showScreen('main-menu');
+            } else {
+              alert("Error al cargar el progreso. Por favor, inicia sesión de nuevo.");
+              logout();
+            }
+          });
+      }
+
       function exportProgress() {
         if (!currentUser) return alert("Debes iniciar sesión para exportar tu progreso.");
-        const userData = localStorage.getItem(currentUser);
+        const userData = JSON.parse(localStorage.getItem(currentUser));
         if (!userData) return alert("No se encontraron datos para exportar.");
-        const exportData = { email: currentUser, data: JSON.parse(userData) };
+
+        const exportData = {
+          email: currentUser,
+          password: userData.password, // Incluir contraseña para facilitar la importación
+          isPremium: userData.isPremium,
+          score: userData.score,
+          puzzlesSolved: userData.puzzlesSolved
+        };
         const dataStr = JSON.stringify(exportData, null, 2);
         const dataBlob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(dataBlob);
@@ -263,14 +596,38 @@
           reader.onload = event => {
             try {
               const importedData = JSON.parse(event.target.result);
-              if (importedData && importedData.email && importedData.data) {
-                localStorage.setItem(importedData.email, JSON.stringify(importedData.data));
-                alert(`¡Éxito! Progreso para '${importedData.email}' importado.`);
+              if (importedData && importedData.email && importedData.password) {
+                // Guardar en localStorage
+                localStorage.setItem(importedData.email, JSON.stringify({
+                  password: importedData.password,
+                  isPremium: importedData.isPremium || false,
+                  score: importedData.score || 0,
+                  puzzlesSolved: importedData.puzzlesSolved || {}
+                }));
+                // Guardar en Firebase
+                const userDocRef = doc(db, "users", importedData.email);
+                setDoc(userDocRef, {
+                  password: importedData.password, // Sobrescribir contraseña si es necesario
+                  isPremium: importedData.isPremium || false,
+                  score: importedData.score || 0,
+                  puzzlesSolved: importedData.puzzlesSolved || {}
+                }, { merge: true })
+                .then(() => {
+                  alert(`¡Éxito! Progreso para '${importedData.email}' importado y sincronizado.`);
+                  // Si el usuario importado es el usuario actual, actualizar estado
+                  if (currentUser === importedData.email) {
+                    authenticate(currentUser, importedData.password); // Re-autenticar para actualizar estado
+                    updatePremiumStatus();
+                  }
+                })
+                .catch(error => {
+                  alert(`¡Éxito! Progreso para '${importedData.email}' importado localmente, pero hubo un error al sincronizar con la nube: ${error.message}`);
+                });
               } else {
                 alert("Error: El archivo no tiene el formato correcto.");
               }
             } catch (error) {
-              alert("Error al leer el archivo.");
+              alert("Error al leer el archivo. Asegúrate de que sea un archivo JSON válido.");
             }
           };
           reader.readAsText(file);
@@ -278,165 +635,14 @@
         input.click();
       }
 
-      const puzzles = {
-        easy: [
-          {
-            grid: [
-              [8, '/', null, '=', 2],
-              ['+', '', '-', '', '*'],
-              [2, '+', 3, '=', null],
-              ['=', '', '=', '', '='],
-              [null, '', 1, '', 10]
-            ],
-            equations: [
-              { cells: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
-              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
-              { cells: [[0,0], [1,0], [2,0], [3,0], [4,0]] },
-              { cells: [[0,2], [1,2], [2,2], [3,2], [4,2]] },
-              { cells: [[0,4], [1,4], [2,4], [3,4], [4,4]] }
-            ]
-          }
-        ],
-        medium: [
-          {
-            grid: [
-              [null, '*', 3, '=', 21],
-              ['-', '', '+', '', '/'],
-              [4, '*', null, '=', 32],
-              ['=', '', '=', '', '='],
-              [3, '', 11, '', null]
-            ],
-            equations: [
-              { cells: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
-              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
-              { cells: [[0,0], [1,0], [2,0], [3,0], [4,0]] },
-              { cells: [[0,2], [1,2], [2,2], [3,2], [4,2]] },
-              { cells: [[0,4], [1,4], [2,4], [3,4], [4,4]] }
-            ]
-          }
-        ],
-        hard: [
-          {
-            grid: [
-              [9, '-', null, '=', 2],
-              ['*', '', '+', '', '*'],
-              [null, '/', 3, '=', 3],
-              ['=', '', '=', '', '='],
-              [81, '', 12, '', null]
-            ],
-            equations: [
-              { cells: [[0,0], [0,1], [0,2], [0,3], [0,4]] },
-              { cells: [[2,0], [2,1], [2,2], [2,3], [2,4]] },
-              { cells: [[0,0], [1,0], [2,0], [3,0], [4,0]] },
-              { cells: [[0,2], [1,2], [2,2], [3,2], [4,2]] },
-              { cells: [[0,4], [1,4], [2,4], [3,4], [4,4]] }
-            ]
-          }
-        ]
-      };
-
-      function renderPuzzle(puzzle) {
-        const grid = document.getElementById('puzzle-grid');
-        grid.innerHTML = '';
-        const rows = puzzle.grid.length;
-        const cols = puzzle.grid[0].length;
-        grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-        grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-        puzzle.grid.flat().forEach(cellValue => {
-            const cell = document.createElement('div');
-            cell.classList.add('puzzle-cell');
-
-            if (cellValue === null) {
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.pattern = "[0-9-]*";
-                cell.appendChild(input);
-                cell.classList.add('input-cell');
-            } else if (cellValue !== '') {
-                cell.textContent = cellValue;
-                cell.classList.add('fixed-cell');
-            } else {
-                cell.classList.add('empty-cell');
-            }
-            grid.appendChild(cell);
-        });
-      }
-
-      function checkAnswer() {
-        const gridCells = Array.from(document.querySelectorAll('#puzzle-grid .puzzle-cell'));
-        const cols = currentPuzzle.grid[0].length;
-        let allCorrect = true;
-
-        for (const eq of currentPuzzle.equations) {
-            const values = eq.cells.map(pos => {
-                const cell = gridCells[pos[0] * cols + pos[1]];
-                const input = cell.querySelector('input');
-                return input ? input.value : cell.textContent;
-            });
-            
-            const num1 = parseFloat(values[0]);
-            const operator = values[1];
-            const num2 = parseFloat(values[2]);
-            const result = parseFloat(values[4]);
-
-            if (isNaN(num1) || isNaN(num2) || isNaN(result) || values.includes('')) {
-                allCorrect = false;
-                break;
-            }
-
-            let calculatedResult;
-            switch(operator) {
-                case '+': calculatedResult = num1 + num2; break;
-                case '-': calculatedResult = num1 - num2; break;
-                case '*': calculatedResult = num1 * num2; break;
-                case '/': calculatedResult = num1 / num2; break;
-                default:
-                  allCorrect = false;
-                  break;
-            }
-            if (!allCorrect) break;
-            
-            if (calculatedResult !== result) {
-                allCorrect = false;
-                break;
-            }
-        }
-        
-        const feedbackEl = document.getElementById('feedback');
-        if (allCorrect) {
-            score++;
-            feedbackEl.textContent = "¡Crucigrama resuelto! ¡Excelente!";
-            feedbackEl.className = 'correct';
-            setTimeout(() => startGame(currentDifficulty), 2000);
-        } else {
-            feedbackEl.textContent = "Algunas operaciones son incorrectas. ¡Sigue intentando!";
-            feedbackEl.className = 'incorrect';
-        }
-      }
-
-      function startGame(difficulty) {
-        currentDifficulty = difficulty;
-        const puzzleSet = puzzles[difficulty];
-        currentPuzzle = puzzleSet[Math.floor(Math.random() * puzzleSet.length)];
-        
-        document.getElementById('game-title').textContent = `Nivel ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}`;
-        renderPuzzle(currentPuzzle); 
-        document.getElementById('feedback').textContent = '';
-        showScreen('game-screen');
-      }
+      // --- Event Listeners ---
 
       document.getElementById('register-button').onclick = () => {
-        const email = prompt("Correo:");
-        const pass = prompt("Contraseña:");
-        if (email && pass) {
-          if (localStorage.getItem(email)) {
-             alert("Ese correo ya está registrado.");
-             return;
-          }
-          localStorage.setItem(email, JSON.stringify({ password: pass, isPremium: false }));
-          alert("Cuenta creada. Ahora puedes iniciar sesión.");
-        }
+        const email = prompt("Introduce el correo electrónico para la nueva cuenta:");
+        if (!email) return;
+        const pass = prompt("Introduce una contraseña:");
+        if (!pass) return;
+        registerUser(email, pass);
       };
 
       document.getElementById('auth-form').onsubmit = e => {
@@ -446,51 +652,61 @@
         if (authenticate(email, pass)) {
           document.getElementById('welcome-message').textContent = `Bienvenido, ${email}`;
           updatePremiumStatus();
-          showScreen('main-menu');
+          // Intentar cargar progreso desde Firebase primero
+          loadProgress(email);
         } else {
           document.getElementById('auth-status-message').textContent = "Credenciales incorrectas. Intenta de nuevo.";
         }
       };
 
-      document.getElementById('logout-button').onclick = () => {
-        currentUser = null;
-        isPremium = false;
-        document.getElementById('auth-email').value = '';
-        document.getElementById('auth-password').value = '';
-        document.getElementById('auth-status-message').textContent = '';
-        showScreen('auth-screen');
-      };
+      document.getElementById('logout-button').onclick = logout;
 
       document.getElementById('play-button').onclick = () => {
-        if (!isPremium) showAd();
+        if (!isPremium) {
+            showAd();
+        }
         showScreen('level-select-screen');
       };
 
       document.querySelectorAll('.level-button').forEach(button => {
-        button.addEventListener('click', (e) => startGame(e.target.dataset.difficulty));
+        button.addEventListener('click', (e) => {
+            // Reiniciar puzzlesSolved para la sesión actual si se cambia de nivel
+            // Opcional: podrías querer mantener el estado de puzzlesSolved entre niveles si el usuario no cierra sesión
+            // puzzlesSolved = {}; // Descomentar si quieres que cada nivel empiece "fresco" en cuanto a puzzles resueltos en la sesión
+            startGame(e.target.dataset.difficulty);
+        });
       });
 
       document.getElementById('submit-answer').onclick = checkAnswer;
       document.getElementById('back-to-level-select').onclick = () => showScreen('level-select-screen');
-      document.getElementById('skip-ad-button').onclick = () => { 
-        document.getElementById('ad-popup').style.display = 'none'; 
+      document.getElementById('skip-ad-button').onclick = () => {
+        document.getElementById('ad-popup').style.display = 'none';
       };
-      document.getElementById('settings-button').onclick = () => showScreen('settings-screen');
+      document.getElementById('settings-button').onclick = () => {
+        updatePremiumStatus(); // Asegurarse de que el estado premium se muestre correctamente
+        showScreen('settings-screen');
+      };
       document.getElementById('back-to-menu').onclick = () => showScreen('main-menu');
       document.getElementById('back-settings').onclick = () => showScreen('main-menu');
+
       document.getElementById('buy-premium').onclick = () => {
         if (!currentUser) return alert("Debes iniciar sesión para comprar Premium.");
+        // Abrir la página de Gumroad en una nueva pestaña
         window.open("https://anacristinacz.gumroad.com/l/rnlle", "_blank");
-        const userData = JSON.parse(localStorage.getItem(currentUser));
-        userData.isPremium = true;
-        localStorage.setItem(currentUser, JSON.stringify(userData));
-        isPremium = true;
-        updatePremiumStatus();
-        alert("¡Felicidades! Tu cuenta ahora es Premium.");
+        alert("Si has completado la compra, por favor, actualiza la página o cierra y vuelve a iniciar sesión para que tu estado Premium se refleje.");
+        // Nota: La activación automática real requeriría un webhook o un sistema de verificación más complejo.
+        // Aquí simulamos que el usuario debe confirmar la compra y luego se actualiza.
+        // Para una simulación más directa, podrías añadir un botón "Confirmar Compra Premium"
+        // que actualice el estado isPremium y guarde en localStorage/Firebase.
       };
 
       document.getElementById('export-button').onclick = exportProgress;
       document.getElementById('import-button').onclick = importProgress;
+
+      // --- Inicialización al cargar la página ---
+      // Mostrar pantalla de login al inicio
+      showScreen('auth-screen');
+      updatePremiumStatus(); // Actualizar estado inicial (probablemente no premium)
     });
   </script>
 </head>
@@ -531,10 +747,11 @@
     <button class="menu-button" id="buy-premium">Comprar Premium</button>
     <button class="menu-button" id="export-button">Exportar Progreso</button>
     <button class="menu-button" id="import-button">Importar Progreso</button>
-    <input type="text" id="sync-pin" placeholder="PIN de 6 dígitos" maxlength="6" />
+    <!-- <input type="text" id="sync-pin" placeholder="PIN de 6 dígitos" maxlength="6" /> -->
+    <!-- El PIN de sincronización no se implementó en esta versión, ya que la sincronización se basa en el email del usuario -->
     <button class="menu-button secondary-button" id="back-settings">Volver</button>
   </div>
-  
+
   <div id="game-screen" class="screen">
     <h2 id="game-title">Juego</h2>
     <div id="puzzle-grid"></div>
