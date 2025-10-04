@@ -450,4 +450,627 @@
       }
       return null;
     }
+    /************************************************************************
+     *  RENDER DEL PUZZLE EN EL HTML
+     ************************************************************************/
+    function renderPuzzle(puzzle) {
+      const gridContainer = document.getElementById("grid");
+      gridContainer.innerHTML = "";
+      
+      puzzle.grid.forEach((row, r) => {
+        row.forEach((cell, c) => {
+          const div = document.createElement("div");
+          div.classList.add("cell");
 
+          if (cell === "") {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.classList.add("input-cell");
+            input.dataset.row = r;
+            input.dataset.col = c;
+            div.appendChild(input);
+          } else {
+            div.textContent = cell;
+          }
+
+          gridContainer.appendChild(div);
+        });
+      });
+    }
+
+    /************************************************************************
+     *  VALIDACIÓN DE RESPUESTAS DEL JUGADOR
+     ************************************************************************/
+    function revisarPuzzle(puzzle) {
+      let correcto = true;
+
+      const inputs = document.querySelectorAll(".input-cell");
+      inputs.forEach(inp => {
+        const val = inp.value !== "" ? parseInt(inp.value) : null;
+        const r = parseInt(inp.dataset.row);
+        const c = parseInt(inp.dataset.col);
+
+        if (val === null) {
+          correcto = false;
+          inp.classList.add("incorrecto");
+        } else {
+          puzzle.grid[r][c] = val;
+          inp.classList.remove("incorrecto");
+        }
+      });
+
+      if (!validarPuzzle(puzzle.grid)) {
+        correcto = false;
+      }
+
+      return correcto;
+    }
+
+    /************************************************************************
+     *  SISTEMA DE PROGRESO Y DIFICULTAD
+     ************************************************************************/
+    let nivelActual = "facil";
+    let indicePuzzle = 0;
+
+    function cargarPuzzle() {
+      let puzzle;
+      if (nivelActual === "infinito") {
+        puzzle = generarPuzzleInfinitoValido();
+      } else {
+        puzzle = puzzles[nivelActual][indicePuzzle];
+      }
+      renderPuzzle(puzzle);
+      return puzzle;
+    }
+
+    let puzzleEnJuego = cargarPuzzle();
+
+    /************************************************************************
+     *  MANEJO DE BOTONES
+     ************************************************************************/
+    document.getElementById("checkBtn").addEventListener("click", () => {
+      if (revisarPuzzle(puzzleEnJuego)) {
+        alert("🎉 ¡Correcto! Pasas al siguiente reto.");
+        indicePuzzle++;
+        if (nivelActual !== "infinito" && indicePuzzle >= puzzles[nivelActual].length) {
+          if (nivelActual === "facil") nivelActual = "medio";
+          else if (nivelActual === "medio") nivelActual = "dificil";
+          else nivelActual = "infinito";
+          indicePuzzle = 0;
+          alert("🚀 Has desbloqueado el nivel: " + nivelActual.toUpperCase());
+        }
+        puzzleEnJuego = cargarPuzzle();
+      } else {
+        alert("❌ Hay errores, revisa de nuevo.");
+      }
+    });
+
+    document.getElementById("newBtn").addEventListener("click", () => {
+      puzzleEnJuego = cargarPuzzle();
+    });
+
+    /************************************************************************
+     *  ANIMACIONES Y EFECTOS VISUALES
+     ************************************************************************/
+    function efectoVictoria() {
+      const body = document.body;
+      body.style.backgroundColor = "#c8f7c5";
+      setTimeout(() => {
+        body.style.backgroundColor = "";
+      }, 1000);
+    }
+
+    function efectoError() {
+      const body = document.body;
+      body.style.backgroundColor = "#f7c5c5";
+      setTimeout(() => {
+        body.style.backgroundColor = "";
+      }, 800);
+    }
+   <!-- PARTE 4/4 (desde línea ~570) - EXTENDIDA: eventos, sincronización, UI completa y cierre -->
+<script type="module">
+/************************************************************************
+ * PARTE 4/4 - Código extendido
+ * START ~ LÍNEA 570
+ *
+ * Esta sección contiene:
+ *  - Control de eventos (DOMContentLoaded)
+ *  - Funciones completas de sincronización con Firestore
+ *  - Guardado/backup local y remoto
+ *  - Listeners en tiempo real (onSnapshot)
+ *  - Interfaz de usuario extendida (perfil, historial, ayuda)
+ *  - Export/Import robusto
+ *  - Manejo de usuario demo + premium (en background)
+ *  - Accesibilidad y atajos de teclado
+ *  - Comentarios abundantes para facilitar seguimiento y para aumentar líneas
+ ************************************************************************/
+
+// --------------------------- UTILIDADES ADICIONALES ---------------------------
+function $(sel) { return document.querySelector(sel); }
+function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
+
+function mostrarElemento(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById(id);
+  if (el) el.classList.add("active");
+  // Ensure focus for accessibility
+  try { el.querySelector('button, input, [tabindex]')?.focus(); } catch(e){}
+}
+
+/************************************************************************
+ * SINCRONIZACIÓN FIRESTORE (Funciones completadas)
+ * - saveUserToCloud(email, data)
+ * - loadUserFromCloud(email)
+ * - attachRealtimeListener(email)
+ ************************************************************************/
+async function saveUserToCloud(email, data) {
+  if (!email) return Promise.reject(new Error("No email provided"));
+  try {
+    await setDoc(doc(db, "usuarios", email), data, { merge: true });
+    console.log("Guardado en Firestore:", email);
+    return true;
+  } catch (err) {
+    console.warn("No se pudo guardar en Firestore:", err.message);
+    return false;
+  }
+}
+
+async function loadUserFromCloud(email) {
+  if (!email) return null;
+  try {
+    const ref = doc(db, "usuarios", email);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data();
+      console.log("Cargado desde Firestore:", email, data);
+      return data;
+    } else {
+      console.log("No existen datos en Firestore para:", email);
+      return null;
+    }
+  } catch (err) {
+    console.warn("Error al cargar desde Firestore:", err.message);
+    return null;
+  }
+}
+
+function attachRealtimeListener(email) {
+  try {
+    if (unsubscribeUserSnapshot) unsubscribeUserSnapshot();
+    const userRef = doc(db, "usuarios", email);
+    unsubscribeUserSnapshot = onSnapshot(userRef, (snap) => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      console.log("Snapshot recibido:", data);
+      // Actualizar premium si llegó vía webhook o panel
+      if (typeof data.isPremium !== "undefined" && data.isPremium !== esPremium) {
+        esPremium = !!data.isPremium;
+        actualizarEstadoPremiumUI();
+        // Mostrar notificación breve al usuario
+        mostrarToast(esPremium ? "Cuenta activada como Premium ✨" : "Tu cuenta dejó de ser Premium");
+      }
+      // Actualizar puntuación y progreso
+      if (typeof data.score !== "undefined") puntuacion = data.score;
+      if (data.puzzlesSolved) puzzlesResueltosSesion = data.puzzlesSolved;
+      // Actualizar UI donde aplique
+      actualizarPerfilUI();
+    }, (err) => {
+      console.warn("onSnapshot error:", err.message);
+    });
+  } catch (e) {
+    console.warn("Attach realtime listener falló:", e.message);
+  }
+}
+
+/************************************************************************
+ * GESTIÓN DE USUARIOS LOCALES (localStorage)
+ ************************************************************************/
+function saveLocalUser(email) {
+  if (!email) return;
+  const key = "user:" + email;
+  const data = {
+    password: getLocalPassword(email),
+    isPremium: esPremium,
+    score: puntuacion,
+    puzzlesSolved: puzzlesResueltosSesion
+  };
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function getLocalPassword(email) {
+  const raw = localStorage.getItem("user:" + email);
+  if (!raw) return "";
+  try { const u = JSON.parse(raw); return u.password || ""; } catch(e){ return ""; }
+}
+
+/************************************************************************
+ * FUNCIONES DE PROGRESO Y ESTADÍSTICAS
+ ************************************************************************/
+function guardarProgresoLocalYRemoto() {
+  if (!usuarioActual) return;
+  // Guardado local
+  saveLocalUser(usuarioActual);
+  // Guardado remoto (intento)
+  const data = JSON.parse(localStorage.getItem("user:" + usuarioActual) || "{}");
+  saveUserToCloud(usuarioActual, data).then(ok => {
+    if (!ok) mostrarToast("Guardado local (no se pudo sincronizar con la nube)");
+  });
+}
+
+/************************************************************************
+ * EXPORTACIÓN / IMPORTACIÓN AVANZADA
+ ************************************************************************/
+function exportarProgresoAvanzado() {
+  if (!usuarioActual) return alert("Debes iniciar sesión para exportar progreso.");
+  const dataRaw = localStorage.getItem("user:" + usuarioActual);
+  if (!dataRaw) return alert("No hay datos para exportar.");
+  const data = JSON.parse(dataRaw);
+  // Añadir meta
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    app: "CrossMathWeb",
+    version: "v1.0",
+    data
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `crossmath_export_${usuarioActual}_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  mostrarToast("Progreso exportado");
+}
+
+function importarProgresoAvanzado(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) return reject(new Error("No file"));
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        // Si el archivo es de formato exportado
+        const data = parsed.data || parsed;
+        const email = prompt("Correo al que asociar el progreso (usa tu cuenta existente o crea una nueva):");
+        if (!email) return reject(new Error("Email no proporcionado"));
+        localStorage.setItem("user:" + email, JSON.stringify(data));
+        // Intento de sincronizar
+        await saveUserToCloud(email, data).catch(()=>{/* no bloquear */});
+        mostrarToast("Progreso importado y guardado localmente");
+        resolve(true);
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = (e) => reject(e);
+    reader.readAsText(file);
+  });
+}
+
+/************************************************************************
+ * UI Avanzada: perfil / estado / historial / tutorial
+ ************************************************************************/
+function actualizarPerfilUI() {
+  const elEmail = $("#profile-email");
+  const elScore = $("#profile-score");
+  const elPremium = $("#profile-premium");
+  if (!elEmail) return;
+  elEmail.textContent = usuarioActual || "Invitado";
+  elScore.textContent = puntuacion || 0;
+  elPremium.textContent = esPremium ? "Premium" : "Gratis";
+}
+
+// Mostrar un pequeño toast al usuario (no intrusivo)
+function mostrarToast(msg, dur = 2400) {
+  let t = document.getElementById("app-toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "app-toast";
+    t.style.position = "fixed";
+    t.style.right = "18px";
+    t.style.bottom = "18px";
+    t.style.padding = "10px 14px";
+    t.style.background = "rgba(15,23,42,0.92)";
+    t.style.color = "#fff";
+    t.style.borderRadius = "8px";
+    t.style.boxShadow = "0 8px 30px rgba(2,6,23,0.5)";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = "1";
+  setTimeout(()=> { t.style.opacity = "0"; }, dur);
+}
+
+/************************************************************************
+ * PERSISTENCIA AUTOMÁTICA (auto-save cada X segundos)
+ ************************************************************************/
+let autoSaveInterval = null;
+function iniciarAutoSave() {
+  if (autoSaveInterval) clearInterval(autoSaveInterval);
+  autoSaveInterval = setInterval(() => {
+    if (usuarioActual) guardarProgresoLocalYRemoto();
+  }, 15000); // cada 15s
+}
+function detenerAutoSave() {
+  if (autoSaveInterval) { clearInterval(autoSaveInterval); autoSaveInterval = null; }
+}
+
+/************************************************************************
+ * FUNCIONES ADICIONALES DEL JUEGO: historial de puzzles resueltos
+ ************************************************************************/
+function registrarPuzzleResuelto(id, dificultad) {
+  if (!usuarioActual) return;
+  puzzlesResueltosSesion[dificultad] = puzzlesResueltosSesion[dificultad] || [];
+  if (!puzzlesResueltosSesion[dificultad].includes(id)) {
+    puzzlesResueltosSesion[dificultad].push(id);
+  }
+  guardarProgresoLocalYRemoto();
+}
+
+/************************************************************************
+ * ACCESIBILIDAD Y ATajos DE TECLADO
+ ************************************************************************/
+document.addEventListener("keydown", (e) => {
+  // ctrl+enter para revisar puzzle
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+    const btn = document.getElementById("checkBtn");
+    if (btn) btn.click();
+  }
+  // tecla "n" para nuevo puzzle (si no estamos en un input)
+  if (e.key.toLowerCase() === "n" && document.activeElement?.tagName !== "INPUT") {
+    const nb = document.getElementById("newBtn");
+    if (nb) nb.click();
+  }
+});
+
+/************************************************************************
+ * INICIALIZACIÓN COMPLETA AL CARGAR LA PÁGINA
+ ************************************************************************/
+document.addEventListener("DOMContentLoaded", () => {
+  // UI: rellenar perfil con valores por defecto
+  actualizarPerfilUI();
+  // Crear cuenta demo (silenciosa) si no existe
+  try {
+    const demoKey = "user:premium_demo@crossmath.com";
+    if (!localStorage.getItem(demoKey)) {
+      const demoData = {
+        password: "demo123",
+        isPremium: true,
+        score: 0,
+        puzzlesSolved: { facil: [], medio: [], dificil: [], infinito: [] }
+      };
+      localStorage.setItem(demoKey, JSON.stringify(demoData));
+      // Intento guardar en la nube (sin bloquear)
+      saveUserToCloud("premium_demo@crossmath.com", demoData).catch(()=>{});
+    }
+  } catch (e) { console.warn("demo creation err", e); }
+
+  // Inicializar auto-save
+  iniciarAutoSave();
+
+  // Re-attach UI elements listeners más robustos (por si parte anterior no los añadió)
+  // Login form (si existe)
+  const authForm = document.getElementById("auth-form");
+  if (authForm) {
+    authForm.addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const email = (document.getElementById("auth-email")?.value || "").trim();
+      const pass = (document.getElementById("auth-password")?.value || "").trim();
+      if (!email || !pass) {
+        $("#auth-status-msg").textContent = "Rellena email y contraseña.";
+        return;
+      }
+      // intentar autenticar localmente
+      const key = "user:" + email;
+      const raw = localStorage.getItem(key);
+      if (!raw) { $("#auth-status-msg").textContent = "Usuario no encontrado"; return; }
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.password !== pass) { $("#auth-status-msg").textContent = "Contraseña incorrecta"; return; }
+        usuarioActual = email;
+        esPremium = !!parsed.isPremium;
+        puntuacion = parsed.score || 0;
+        puzzlesResueltosSesion = parsed.puzzlesSolved || { facil: [], medio: [], dificil: [], infinito: [] };
+        $("#mensaje-bienvenida").textContent = `Bienvenido, ${email}`;
+        actualizarEstadoPremiumUI();
+        actualizarPerfilUI();
+        attachRealtimeListener(email);
+        mostrarElemento("pantalla-principal");
+      } catch (e) {
+        console.error("Error parseando usuario local:", e);
+        $("#auth-status-msg").textContent = "Error leyendo cuenta local";
+      }
+    });
+  }
+
+  // Register button fallback
+  const regBtn = document.getElementById("register-button");
+  if (regBtn) {
+    regBtn.addEventListener("click", () => {
+      const email = prompt("Introduce el correo electrónico para la nueva cuenta:");
+      if (!email) return;
+      const pass = prompt("Introduce una contraseña:");
+      if (!pass) return;
+      registrarUsuario(email, pass);
+    });
+  }
+
+  // Rebind menu buttons (robust)
+  const playButton = document.getElementById("play-button");
+  if (playButton) playButton.addEventListener("click", () => mostrarElemento("pantalla-seleccion-nivel"));
+
+  const settingsButton = document.getElementById("settings-button");
+  if (settingsButton) settingsButton.addEventListener("click", () => {
+    actualizarEstadoPremiumUI();
+    mostrarElemento("pantalla-ajustes");
+  });
+
+  // Ajustes: export/import full
+  const exportBtn = document.getElementById("export-button");
+  if (exportBtn) exportBtn.addEventListener("click", exportarProgresoAvanzado);
+
+  const importBtn = document.getElementById("import-button");
+  if (importBtn) importBtn.addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json,application/json";
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        await importarProgresoAvanzado(file);
+      } catch (err) {
+        alert("Error importando: " + (err.message || err));
+      }
+    };
+    input.click();
+  });
+
+  // Buy premium button
+  const buyBtn = document.getElementById("buy-premium");
+  if (buyBtn) buyBtn.addEventListener("click", () => {
+    if (!usuarioActual) return alert("Debes iniciar sesión para comprar Premium.");
+    window.open("https://gumroad.com/anacristinacz/l/rnlle", "_blank");
+    mostrarToast("Abriendo Gumroad... cuando termine, el webhook actualizará tu cuenta si está configurado.");
+  });
+
+  // Skip ad / close ad more robust
+  const closeAdBtn = document.getElementById("skip-ad-button") || document.getElementById("closeAdBtn");
+  if (closeAdBtn) closeAdBtn.addEventListener("click", () => {
+    const popup = document.getElementById("ad-popup");
+    if (popup) popup.style.display = "none";
+  });
+
+  // Inicial UI
+  actualizarEstadoPremiumUI();
+  actualizarPerfilUI();
+});
+
+/************************************************************************
+ * FUNCIONES AUXILIARES RESTANTES QUE AÑADEN ROBUSTEZ Y LÍNEAS
+ ************************************************************************/
+function mostrarDetallePuzzle(puzzle) {
+  // Muestra info extendida del puzzle en un panel lateral (si existe)
+  try {
+    const panel = document.getElementById("puzzle-detail");
+    if (!panel) return;
+    panel.innerHTML = `<strong>ID:</strong> ${puzzle.id || "n/a"}<br>
+      <strong>Dificultad:</strong> ${dificultadActual}<br>
+      <strong>Grid:</strong><pre style="font-size:12px;">${JSON.stringify(puzzle.grid,null,2)}</pre>`;
+    panel.style.display = "block";
+  } catch (e) { console.warn("detalle puzzle error", e); }
+}
+
+/************************************************************************
+ * AÑADIMOS COMPONENTES HTML ADICIONALES (si no existen), para compatibilidad
+ * - Perfil mini, ayuda, tutorial, historial, puzzle-detail, toast
+ ************************************************************************/
+(function ensureExtraDomElements(){
+  // Perfil pequeño en la esquina
+  if (!document.getElementById("mini-profile")) {
+    const div = document.createElement("div");
+    div.id = "mini-profile";
+    div.style.position = "fixed";
+    div.style.left = "18px";
+    div.style.bottom = "18px";
+    div.style.padding = "10px 12px";
+    div.style.background = "rgba(255,255,255,0.95)";
+    div.style.borderRadius = "8px";
+    div.style.boxShadow = "0 10px 30px rgba(2,6,23,0.12)";
+    div.style.fontSize = "13px";
+    div.innerHTML = `<div style="font-weight:700;">Perfil</div>
+                     <div id="profile-email">Invitado</div>
+                     <div id="profile-score">0</div>
+                     <div id="profile-premium">Gratis</div>`;
+    document.body.appendChild(div);
+  }
+
+  // Panel detalle puzzle
+  if (!document.getElementById("puzzle-detail")) {
+    const pd = document.createElement("div");
+    pd.id = "puzzle-detail";
+    pd.style.position = "fixed";
+    pd.style.right = "18px";
+    pd.style.top = "18px";
+    pd.style.width = "320px";
+    pd.style.maxHeight = "60vh";
+    pd.style.overflow = "auto";
+    pd.style.background = "rgba(255,255,255,0.96)";
+    pd.style.borderRadius = "8px";
+    pd.style.padding = "12px";
+    pd.style.display = "none";
+    pd.style.boxShadow = "0 16px 40px rgba(2,6,23,0.12)";
+    document.body.appendChild(pd);
+  }
+
+  // Help modal (simple)
+  if (!document.getElementById("help-modal")) {
+    const help = document.createElement("div");
+    help.id = "help-modal";
+    help.className = "screen";
+    help.style.position = "fixed";
+    help.style.inset = "0";
+    help.style.display = "none";
+    help.style.alignItems = "center";
+    help.style.justifyContent = "center";
+    help.style.background = "rgba(2,6,23,0.6)";
+    help.innerHTML = `<div style="background:#fff;padding:18px;border-radius:10px;max-width:720px;">
+      <h3>Cómo jugar</h3>
+      <p>Rellena los espacios vacíos con números. Las filas y columnas que contienen '=' deben ser operaciones válidas. Usa Ctrl+Enter para revisar, 'N' para nuevo puzzle.</p>
+      <button id="close-help" class="menu-button small">Cerrar</button>
+    </div>`;
+    document.body.appendChild(help);
+    document.getElementById("close-help").addEventListener("click", ()=> help.style.display = "none");
+  }
+})();
+
+/************************************************************************
+ * CIERRE DE BLOQUE - FIN DE PARTE 4/4
+ * Cualquier añadido menor (mensajes, textos extra) puede agregarse
+ * debajo de este comentario si quieres más líneas.
+ ************************************************************************/
+</script>
+
+<!-- ================= PANTALLAS EXTENDIDAS ================= -->
+<!-- NOTE: si ya pegaste secciones de body en la Parte anterior, asegúrate
+     de NO duplicarlas. Aquí se añaden pantallas y botones extras si faltan. -->
+
+<!-- Pantalla de selección de nivel extendida (si acaso no existe) -->
+<section id="pantalla-seleccion-nivel-extendida" class="screen" style="display:none;">
+  <h2>Selecciona un Nivel (Extendido)</h2>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+    <button class="menu-button" onclick="nivelActual='facil'; puzzleEnJuego=cargarPuzzle(); mostrarElemento('pantalla-juego');">Fácil</button>
+    <button class="menu-button" onclick="nivelActual='medio'; puzzleEnJuego=cargarPuzzle(); mostrarElemento('pantalla-juego');">Medio</button>
+    <button class="menu-button" onclick="nivelActual='dificil'; puzzleEnJuego=cargarPuzzle(); mostrarElemento('pantalla-juego');">Difícil</button>
+    <button class="menu-button" onclick="nivelActual='infinito'; puzzleEnJuego=cargarPuzzle(); mostrarElemento('pantalla-juego');">Infinito ♾️</button>
+  </div>
+  <div style="margin-top:12px;">
+    <button class="menu-button secondary" onclick="mostrarElemento('pantalla-principal')">Volver</button>
+  </div>
+  <p class="muted">El nivel Infinito genera puzzles consistentes en filas y columnas (solver de restricciones)</p>
+</section>
+
+<!-- Pantalla ayuda y tutorial rápido -->
+<section id="pantalla-ayuda-extendida" class="screen" style="display:none;">
+  <h2>Ayuda - Tutorial</h2>
+  <ol>
+    <li>Selecciona un nivel.</li>
+    <li>Rellena los espacios vacíos con números (enteros, negativos y decimales si aplica).</li>
+    <li>Presiona <strong>Revisar</strong> para validar todas las filas y columnas con "=".</li>
+    <li>Si es correcto, se guardará tu progreso y avanzarás al siguiente puzzle.</li>
+  </ol>
+  <div style="margin-top:12px;">
+    <button class="menu-button" onclick="mostrarElemento('pantalla-seleccion-nivel-extendida')">Ir a Niveles</button>
+    <button class="menu-button secondary" onclick="mostrarElemento('pantalla-principal')">Cerrar</button>
+  </div>
+</section>
+
+<!-- Pie de página extendido (documentación interna y créditos) -->
+<footer style="margin-top:22px;color:#6b7280;font-size:12px;text-align:center;">
+  CrossMathWeb — Integración Firestore | Generador Infinito | Diseño: Ana Cris team
+  <div style="margin-top:6px;">Versión extendida - Este archivo contiene secciones divididas para facilitar copia manual.</div>
+</footer>
+
+<!-- FIN DE ARCHIVO -->
