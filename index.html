@@ -1,81 +1,85 @@
+<!-- LÍNEAS 1-300: INICIO DEL ARCHIVO, ESTILOS, FIREBASE, VARIABLES GLOBALES -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CroossMathWeb - Corregido y Completo</title>
+  <title>CroossMathWeb - Completo (Parte 1/4)</title>
   <meta name="description" content="CrossMathWeb - Juego de operaciones, sincronización real con Firebase y activación Premium vía webhook."/>
   <style>
     /* ===============================
-       Estilos completos y corregidos
-       ===============================
-       (he incluido abundantes comentarios para documentación
-        y para aumentar la cantidad de líneas legibles)
-    */
+       ESTILOS GLOBALES - Parte 1
+       =============================== */
     :root{
-      --primary: #4CAF50;
-      --danger: #f44336;
-      --card-bg: rgba(255,255,255,0.95);
-      --bg-gradient: linear-gradient(135deg,#1a2a6c,#b21f1f,#fdbb2d);
-      --max-width: 1100px;
+      --primary: #2f9e44;
+      --accent: #0ea5e9;
+      --danger: #ef4444;
+      --card-bg: rgba(255,255,255,0.96);
+      --bg-gradient: linear-gradient(135deg,#0f172a,#0b1222 30%,#071132 60%,#0f172a);
+      --max-width: 1080px;
+      --cell-min: 40px; /* tamaño mínimo de celda para evitar que se salgan en pantallas pequeñas */
     }
+
     html, body {
       height: 100%;
       margin: 0;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Inter, "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       background: var(--bg-gradient);
-      color: #333;
+      color: #222;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
+
     .app {
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 24px;
+      padding: 20px;
       box-sizing: border-box;
     }
+
     .container {
       width: 100%;
       max-width: var(--max-width);
       background: var(--card-bg);
-      border-radius: 14px;
-      padding: 28px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-      position: relative;
-      overflow: auto;
-      margin-bottom: 40px;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 16px 40px rgba(2,6,23,0.6);
+      margin: 24px 12px;
     }
-    header h1 { margin: 0 0 8px; font-size: 28px; }
-    header p { margin: 0 0 18px; color: #555; }
+
+    header { margin-bottom: 14px; }
+    header h1 { margin: 0 0 6px; font-size: 26px; color: #0b1222; }
+    header p { margin: 0; color: #334155; font-size: 14px; }
 
     /* Screens */
     .screen { display: none; }
     .screen.active { display: block; }
 
-    /* Forms & inputs */
-    input[type="email"], input[type="password"], input[type="text"], input[type="number"], textarea {
+    /* FORM CONTROLS */
+    input[type="email"], input[type="password"], input[type="text"], textarea {
       width: 100%;
-      padding: 12px;
+      padding: 10px 12px;
       margin-bottom: 12px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid #d1d5db;
       box-sizing: border-box;
-      font-size: 15px;
-      background-color: #f9f9f9;
+      font-size: 14px;
+      background-color: #fff;
+      color: #0b1222;
     }
     input:focus, textarea:focus {
       outline: none;
-      box-shadow: 0 0 8px rgba(76,175,80,0.25);
-      border-color: var(--primary);
+      box-shadow: 0 0 8px rgba(14,165,233,0.14);
+      border-color: var(--accent);
     }
 
     /* Buttons */
     .menu-button, .level-button, .ad-button {
       display: inline-block;
       width: 100%;
-      padding: 12px 14px;
+      padding: 10px 12px;
       margin: 8px 0;
       border-radius: 8px;
       border: none;
@@ -84,36 +88,51 @@
       color: #fff;
       background: var(--primary);
       text-transform: uppercase;
-      letter-spacing: .5px;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+      letter-spacing: .6px;
+      box-shadow: 0 6px 20px rgba(2,6,23,0.12);
+      font-size: 13px;
     }
-    .menu-button.small { width: auto; padding: 8px 12px; font-size: 13px; }
-    .menu-button.secondary {
-      background: var(--danger);
-    }
-    .menu-button:active { transform: translateY(1px); }
-    .menu-row { display: flex; gap: 12px; }
+    .menu-button.small { width: auto; padding: 8px 10px; font-size: 12px; }
+    .menu-button.secondary { background: var(--danger); }
+    .menu-button.ghost { background: transparent; color: var(--primary); border: 1px solid rgba(47,158,68,0.12); }
 
-    /* Puzzle grid */
-    #puzzle-grid, #cuadricula-rompecabezas {
-      margin: 18px auto;
+    .menu-row { display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* GRID (AJUSTABLE) ----------------------------------------------
+       Diseño responsive: el grid tiene tamaño flexible y máxima anchura,
+       cada celda usa min-width + fr para que no se salga de pantalla.
+    -----------------------------------------------------------------*/
+    .grid-wrapper {
+      width: 100%;
+      max-width: 720px;
+      margin: 16px auto;
+    }
+
+    #cuadricula-rompecabezas, #puzzle-grid {
       display: grid;
       gap: 8px;
       width: 100%;
-      max-width: 720px;
-      transform: none;
       box-sizing: border-box;
+      /* Por defecto 5 columnas */
+      grid-template-columns: repeat(5, 1fr);
     }
+
     .puzzle-cell {
       position: relative;
-      padding-top: 100%; /* cuadrado */
+      /* importante para mantener cuadrado pero escalable */
+      min-width: var(--cell-min);
+      height: 0;
+      padding-top: calc(var(--cell-min) + 0%); /* fallback */
+      padding-top: 100%; /* square aspect ratio */
       border-radius: 6px;
       overflow: hidden;
       background: #fff;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-      border: 1px solid rgba(0,0,0,0.05);
-      min-width: 64px;
+      box-shadow: 0 8px 18px rgba(2,6,23,0.06);
+      border: 1px solid rgba(15,23,42,0.06);
+      transition: transform .12s ease;
     }
+    .puzzle-cell:active { transform: translateY(1px); }
+
     .puzzle-cell .inner {
       position: absolute;
       left: 0;
@@ -123,63 +142,60 @@
       display:flex;
       justify-content:center;
       align-items:center;
-      font-weight:700;
-      font-size:1.35rem;
+      font-weight:800;
+      font-size: 1rem; /* base scale */
       box-sizing:border-box;
-      padding:6px;
+      padding:4px;
+      color: #0b1222;
     }
-    .puzzle-cell.fixed { background: #f0f0f0; color: #333; }
+
+    .puzzle-cell.fixed { background: #f3f4f6; color: #0b1222; font-weight:800; }
     .puzzle-cell.input-cell input {
       width:100%;
       height:100%;
       background:transparent;
       border:none;
       text-align:center;
-      font-weight:700;
-      font-size:1.1rem;
+      font-weight:800;
+      font-size:1rem;
       outline:none;
+      color:#0b1222;
     }
     .puzzle-cell.input-cell input:focus {
-      box-shadow: inset 0 0 6px rgba(76,175,80,0.25);
+      box-shadow: inset 0 0 6px rgba(14,165,233,0.12);
       border-radius:4px;
     }
 
-    /* Ad popup */
-    .ad-screen {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.9);
-      color: #fff;
-      z-index: 9999;
-      padding: 20px;
-      box-sizing: border-box;
+    /* Responsiveness: ajustar tamaño de celdas y texto */
+    @media (max-width: 880px) {
+      :root { --cell-min: 36px; }
+      .puzzle-cell .inner, .puzzle-cell.input-cell input { font-size: 0.95rem; }
     }
-    .ad-card {
-      background: #222;
-      max-width: 420px;
-      width: 100%;
-      padding: 18px;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      text-align:center;
+    @media (max-width: 520px) {
+      :root { --cell-min: 32px; }
+      .puzzle-cell .inner, .puzzle-cell.input-cell input { font-size: 0.9rem; }
+      .container { padding: 16px; }
+      header h1 { font-size: 20px; }
     }
-    .status { font-weight:700; margin:10px 0; min-height:1.2rem; color:#333; }
-
-    /* responsive tweaks */
-    @media (min-width: 900px) {
-      header h1 { font-size: 36px; }
-      .puzzle-cell .inner { font-size: 1.6rem; }
+    @media (min-width: 1400px) {
+      :root { --cell-min: 48px; }
+      .puzzle-cell .inner, .puzzle-cell.input-cell input { font-size: 1.12rem; }
     }
 
-    /* Extra helpers for big page spacing (comments increase line count) */
-    /* ----------------------------------------------------------------- */
-    /* Nota: esta sección contiene comentarios extra que NO afectan       */
-    /* la lógica. Se usan para documentación y para mantener el archivo  */
-    /* extenso, como pediste.                                             */
-    /* ----------------------------------------------------------------- */
+    /* Small helper classes */
+    .muted { color: #64748b; font-size:13px; }
+    .status { font-weight:700; margin:10px 0; min-height:1.2rem; color:#0b1222; }
+    .correct { color: #059669; }
+    .incorrect { color: #ef4444; }
+
+    /* Footer / notes to increase readable lines */
+    /* --------------------------------------------------------------- */
+    /* Este archivo ha sido dividido en 4 partes para facilitar copia. */
+    /* Parte 1: LÍNEAS 1-300 (estilos, inicio JS, variables).           */
+    /* Parte 2: LÍNEAS 301-600 (puzzles predefinidos y generador).     */
+    /* Parte 3: LÍNEAS 601-850 (lógica de verificación, guardar, UI).  */
+    /* Parte 4: LÍNEAS 851-... (eventos DOM, body y pantallas).         */
+    /* --------------------------------------------------------------- */
   </style>
 
   <!-- Firebase modular imports v9 -->
@@ -188,10 +204,10 @@
     import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
     /************************************************************************
-     *  CONFIGURACIÓN REAL DE FIREBASE (proporcionada por ti)
+     * CONFIGURACIÓN FIREBASE (tus credenciales)
      ************************************************************************/
     const firebaseConfig = {
-      apiKey: "AIzaSyCKIUkOfSMIhuYcQ30rm1Uc6hg8MFJ04",
+      apiKey: "AIzaSyCKIUkOfSMOLIhuYcQ30rm1Uc6hg8MFJ04",
       authDomain: "crossmath-sync-db.firebaseapp.com",
       projectId: "crossmath-sync-db",
       storageBucket: "crossmath-sync-db.firebasestorage.app",
@@ -205,851 +221,22 @@
     const db = getFirestore(app);
 
     /************************************************************************
-     *  VARIABLES GLOBALES
+     * VARIABLES GLOBALES INICIALES
      ************************************************************************/
     let usuarioActual = null;
     let esPremium = false;
     let puntuacion = 0;
-    let dificultadActual = "facil"; // 'facil', 'medio', 'dificil'
-    let puzzleActual = null;
-    let puzzlesResueltosSesion = { facil: [], medio: [], dificil: [] };
+    let dificultadActual = "facil"; // 'facil' | 'medio' | 'dificil' | 'infinito'
+    let puzzleActual = null; // objeto puzzle en memoria
+    let puzzlesResueltosSesion = { facil: [], medio: [], dificil: [], infinito: [] };
     let unsubscribeUserSnapshot = null;
 
-    /************************************************************************
-     *  Puzzles CORREGIDOS (predefinidos)
-     *
-     *  He creado múltiples puzzles por dificultad. En cada puzzle:
-     *  - Todas las FILAS que muestran '=' son operaciones válidas y comprobadas.
-     *  - Evité poner '=' en posiciones columnales que creen conflictos.
-     *
-     *  Si más adelante quieres que también haya '=' en columnas y que encajen con
-     *  las filas, puedo ajustar el generador para construir puzzles con ambas
-     *  condiciones simultáneamente — pero eso requiere resolver restricciones
-     *  entre filas y columnas; te lo implemento si confirmas.
-     ************************************************************************/
-    const puzzles = {
-      /* ------------------------
-         Nivel: FÁCIL (varios puzzles)
-         ------------------------ */
-      facil: [
-        {
-          id: "e1",
-          // filas: 5 elementos cada una. Sólo las filas que contienen '=' son válidas.
-          grid: [
-            [8, "/", 4, "=", 2],   // 8 / 4 = 2
-            ["+", "", "-", "", ""],
-            [2, "+", 3, "=", 5],   // 2 + 3 = 5
-            ["=", "", "", "", "="],
-            [10, "-", 1, "=", 9]   // 10 - 1 = 9
-          ]
-        },
-        {
-          id: "e2",
-          grid: [
-            [6, "/", 2, "=", 3],   // 6 / 2 = 3
-            ["+", "", "", "", ""],
-            [7, "-", 4, "=", 3],   // 7 - 4 = 3
-            ["=", "", "", "", "="],
-            [9, "+", 1, "=", 10]   // 9 + 1 = 10
-          ]
-        },
-        {
-          id: "e3",
-          grid: [
-            [5, "+", 7, "=", 12],  // 5 + 7 = 12
-            ["", "", "", "", ""],
-            [12, "-", 4, "=", 8],  // 12 - 4 = 8
-            ["", "", "", "", ""],
-            [3, "*", 3, "=", 9]    // 3 * 3 = 9
-          ]
-        },
-        {
-          id: "e4",
-          grid: [
-            [4, "*", 2, "=", 8],
-            ["", "", "", "", ""],
-            [15, "/", 3, "=", 5],
-            ["", "", "", "", ""],
-            [7, "+", 2, "=", 9]
-          ]
-        },
-        {
-          id: "e5",
-          grid: [
-            [9, "-", 3, "=", 6],
-            ["", "", "", "", ""],
-            [6, "+", 4, "=", 10],
-            ["", "", "", "", ""],
-            [2, "*", 5, "=", 10]
-          ]
-        },
-        {
-          id: "e6",
-          grid: [
-            [14, "/", 7, "=", 2],
-            ["", "", "", "", ""],
-            [8, "-", 3, "=", 5],
-            ["", "", "", "", ""],
-            [1, "+", 4, "=", 5]
-          ]
-        },
-        {
-          id: "e7",
-          grid: [
-            [10, "-", 5, "=", 5],
-            ["", "", "", "", ""],
-            [2, "*", 6, "=", 12],
-            ["", "", "", "", ""],
-            [18, "/", 2, "=", 9]
-          ]
-        }
-      ],
-
-      /* ------------------------
-         Nivel: MEDIO (varios puzzles)
-         ------------------------ */
-      medio: [
-        {
-          id: "m1",
-          grid: [
-            [12, "/", 3, "=", 4],
-            ["", "", "", "", ""],
-            [9, "+", 6, "=", 15],
-            ["", "", "", "", ""],
-            [7, "*", 2, "=", 14]
-          ]
-        },
-        {
-          id: "m2",
-          grid: [
-            [15, "-", 6, "=", 9],
-            ["", "", "", "", ""],
-            [8, "/", 2, "=", 4],
-            ["", "", "", "", ""],
-            [11, "+", 3, "=", 14]
-          ]
-        },
-        {
-          id: "m3",
-          grid: [
-            [6, "*", 3, "=", 18],
-            ["", "", "", "", ""],
-            [20, "-", 5, "=", 15],
-            ["", "", "", "", ""],
-            [9, "/", 3, "=", 3]
-          ]
-        },
-        {
-          id: "m4",
-          grid: [
-            [21, "/", 3, "=", 7],
-            ["", "", "", "", ""],
-            [4, "*", 5, "=", 20],
-            ["", "", "", "", ""],
-            [14, "-", 6, "=", 8]
-          ]
-        },
-        {
-          id: "m5",
-          grid: [
-            [16, "/", 4, "=", 4],
-            ["", "", "", "", ""],
-            [5, "*", 3, "=", 15],
-            ["", "", "", "", ""],
-            [18, "-", 7, "=", 11]
-          ]
-        },
-        {
-          id: "m6",
-          grid: [
-            [25, "-", 5, "=", 20],
-            ["", "", "", "", ""],
-            [6, "*", 4, "=", 24],
-            ["", "", "", "", ""],
-            [27, "/", 3, "=", 9]
-          ]
-        }
-      ],
-
-      /* ------------------------
-         Nivel: DIFÍCIL (varios puzzles)
-         ------------------------ */
-      dificil: [
-        {
-          id: "h1",
-          grid: [
-            [36, "/", 6, "=", 6],
-            ["", "", "", "", ""],
-            [7, "*", 5, "=", 35],
-            ["", "", "", "", ""],
-            [50, "-", 20, "=", 30]
-          ]
-        },
-        {
-          id: "h2",
-          grid: [
-            [45, "/", 9, "=", 5],
-            ["", "", "", "", ""],
-            [8, "*", 7, "=", 56],
-            ["", "", "", "", ""],
-            [100, "-", 73, "=", 27]
-          ]
-        },
-        {
-          id: "h3",
-          grid: [
-            [13, "+", 7, "=", 20],
-            ["", "", "", "", ""],
-            [6, "*", 6, "=", 36],
-            ["", "", "", "", ""],
-            [81, "/", 9, "=", 9]
-          ]
-        },
-        {
-          id: "h4",
-          grid: [
-            [28, "/", 7, "=", 4],
-            ["", "", "", "", ""],
-            [11, "*", 2, "=", 22],
-            ["", "", "", "", ""],
-            [49, "-", 24, "=", 25]
-          ]
-        },
-        {
-          id: "h5",
-          grid: [
-            [72, "/", 8, "=", 9],
-            ["", "", "", "", ""],
-            [13, "+", 6, "=", 19],
-            ["", "", "", "", ""],
-            [7, "*", 8, "=", 56]
-          ]
-        }
-      ]
-    };
-
-    /************************************************************************
-     * GENERADOR INFINITO (nivel "infinito")
-     *
-     * Genera puzzles válidos por FILA. Para evitar inconsistencias como las
-     * de tu imagen, este generador produce puzzles donde:
-     *  - Cada FILA con '=' es una operación verificada.
-     *  - El generador evita poner '=' en columnas que podrían chocar.
-     *
-     * El generador crea matrices 5x5. Las filas que tendrán ecuaciones se eligen
-     * aleatoriamente; las otras celdas se dejan en blanco o con operadores
-     * neutros para no romper otras comprobaciones.
-     ************************************************************************/
-    function generarPuzzleInfinito(dificultadQualityScheme) {
-      // dificultadQualityScheme puede influir en rangos de números y operaciones
-      // 'facil' -> numeros pequeños, operaciones simples
-      // 'medio' -> numeros medianos, algunas multiplicaciones
-      // 'dificil' -> mayores, multiplicaciones y divisiones exactas
-      const rows = 5, cols = 5;
-      // Inicializamos con celdas vacías
-      const grid = Array.from({length: rows}, () => Array.from({length: cols}, () => ""));
-      // Utilidades
-      function pickInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
-      function pickOp(ops){ return ops[Math.floor(Math.random()*ops.length)]; }
-
-      // parámetros según dificultad
-      let params = {min:1,max:10,ops:["+","-"]};
-      if (dificultadQualityScheme === "medio") params = {min:2,max:20,ops:["+","-","*"]};
-      if (dificultadQualityScheme === "dificil") params = {min:2,max:50,ops:["+","-","*","/"]};
-
-      // número de filas que tendrán ecuación (1..3)
-      const ecuRows = 3; // fija 3 por puzzle para más contenido
-
-      // Seleccionamos filas aleatorias únicas
-      const filasElegidas = [];
-      while (filasElegidas.length < ecuRows) {
-        const r = pickInt(0,rows-1);
-        if (!filasElegidas.includes(r)) filasElegidas.push(r);
-      }
-
-      // Para cada fila escogida, generamos una ecuación válida [a, op, b, '=', res]
-      filasElegidas.forEach(r=>{
-        // pick an operation; for division ensure integer result
-        let op = pickOp(params.ops);
-        let a,b,res;
-        if (op === "/") {
-          // ensure integer division: pick res and b, compute a = res*b
-          b = pickInt(Math.max(1,params.min), params.max);
-          res = pickInt(Math.max(1,params.min), params.max);
-          a = b * res;
-        } else if (op === "*") {
-          a = pickInt(params.min, Math.max(params.min, Math.floor(params.max/2)));
-          b = pickInt(params.min, Math.max(params.min, Math.floor(params.max/2)));
-          res = a * b;
-        } else if (op === "+") {
-          a = pickInt(params.min, params.max);
-          b = pickInt(params.min, params.max);
-          res = a + b;
-        } else { // '-'
-          a = pickInt(params.min, params.max);
-          b = pickInt(params.min, a); // ensure non-negative result
-          res = a - b;
-        }
-        grid[r][0] = a;
-        grid[r][1] = op;
-        grid[r][2] = b;
-        grid[r][3] = "=";
-        grid[r][4] = res;
-      });
-
-      // Las filas no usadas se dejan con celdas vacías para no introducir '=' en columnas
-      // Rellenamos el grid con null donde esté vacío para consistencia con renderPuzzle
-      for (let r=0;r<rows;r++){
-        for (let c=0;c<cols;c++){
-          if (grid[r][c] === "") grid[r][c] = "";
-        }
-      }
-
-      // Devolvemos puzzle con id generado
-      return {
-        id: "inf_" + Date.now() + "_" + Math.floor(Math.random()*1000),
-        grid
-      };
-    }
-
-    /************************************************************************
-     * UTILIDADES GENERALES
-     ************************************************************************/
-    function showScreen(id) {
-      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      const el = document.getElementById(id);
-      if (el) el.classList.add("active");
-      // scroll top for better UX
-      try { window.scrollTo({top:0,behavior:"smooth"}); } catch(e){}
-    }
-
-    function actualizarEstadoPremiumUI() {
-      const el = document.getElementById("estado-premium");
-      if (!el) return;
-      el.textContent = esPremium ? "Estado Premium: Premium ✨" : "Estado Premium: No Premium";
-      el.style.color = esPremium ? "var(--primary)" : "var(--danger)";
-    }
-
-    function crearUsuarioDemoSiNoExiste() {
-      // Usuario demo con premium activado en localStorage (no se muestra en la UI)
-      const demoKey = "user:premium_demo@crossmath.com";
-      if (!localStorage.getItem(demoKey)) {
-        const demoData = {
-          password: "demo123",
-          isPremium: true,
-          score: 0,
-          puzzlesSolved: { facil: [], medio: [], dificil: [] }
-        };
-        localStorage.setItem(demoKey, JSON.stringify(demoData));
-        // Intentar subir a Firestore (no obligatorio; puede fallar si rules lo impiden)
-        setDoc(doc(db, "usuarios", "premium_demo@crossmath.com"), demoData, { merge: true })
-          .catch(err => console.warn("No se pudo crear demo en Firestore (puede no tener permisos):", err.message));
-        console.log("Usuario demo creado localmente");
-      }
-    }
-
-    /************************************************************************
-     * AUTENTICACIÓN (localStorage + Firestore minimal)
-     ************************************************************************/
-    function registrarUsuario(email, password) {
-      if (!email || !password) {
-        alert("Email y contraseña son requeridos para registrar.");
-        return false;
-      }
-      const key = "user:" + email;
-      if (localStorage.getItem(key)) {
-        alert("Ese correo ya está registrado.");
-        return false;
-      }
-      const userData = {
-        password,
-        isPremium: false,
-        score: 0,
-        puzzlesSolved: { facil: [], medio: [], dificil: [] }
-      };
-      localStorage.setItem(key, JSON.stringify(userData));
-      setDoc(doc(db, "usuarios", email), userData, { merge: true })
-        .catch(err => console.warn("Advertencia: no se pudo guardar en Firestore:", err.message));
-      alert("Cuenta creada. Ahora puedes iniciar sesión.");
-      return true;
-    }
-
-    function autenticar(email, password) {
-      const key = "user:" + email;
-      const raw = localStorage.getItem(key);
-      if (!raw) return false;
-      try {
-        const u = JSON.parse(raw);
-        if (u.password !== password) return false;
-        usuarioActual = email;
-        esPremium = !!u.isPremium;
-        puntuacion = u.score || 0;
-        puzzlesResueltosSesion = u.puzzlesSolved || { facil: [], medio: [], dificil: [] };
-        document.getElementById("mensaje-bienvenida").textContent = `Bienvenido, ${email}`;
-        actualizarEstadoPremiumUI();
-        attachRealtimeListener(email);
-        return true;
-      } catch (e) {
-        console.error("Error parseando usuario local:", e);
-        return false;
-      }
-    }
-
-    function cerrarSesion() {
-      usuarioActual = null;
-      esPremium = false;
-      puntuacion = 0;
-      puzzlesResueltosSesion = { facil: [], medio: [], dificil: [] };
-      if (unsubscribeUserSnapshot) {
-        unsubscribeUserSnapshot();
-        unsubscribeUserSnapshot = null;
-      }
-      const ae = document.getElementById("auth-email");
-      const ap = document.getElementById("auth-password");
-      if (ae) ae.value = "";
-      if (ap) ap.value = "";
-      const asm = document.getElementById("auth-status-msg");
-      if (asm) asm.textContent = "";
-      document.getElementById("mensaje-bienvenida").textContent = "";
-      actualizarEstadoPremiumUI();
-      showScreen("pantalla-auth");
-    }
-
-    async function loadProgressFromCloud(email) {
-      try {
-        const userRef = doc(db, "usuarios", email);
-        const snap = await getDoc(userRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          const key = "user:" + email;
-          const localData = JSON.parse(localStorage.getItem(key) || "{}");
-          const merged = {
-            password: localData.password || data.password || localData.password || "",
-            isPremium: data.isPremium ?? localData.isPremium ?? false,
-            score: data.score ?? localData.score ?? 0,
-            puzzlesSolved: data.puzzlesSolved ?? localData.puzzlesSolved ?? { facil: [], medio: [], dificil: [] }
-          };
-          localStorage.setItem(key, JSON.stringify(merged));
-          if (usuarioActual === email) {
-            esPremium = merged.isPremium;
-            puntuacion = merged.score;
-            puzzlesResueltosSesion = merged.puzzlesSolved;
-            actualizarEstadoPremiumUI();
-            document.getElementById("mensaje-bienvenida").textContent = `Bienvenido, ${email}`;
-          }
-        } else {
-          console.log("No hay datos en Firestore para", email);
-        }
-      } catch (err) {
-        console.warn("Error cargando desde Firestore:", err.message);
-      }
-    }
-
-    function attachRealtimeListener(email) {
-      try {
-        if (unsubscribeUserSnapshot) unsubscribeUserSnapshot();
-        const userRef = doc(db, "usuarios", email);
-        unsubscribeUserSnapshot = onSnapshot(userRef, (snap) => {
-          if (!snap.exists()) return;
-          const data = snap.data();
-          if (typeof data.isPremium !== "undefined" && data.isPremium !== esPremium) {
-            esPremium = !!data.isPremium;
-            actualizarEstadoPremiumUI();
-            if (esPremium) alert("Tu cuenta ha sido activada como Premium. ¡Gracias por tu compra!");
-          }
-          if (typeof data.score !== "undefined") puntuacion = data.score;
-          if (data.puzzlesSolved) puzzlesResueltosSesion = data.puzzlesSolved;
-        }, (err) => {
-          console.warn("onSnapshot error:", err.message);
-        });
-      } catch (e) {
-        console.warn("No se pudo adjuntar listener:", e.message);
-      }
-    }
-
-    /************************************************************************
-     * LÓGICA DEL JUEGO: renderizado, lectura y verificación
-     ************************************************************************/
-    function renderPuzzle(p) {
-      puzzleActual = JSON.parse(JSON.stringify(p));
-      const gridEl = document.getElementById("cuadricula-rompecabezas");
-      if (!gridEl) return;
-      gridEl.innerHTML = "";
-      const rows = puzzleActual.grid.length;
-      const cols = puzzleActual.grid[0].length;
-      gridEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-      gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const val = puzzleActual.grid[r][c];
-          const cell = document.createElement("div");
-          cell.classList.add("puzzle-cell");
-          const inner = document.createElement("div");
-          inner.classList.add("inner");
-
-          if (val === null || val === "") {
-            cell.classList.add("input-cell");
-            const input = document.createElement("input");
-            input.type = "text";
-            input.setAttribute("data-row", r);
-            input.setAttribute("data-col", c);
-            input.setAttribute("maxlength", "12");
-            input.inputMode = "numeric";
-            input.addEventListener("input", (e) => {
-              let v = e.target.value;
-              v = v.replace(/\s+/g, "");
-              v = v.replace(/[^0-9\.\-]/g, "");
-              if ((v.match(/\-/g) || []).length > 1) v = v.replace(/\-/g, "");
-              const parts = v.split(".");
-              if (parts.length > 2) v = parts[0] + "." + parts.slice(1).join("");
-              e.target.value = v;
-            });
-            inner.appendChild(input);
-          } else {
-            cell.classList.add("fixed");
-            inner.textContent = String(val);
-          }
-
-          cell.appendChild(inner);
-          gridEl.appendChild(cell);
-        }
-      }
-    }
-
-    function obtenerValoresActuales() {
-      const gridNodes = Array.from(document.getElementById("cuadricula-rompecabezas").querySelectorAll(".puzzle-cell"));
-      if (gridNodes.length === 0) return [];
-      const cols = parseInt(getComputedStyle(document.getElementById("cuadricula-rompecabezas")).gridTemplateColumns.split(" ").length);
-      const filas = [];
-      let fila = [];
-      gridNodes.forEach((cell, idx) => {
-        const input = cell.querySelector("input");
-        let value = null;
-        if (input) {
-          const v = input.value.trim();
-          if (v === "") value = null;
-          else if (/^[-]?\d+(\.\d+)?$/.test(v)) value = parseFloat(v);
-          else value = v;
-        } else {
-          const txt = cell.textContent.trim();
-          if (txt === "") value = null;
-          else if (/^[-]?\d+(\.\d+)?$/.test(txt)) value = parseFloat(txt);
-          else value = txt;
-        }
-        fila.push(value);
-        if ((idx + 1) % cols === 0) {
-          filas.push(fila);
-          fila = [];
-        }
-      });
-      if (fila.length) filas.push(fila);
-      return filas;
-    }
-
-    function evaluarOperacion(a, op, b) {
-      if (typeof a !== "number" || typeof b !== "number") return { ok: false, calc: null };
-      switch (op) {
-        case "+": return { ok: true, calc: a + b };
-        case "-": return { ok: true, calc: a - b };
-        case "*": return { ok: true, calc: a * b };
-        case "/": if (b === 0) return { ok: false, calc: null }; return { ok: true, calc: a / b };
-        default: return { ok: false, calc: null };
-      }
-    }
-
-    // Verifica TODAS las ecuaciones que contengan '=' (filas y columnas).
-    // Dado que los puzzles predefinidos y el generador evitan introducir '=' en
-    // columnas conflictivas, esta función garantiza que TODO lo que tenga '=' sea correcto.
-    function verificarTodasEcuaciones() {
-      if (!puzzleActual) return false;
-      const grid = obtenerValoresActuales();
-      if (!grid || grid.length === 0) return false;
-      const R = grid.length;
-      const C = grid[0].length;
-
-      // Revisar filas
-      for (let r = 0; r < R; r++) {
-        const row = grid[r];
-        if (row.includes("=")) {
-          if (C < 5) return false;
-          const num1 = row[0], op = row[1], num2 = row[2], eq = row[3], res = row[4];
-          if (num1 === null || op === null || num2 === null || res === null || eq !== "=") return false;
-          if (typeof op !== "string") return false;
-          const ev = evaluarOperacion(Number(num1), op, Number(num2));
-          if (!ev.ok) return false;
-          if (Math.abs(ev.calc - Number(res)) > 1e-6) return false;
-        }
-      }
-
-      // Revisar columnas (solo si contienen '=')
-      for (let c = 0; c < C; c++) {
-        const col = [];
-        for (let r = 0; r < R; r++) col.push(grid[r][c]);
-        if (col.includes("=")) {
-          if (R < 5) return false;
-          const num1 = col[0], op = col[1], num2 = col[2], eq = col[3], res = col[4];
-          if (num1 === null || op === null || num2 === null || res === null || eq !== "=") return false;
-          if (typeof op !== "string") return false;
-          const ev = evaluarOperacion(Number(num1), op, Number(num2));
-          if (!ev.ok) return false;
-          if (Math.abs(ev.calc - Number(res)) > 1e-6) return false;
-        }
-      }
-
-      return true;
-    }
-
-    function revisarRespuesta() {
-      const feedbackEl = document.getElementById("feedback");
-      if (feedbackEl) { feedbackEl.textContent = ""; feedbackEl.className = "status"; }
-      const ok = verificarTodasEcuaciones();
-      if (ok) {
-        puntuacion++;
-        if (feedbackEl) { feedbackEl.textContent = "¡Crucigrama resuelto! ¡Excelente!"; feedbackEl.classList.add("correct"); }
-        guardarProgreso();
-        setTimeout(()=> { iniciarJuego(dificultadActual); }, 1200);
-      } else {
-        if (feedbackEl) { feedbackEl.textContent = "Algunas operaciones son incorrectas o faltan valores. Revisa las celdas."; feedbackEl.classList.add("incorrect"); }
-      }
-    }
-
-    /************************************************************************
-     * GUARDADO / SINCRONIZACIÓN / EXPORT-IMPORT
-     ************************************************************************/
-    function guardarProgreso() {
-      if (!usuarioActual) return;
-      const key = "user:" + usuarioActual;
-      const localUser = JSON.parse(localStorage.getItem(key) || "{}");
-      const data = {
-        password: localUser.password || localUser.password,
-        isPremium: esPremium,
-        score: puntuacion,
-        puzzlesSolved: puzzlesResueltosSesion
-      };
-      localStorage.setItem(key, JSON.stringify(data));
-      setDoc(doc(db, "usuarios", usuarioActual), data, { merge: true })
-        .catch(err => console.warn("Error guardando en Firestore:", err.message));
-    }
-
-    function saveProgressLocal() {
-      if (!usuarioActual) return;
-      const key = "user:" + usuarioActual;
-      const localUser = JSON.parse(localStorage.getItem(key) || "{}");
-      const data = {
-        password: localUser.password || localUser.password,
-        isPremium: esPremium,
-        score: puntuacion,
-        puzzlesSolved: puzzlesResueltosSesion
-      };
-      localStorage.setItem(key, JSON.stringify(data));
-    }
-
-    function exportarProgreso() {
-      if (!usuarioActual) return alert("Debes iniciar sesión para exportar tu progreso.");
-      const data = localStorage.getItem("user:" + usuarioActual);
-      if (!data) return alert("No hay datos para exportar.");
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `crossmath_progress_${usuarioActual}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      alert("Progreso exportado.");
-    }
-
-    function importarProgreso() {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".json,application/json";
-      input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const imported = JSON.parse(ev.target.result);
-            if (!imported) throw new Error("Formato inválido");
-            const email = imported.email || prompt("Indica el email para asociar este progreso:");
-            if (!email) return alert("Importación cancelada (se requiere email).");
-            const userData = {
-              password: imported.password || "imported-pass",
-              isPremium: imported.isPremium || false,
-              score: imported.score || 0,
-              puzzlesSolved: imported.puzzlesSolved || { facil: [], medio: [], dificil: [] }
-            };
-            localStorage.setItem("user:" + email, JSON.stringify(userData));
-            setDoc(doc(db, "usuarios", email), userData, { merge: true })
-              .then(() => alert("Progreso importado y sincronizado."))
-              .catch(err => alert("Importado localmente, pero no se pudo sincronizar: " + err.message));
-          } catch (err) {
-            alert("Error al leer el archivo: " + err.message);
-          }
-        };
-        reader.readAsText(file);
-      };
-      input.click();
-    }
-
-    /************************************************************************
-     * ANUNCIOS (simplees)
-     ************************************************************************/
-    function mostrarAnuncio() {
-      const popup = document.getElementById("ad-popup");
-      if (!popup) return;
-      popup.style.display = "flex";
-    }
-    function cerrarAnuncio() {
-      const popup = document.getElementById("ad-popup");
-      if (!popup) return;
-      popup.style.display = "none";
-    }
-
-    /************************************************************************
-     * CONTROL DE FLUJOS (iniciar juego, seleccionar predefinidos, generar infinito)
-     ************************************************************************/
-    function iniciarJuego(dificultad) {
-      dificultadActual = dificultad || "facil";
-      // Si es 'infinito' generamos uno al vuelo
-      if (dificultad === "infinito") {
-        const gen = generarPuzzleInfinito("medio"); // por defecto medio para infinito; podrías exponer UI
-        renderPuzzle(gen);
-        showScreen("pantalla-juego");
-        return;
-      }
-      // Tomar puzzle aleatorio del pool
-      const pool = (puzzles[dificultad] || []);
-      if (!pool || pool.length === 0) {
-        alert("No hay puzzles disponibles en esta dificultad.");
-        return;
-      }
-      const p = pool[Math.floor(Math.random()*pool.length)];
-      renderPuzzle(p);
-      showScreen("pantalla-juego");
-    }
-
-    /************************************************************************
-     * INICIALIZACIÓN - enlazado de eventos UI
-     ************************************************************************/
-    document.addEventListener("DOMContentLoaded", () => {
-      // Inicial UI
-      showScreen("pantalla-auth");
-      crearUsuarioDemoSiNoExiste();
-
-      // Formularios y botones
-      const authForm = document.getElementById("auth-form");
-      const authEmail = document.getElementById("auth-email");
-      const authPassword = document.getElementById("auth-password");
-      const authStatusMsg = document.getElementById("auth-status-msg");
-
-      document.getElementById("register-button").addEventListener("click", () => {
-        const email = prompt("Introduce el correo electrónico para la nueva cuenta:");
-        if (!email) return;
-        const pass = prompt("Introduce una contraseña:");
-        if (!pass) return;
-        const created = registrarUsuario(email, pass);
-        if (created) alert("Cuenta creada. Inicia sesión con tus credenciales.");
-      });
-
-      authForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = authEmail.value.trim();
-        const pass = authPassword.value.trim();
-        if (!email || !pass) { if (authStatusMsg) authStatusMsg.textContent = "Rellena email y contraseña."; return; }
-        if (autenticar(email, pass)) {
-          if (authStatusMsg) authStatusMsg.textContent = "";
-          loadProgressFromCloud(email).finally(() => {
-            document.getElementById("mensaje-bienvenida").textContent = `Bienvenido, ${email}`;
-            actualizarEstadoPremiumUI();
-            showScreen("pantalla-principal");
-          });
-        } else {
-          if (authStatusMsg) authStatusMsg.textContent = "Credenciales incorrectas. Intenta de nuevo.";
-        }
-      });
-
-      // menu buttons
-      document.getElementById("play-button").addEventListener("click", () => showScreen("pantalla-seleccion-nivel"));
-      document.getElementById("settings-button").addEventListener("click", () => { actualizarEstadoPremiumUI(); showScreen("pantalla-ajustes"); });
-      document.getElementById("logout-button").addEventListener("click", () => cerrarSesion());
-
-      // level selection buttons
-      document.querySelectorAll(".level-button").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-          const diff = e.target.dataset.difficulty;
-          iniciarJuego(diff);
-        });
-      });
-
-      // revisar
-      const submitBtn = document.getElementById("submit-answer");
-      if (submitBtn) submitBtn.addEventListener("click", revisarRespuesta);
-
-      // back to levels
-      const backLv = document.getElementById("back-to-level-select");
-      if (backLv) backLv.addEventListener("click", () => showScreen("pantalla-seleccion-nivel"));
-
-      // ad close
-      const adClose = document.getElementById("skip-ad-button");
-      if (adClose) adClose.addEventListener("click", cerrarAnuncio);
-
-      // export/import/buy
-      const exportBtn = document.getElementById("export-button");
-      if (exportBtn) exportBtn.addEventListener("click", exportarProgreso);
-      const importBtn = document.getElementById("import-button");
-      if (importBtn) importBtn.addEventListener("click", importarProgreso);
-      const buyBtn = document.getElementById("buy-premium");
-      if (buyBtn) buyBtn.addEventListener("click", () => {
-        if (!usuarioActual) return alert("Debes iniciar sesión para comprar Premium.");
-        window.open("https://gumroad.com/anacristinacz/l/rnlle","_blank");
-        alert("Cuando completes la compra, el webhook configurado en tu servidor actualizará tu cuenta en Firestore a Premium.");
-      });
-
-      // Botón volver en ajustes (fijo)
-      const backSettings = document.getElementById("back-settings");
-      if (backSettings) backSettings.addEventListener("click", (e)=>{ e.preventDefault(); showScreen("pantalla-principal"); });
-
-      // botón infinito
-      const infiniteBtn = document.getElementById("level-infinite");
-      if (infiniteBtn) infiniteBtn.addEventListener("click", ()=>{ iniciarJuego("infinito"); });
-
-      actualizarEstadoPremiumUI();
-    });
-
-    /************************************************************************
-     * Fix robusto: asegurar que tenga listener por si hay orden diferente
-     ************************************************************************/
-    (function(){
-      document.addEventListener("DOMContentLoaded", ()=>{
-        try {
-          const btn = document.getElementById('back-settings');
-          if (btn && !btn._backListenerAdded) {
-            btn.addEventListener('click', function(e){
-              e.preventDefault();
-              try { showScreen('pantalla-principal'); } catch (err) { console.warn('showScreen no disponible aún'); }
-            });
-            btn._backListenerAdded = true;
-          }
-        } catch(e){ console.warn("fix back-settings", e); }
-      });
-    })();
-
-    // Export helpers (para debug)
-    window.__crossmath = {
-      puzzles,
-      generarPuzzleInfinito,
-      renderPuzzle,
-      verificarTodasEcuaciones,
-      guardarProgreso,
-      importarProgreso,
-      exportarProgreso,
-      autenticar,
-      registrarUsuario
-    };
-
+    /* ---------------------------------------------------------------
+       Nota: Parte 2 (Líneas 301-600) contendrá:
+       - Puzzles predefinidos corregidos
+       - Generador infinito con solver de restricciones (filas+columnas)
+       - Utilidades para crear puzzles consistentes
+       --------------------------------------------------------------- */
   </script>
 </head>
 <body>
@@ -1057,87 +244,210 @@
     <div class="container">
       <header>
         <h1>CroossMathWeb</h1>
-        <p>Juego de operaciones con sincronización real en Firestore y activación Premium vía webhook.</p>
+        <p>Juego de operaciones - sincronización real en Firestore - Infinito con restricciones</p>
       </header>
 
-      <!-- PANTALLA: Autenticación -->
-      <section id="pantalla-auth" class="screen active">
-        <h2>Iniciar Sesión</h2>
-        <div id="auth-status-msg" class="status" aria-live="polite"></div>
-        <form id="auth-form" autocomplete="on">
-          <input id="auth-email" type="email" placeholder="Correo electrónico" required />
-          <input id="auth-password" type="password" placeholder="Contraseña" required />
-          <div style="display:flex;gap:8px;">
-            <button type="submit" class="menu-button">Iniciar Sesión</button>
-            <button type="button" id="register-button" class="menu-button secondary">Crear Cuenta</button>
-          </div>
-        </form>
-        <!-- Avisos de demo ocultos intencionalmente por privacidad -->
-      </section>
+      <!-- Aquí empieza el contenido visible; Parte 2 incluirá la lógica completa -->
+      <!-- (copia Parte 2/3/4 en orden para completar el archivo) -->
 
-      <!-- PANTALLA: Menú principal -->
-      <section id="pantalla-principal" class="screen">
-        <h2>Menú Principal</h2>
-        <p id="mensaje-bienvenida"></p>
-        <div style="display:flex;gap:8px;flex-direction:column;">
-          <button id="play-button" class="menu-button">Jugar</button>
-          <button id="settings-button" class="menu-button">Ajustes</button>
-          <button id="logout-button" class="menu-button secondary">Cerrar Sesión</button>
-        </div>
-      </section>
+          /************************************************************************
+     *  DEFINICIÓN DE PUZZLES CORREGIDOS
+     *  Todas las cuadrículas revisadas para que las operaciones cuadren
+     ************************************************************************/
+    const puzzles = {
+      facil: [
+        {
+          id: "f1",
+          grid: [
+            [4, "+", 3, "=", 7],
+            ["", "", "", "", ""],
+            [6, "-", 2, "=", 4],
+            ["", "", "", "", ""],
+            [5, "+", 5, "=", 10]
+          ]
+        },
+        {
+          id: "f2",
+          grid: [
+            [8, "/", 2, "=", 4],
+            ["", "", "", "", ""],
+            [3, "*", 3, "=", 9],
+            ["", "", "", "", ""],
+            [7, "-", 5, "=", 2]
+          ]
+        },
+        {
+          id: "f3",
+          grid: [
+            [10, "-", 6, "=", 4],
+            ["", "", "", "", ""],
+            [2, "+", 8, "=", 10],
+            ["", "", "", "", ""],
+            [9, "/", 3, "=", 3]
+          ]
+        }
+      ],
+      medio: [
+        {
+          id: "m1",
+          grid: [
+            [12, "/", 3, "=", 4],
+            ["", "", "", "", ""],
+            [7, "+", 5, "=", 12],
+            ["", "", "", "", ""],
+            [6, "*", 2, "=", 12]
+          ]
+        },
+        {
+          id: "m2",
+          grid: [
+            [15, "-", 7, "=", 8],
+            ["", "", "", "", ""],
+            [9, "/", 3, "=", 3],
+            ["", "", "", "", ""],
+            [4, "*", 4, "=", 16]
+          ]
+        },
+        {
+          id: "m3",
+          grid: [
+            [5, "+", 9, "=", 14],
+            ["", "", "", "", ""],
+            [8, "-", 3, "=", 5],
+            ["", "", "", "", ""],
+            [6, "*", 2, "=", 12]
+          ]
+        }
+      ],
+      dificil: [
+        {
+          id: "d1",
+          grid: [
+            [18, "/", 2, "=", 9],
+            ["", "", "", "", ""],
+            [7, "*", 3, "=", 21],
+            ["", "", "", "", ""],
+            [20, "-", 8, "=", 12]
+          ]
+        },
+        {
+          id: "d2",
+          grid: [
+            [25, "-", 9, "=", 16],
+            ["", "", "", "", ""],
+            [12, "/", 4, "=", 3],
+            ["", "", "", "", ""],
+            [8, "*", 2, "=", 16]
+          ]
+        },
+        {
+          id: "d3",
+          grid: [
+            [14, "+", 6, "=", 20],
+            ["", "", "", "", ""],
+            [15, "-", 7, "=", 8],
+            ["", "", "", "", ""],
+            [21, "/", 3, "=", 7]
+          ]
+        }
+      ]
+    };
 
-      <!-- PANTALLA: Selección de nivel -->
-      <section id="pantalla-seleccion-nivel" class="screen">
-        <h2>Selecciona un Nivel</h2>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="level-button" data-difficulty="facil">Fácil</button>
-          <button class="level-button" data-difficulty="medio">Medio</button>
-          <button class="level-button" data-difficulty="dificil">Difícil</button>
-          <button id="level-infinite" class="level-button" data-difficulty="infinito">Infinito</button>
-        </div>
-        <div style="margin-top:12px;">
-          <button id="back-to-menu" class="menu-button secondary" onclick="showScreen('pantalla-principal')">Volver</button>
-        </div>
-        <p style="margin-top:12px;color:#666;">Nota: el nivel Infinito genera puzzles válidos por fila de forma dinámica.</p>
-      </section>
+    /************************************************************************
+     *  GENERADOR DE PUZZLES INFINITOS (NIVEL ♾️)
+     *  - Crea un grid 5x5 con operaciones válidas en filas y columnas
+     *  - Genera hasta encontrar un puzzle consistente
+     ************************************************************************/
+    function generarPuzzleAleatorio() {
+      const ops = ["+", "-", "*", "/"];
 
-      <!-- PANTALLA: Ajustes -->
-      <section id="pantalla-ajustes" class="screen">
-        <h2>Ajustes</h2>
-        <p id="estado-premium">Estado Premium: Sin Premium</p>
-        <div style="display:flex;gap:8px;">
-          <button id="buy-premium" class="menu-button">Comprar Premium</button>
-          <button id="export-button" class="menu-button">Exportar Progreso</button>
-          <button id="import-button" class="menu-button">Importar Progreso</button>
-        </div>
-        <div style="margin-top:12px;">
-          <button id="back-settings" class="menu-button secondary">Volver</button>
-        </div>
-      </section>
+      function generarOperacion() {
+        let a, b, op, res;
+        while (true) {
+          a = Math.floor(Math.random() * 15) + 1;
+          b = Math.floor(Math.random() * 15) + 1;
+          op = ops[Math.floor(Math.random() * ops.length)];
+          res = null;
+          switch (op) {
+            case "+": res = a + b; break;
+            case "-": res = a - b; break;
+            case "*": res = a * b; break;
+            case "/": if (a % b === 0) res = a / b; break;
+          }
+          if (res !== null && res >= -20 && res <= 50) {
+            return [a, op, b, "=", res];
+          }
+        }
+      }
 
-      <!-- PANTALLA: Juego -->
-      <section id="pantalla-juego" class="screen">
-        <h2 id="titulo-juego">Juego</h2>
-        <div id="cuadricula-rompecabezas" style="display:grid;gap:8px;max-width:720px;margin:12px auto;"></div>
+      // Generar puzzle completo 5x5
+      let grid = Array(5).fill(null).map(() => Array(5).fill(""));
 
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button id="submit-answer" class="menu-button">Revisar Solución</button>
-          <button id="back-to-level-select" class="menu-button secondary">Cambiar Nivel</button>
-        </div>
-        <p id="feedback" class="status" aria-live="polite" style="margin-top:12px;"></p>
-      </section>
+      for (let r = 0; r < 5; r += 2) {
+        const eq = generarOperacion();
+        grid[r] = [...eq];
+      }
 
-      <!-- POPUP: Anuncio -->
-      <div id="ad-popup" class="ad-screen" role="dialog" aria-hidden="true">
-        <div class="ad-card">
-          <h3>Anuncio</h3>
-          <p>¡Gracias por tu apoyo! Espacio para anuncio real o mensajes promocionales.</p>
-          <div id="real-ad-container" style="margin:12px 0;background:#333;color:#eee;padding:10px;border-radius:6px;">(Espacio para el anuncio)</div>
-          <button id="skip-ad-button" class="ad-button">Cerrar</button>
-        </div>
-      </div>
+      for (let c = 0; c < 5; c += 2) {
+        const colEq = generarOperacion();
+        for (let r = 0; r < 5; r++) {
+          grid[r][c] = colEq[r];
+        }
+      }
 
-    </div>
-  </div>
-</body>
-</html>
+      return { id: "inf-" + Date.now(), grid };
+    }
+
+    /************************************************************************
+     *  VALIDAR QUE EL PUZZLE GENERADO ES CORRECTO
+     *  Comprueba que todas las filas y columnas cumplen la operación
+     ************************************************************************/
+    function validarPuzzle(grid) {
+      function evaluar(a, op, b) {
+        switch (op) {
+          case "+": return a + b;
+          case "-": return a - b;
+          case "*": return a * b;
+          case "/": return b !== 0 && a % b === 0 ? a / b : null;
+          default: return null;
+        }
+      }
+
+      // Validar filas
+      for (let r = 0; r < 5; r++) {
+        const fila = grid[r];
+        if (fila.includes("=")) {
+          const [a, op, b, eq, res] = fila;
+          if (eq !== "=") return false;
+          if (evaluar(a, op, b) !== res) return false;
+        }
+      }
+
+      // Validar columnas
+      for (let c = 0; c < 5; c++) {
+        const col = [grid[0][c], grid[1][c], grid[2][c], grid[3][c], grid[4][c]];
+        if (col.includes("=")) {
+          const [a, op, b, eq, res] = col;
+          if (eq !== "=") return false;
+          if (evaluar(a, op, b) !== res) return false;
+        }
+      }
+
+      return true;
+    }
+
+    /************************************************************************
+     *  GENERAR HASTA CONSEGUIR UN PUZZLE VÁLIDO
+     ************************************************************************/
+    function generarPuzzleInfinitoValido() {
+      let intentos = 0;
+      while (intentos < 1000) {
+        const p = generarPuzzleAleatorio();
+        if (validarPuzzle(p.grid)) {
+          return p;
+        }
+        intentos++;
+      }
+      return null;
+    }
+
