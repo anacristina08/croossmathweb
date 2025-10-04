@@ -97,104 +97,47 @@
 
     .menu-row { display:flex; gap:10px; flex-wrap:wrap; }
 
-    /* GRID (AJUSTABLE) ----------------------------------------------
-       Diseño responsive: el grid tiene tamaño flexible y máxima anchura,
-       cada celda usa min-width + fr para que no se salga de pantalla.
-    -----------------------------------------------------------------*/
-    .grid-wrapper {
-      width: 100%;
-      max-width: 720px;
-      margin: 16px auto;
-    }
+   /* ===============================
+   ESTILO DE GRID "COMO EL VIDEO"
+   =============================== */
+.grid-wrapper {
+  display: flex;
+  justify-content: center;
+  margin: 16px auto;
+}
 
-    #cuadricula-rompecabezas, #puzzle-grid {
-      display: grid;
-      gap: 8px;
-      width: 100%;
-      box-sizing: border-box;
-      /* Por defecto 5 columnas */
-      grid-template-columns: repeat(5, 1fr);
-    }
+#cuadricula-rompecabezas, #puzzle-grid {
+  display: grid;
+  gap: 2px; /* espacio mínimo */
+  grid-template-columns: repeat(5, 50px); /* 5 columnas de 50px */
+  justify-content: center;
+}
 
-    .puzzle-cell {
-      position: relative;
-      /* importante para mantener cuadrado pero escalable */
-      min-width: var(--cell-min);
-      height: 0;
-      padding-top: calc(var(--cell-min) + 0%); /* fallback */
-      padding-top: 100%; /* square aspect ratio */
-      border-radius: 6px;
-      overflow: hidden;
-      background: #fff;
-      box-shadow: 0 8px 18px rgba(2,6,23,0.06);
-      border: 1px solid rgba(15,23,42,0.06);
-      transition: transform .12s ease;
-    }
-    .puzzle-cell:active { transform: translateY(1px); }
+.puzzle-cell {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  background: #fff;
+}
 
-    .puzzle-cell .inner {
-      position: absolute;
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      font-weight:800;
-      font-size: 1rem; /* base scale */
-      box-sizing:border-box;
-      padding:4px;
-      color: #0b1222;
-    }
+.puzzle-cell.fixed {
+  background: #f3f4f6;
+}
 
-    .puzzle-cell.fixed { background: #f3f4f6; color: #0b1222; font-weight:800; }
-    .puzzle-cell.input-cell input {
-      width:100%;
-      height:100%;
-      background:transparent;
-      border:none;
-      text-align:center;
-      font-weight:800;
-      font-size:1rem;
-      outline:none;
-      color:#0b1222;
-    }
-    .puzzle-cell.input-cell input:focus {
-      box-shadow: inset 0 0 6px rgba(14,165,233,0.12);
-      border-radius:4px;
-    }
-
-    /* Responsiveness: ajustar tamaño de celdas y texto */
-    @media (max-width: 880px) {
-      :root { --cell-min: 36px; }
-      .puzzle-cell .inner, .puzzle-cell.input-cell input { font-size: 0.95rem; }
-    }
-    @media (max-width: 520px) {
-      :root { --cell-min: 32px; }
-      .puzzle-cell .inner, .puzzle-cell.input-cell input { font-size: 0.9rem; }
-      .container { padding: 16px; }
-      header h1 { font-size: 20px; }
-    }
-    @media (min-width: 1400px) {
-      :root { --cell-min: 48px; }
-      .puzzle-cell .inner, .puzzle-cell.input-cell input { font-size: 1.12rem; }
-    }
-
-    /* Small helper classes */
-    .muted { color: #64748b; font-size:13px; }
-    .status { font-weight:700; margin:10px 0; min-height:1.2rem; color:#0b1222; }
-    .correct { color: #059669; }
-    .incorrect { color: #ef4444; }
-
-    /* Footer / notes to increase readable lines */
-    /* --------------------------------------------------------------- */
-    /* Este archivo ha sido dividido en 4 partes para facilitar copia. */
-    /* Parte 1: LÍNEAS 1-300 (estilos, inicio JS, variables).           */
-    /* Parte 2: LÍNEAS 301-600 (puzzles predefinidos y generador).     */
-    /* Parte 3: LÍNEAS 601-850 (lógica de verificación, guardar, UI).  */
-    /* Parte 4: LÍNEAS 851-... (eventos DOM, body y pantallas).         */
-    /* --------------------------------------------------------------- */
+.puzzle-cell.input-cell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  background: transparent;
+}
   </style>
 
   <!-- Firebase modular imports v9 -->
@@ -1073,4 +1016,5 @@ function mostrarDetallePuzzle(puzzle) {
 </footer>
 
 <!-- FIN DE ARCHIVO -->
+
 
