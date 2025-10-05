@@ -44,11 +44,14 @@
   .toast{position:fixed;right:20px;bottom:20px;background:#0d2633;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6);color:#dff3f6}
   .form-row{display:flex;gap:8px;align-items:center}
   .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted)}
+  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:60;background:rgba(2,6,23,0.5)}
+  .modal-card{background:#07121a;padding:18px;border-radius:10px;min-width:300px}
   @media (max-width:900px){.grid{grid-template-columns:repeat(4,54px)}}
 </style>
 </head>
 <body>
 <canvas id="particles"></canvas>
+
 <div class="app card" id="app">
   <header>
     <h1>CrossMathWeb</h1>
@@ -122,7 +125,6 @@
           <option value="es">Español</option>
           <option value="en">English</option>
         </select>
-        <button id="ensureDemo" class="btn small secondary">Iniciar demo</button>
       </div>
     </section>
 
@@ -130,12 +132,28 @@
       <h3>Ayuda</h3>
       <div class="muted">Completa la cuadrícula tipo sudoku matemático; celdas fijas y vacías; operadores entre celdas y validación automática; Premium desbloquea niveles y quita anuncios.</div>
     </section>
-
   </main>
 
-  <footer>
-    <div class="muted">&nbsp;</div>
-  </footer>
+  <footer><div class="muted">&nbsp;</div></footer>
+</div>
+
+<!-- Modal simple para auth -->
+<div id="authModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card">
+    <h3 style="margin-top:0">Entrar o crear cuenta</h3>
+    <div style="margin-bottom:8px">
+      <input id="authEmail" class="input" type="email" placeholder="Correo" style="width:100%"/>
+    </div>
+    <div style="margin-bottom:8px">
+      <input id="authPwd" class="input" type="password" placeholder="Contraseña (min 6)" style="width:100%"/>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="closeAuth" class="btn secondary small">Cerrar</button>
+      <button id="createAccount" class="btn small">Crear cuenta</button>
+      <button id="signIn" class="btn small">Iniciar sesión</button>
+    </div>
+    <div id="authMsg" class="muted" style="margin-top:8px;font-size:13px"></div>
+  </div>
 </div>
 
 <canvas id="confetti" class="confetti"></canvas>
@@ -160,7 +178,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ---------- I18N ---------- */
+/* ---------- I18N básico ---------- */
 const translations = {
   es:{ play:"Jugar", levels:"Niveles", profile:"Perfil", settings:"Ajustes", help:"Ayuda", validate:"Validar", save:"Guardar progreso", export:"Exportar JSON", buying:"Redirigiendo a Gumroad...", saved:"Progreso guardado", loaded:"Progreso cargado", premiumActive:"Premium activo", connectToSave:"Conéctate para guardar", selectCell:"Selecciona una celda", signInPrompt:"Introduce tu correo", pwdPrompt:"Introduce tu contraseña" },
   en:{ play:"Play", levels:"Levels", profile:"Profile", settings:"Settings", help:"Help", validate:"Validate", save:"Save progress", export:"Export JSON", buying:"Redirecting to Gumroad...", saved:"Progress saved", loaded:"Progress loaded", premiumActive:"Premium active", connectToSave:"Sign in to save", selectCell:"Select a cell", signInPrompt:"Enter your email", pwdPrompt:"Enter your password" }
@@ -168,16 +186,7 @@ const translations = {
 let currentLang = navigator.language && navigator.language.startsWith('es') ? 'es' : 'en';
 document.getElementById('selectLang').value = currentLang;
 function t(k){ return translations[currentLang][k] || k; }
-function applyLang(){
-  document.getElementById('playBtn').textContent = t('play');
-  document.getElementById('levelsBtn').textContent = t('levels');
-  document.getElementById('profileBtn').textContent = t('profile');
-  document.getElementById('settingsBtn').textContent = t('settings');
-  document.getElementById('helpBtn').textContent = t('help');
-  document.getElementById('validateBtn').textContent = t('validate');
-  document.getElementById('saveBtn').textContent = t('save');
-  document.getElementById('exportBtn').textContent = t('export');
-}
+function applyLang(){ document.getElementById('playBtn').textContent = t('play'); document.getElementById('levelsBtn').textContent = t('levels'); document.getElementById('profileBtn').textContent = t('profile'); document.getElementById('settingsBtn').textContent = t('settings'); document.getElementById('helpBtn').textContent = t('help'); document.getElementById('validateBtn').textContent = t('validate'); document.getElementById('saveBtn').textContent = t('save'); document.getElementById('exportBtn').textContent = t('export'); }
 applyLang();
 document.getElementById('selectLang').addEventListener('change', e=>{ currentLang = e.target.value; applyLang(); });
 
@@ -190,128 +199,139 @@ document.getElementById('profileBtn').addEventListener('click', ()=> show('profi
 document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings'));
 document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
 
-/* ---------- Auth UI & flow (creación + inicio robustos) ---------- */
-const btnAuth = document.getElementById('btnAuth');
-const userEmailEl = document.getElementById('userEmail');
-const profileEmail = document.getElementById('profileEmail');
-const profileStatus = document.getElementById('profileStatus');
-const premiumBadge = document.getElementById('premiumBadge');
+/* ---------- Auth modal handling ---------- */
+const authModal = document.getElementById('authModal');
+const authEmail = document.getElementById('authEmail');
+const authPwd = document.getElementById('authPwd');
+const authMsg = document.getElementById('authMsg');
+document.getElementById('btnAuth').addEventListener('click', ()=>{ authEmail.value=''; authPwd.value=''; authMsg.textContent=''; authModal.classList.remove('hidden'); authModal.setAttribute('aria-hidden','false'); authEmail.focus(); });
+document.getElementById('closeAuth').addEventListener('click', ()=>{ authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
 
-/* Entrar / Registrar: menú claro */
-btnAuth.addEventListener('click', async ()=>{
-  const choice = prompt('Escribe 1 para Iniciar sesión, 2 para Crear cuenta', '1');
-  if(choice === null) return;
-  if(choice.trim() === '1'){
-    const email = prompt(t('signInPrompt'), '');
-    if(!email) return showToast('Correo requerido');
-    const pwd = prompt(t('pwdPrompt'), '');
-    if(!pwd) return showToast('Contraseña requerida');
-    try{
-      await signInWithEmailAndPassword(auth, email.trim(), pwd);
-      showToast('Sesión iniciada');
-    } catch(e){
-      if(e.code === 'auth/user-not-found'){
-        showToast('Cuenta no encontrada. Selecciona Crear cuenta.');
-      } else if(e.code === 'auth/wrong-password'){
-        showToast('Contraseña incorrecta');
-      } else {
-        console.error(e); showToast('Error al iniciar sesión');
-      }
-    }
-  } else if(choice.trim() === '2'){
-    const email = prompt('Correo para nueva cuenta', '');
-    if(!email) return showToast('Correo requerido');
-    const pwd = prompt('Contraseña (min 6 caracteres)', '');
-    if(!pwd) return showToast('Contraseña requerida');
-    try{
-      await createUserWithEmailAndPassword(auth, email.trim(), pwd);
-      showToast('Cuenta creada e iniciada');
-    } catch(e){
-      if(e.code === 'auth/email-already-in-use'){
-        showToast('El correo ya está en uso. Intenta iniciar sesión.');
-      } else if(e.code === 'auth/invalid-email'){
-        showToast('Correo inválido');
-      } else if(e.code === 'auth/weak-password'){
-        showToast('Contraseña débil');
-      } else { console.error(e); showToast('Error al crear cuenta'); }
-    }
-  } else {
-    showToast('Acción cancelada');
-  }
-});
-
-/* Demo button (no muestra credenciales) */
-document.getElementById('ensureDemo').addEventListener('click', async ()=>{
-  const demoEmail = 'premium_demo@crossmath.com';
-  const demoPwd = 'demo123';
+/* ---------- Auth actions: create + sign in (robusto) ---------- */
+document.getElementById('createAccount').addEventListener('click', async ()=>{
+  const email = authEmail.value.trim();
+  const pwd = authPwd.value;
+  authMsg.textContent = '';
+  if(!email){ authMsg.textContent = 'Correo requerido'; return; }
+  if(!pwd || pwd.length < 6){ authMsg.textContent = 'Contraseña: mínimo 6 caracteres'; return; }
   try{
-    await signInWithEmailAndPassword(auth, demoEmail, demoPwd);
-    showToast('Demo iniciada');
+    const cred = await createUserWithEmailAndPassword(auth, email, pwd);
+    // create Firestore user doc immediately
+    const uid = cred.user.uid;
+    await setDoc(doc(db,'users',uid), { email, isPremium:false, score:0, progress:{}, puzzlesUsed:[], lastUpdated: serverTimestamp() }, { merge:true });
+    authMsg.textContent = 'Cuenta creada e iniciada';
+    showToast('Cuenta creada e iniciada');
+    setTimeout(()=>{ authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); }, 900);
   } catch(e){
-    if(e.code === 'auth/user-not-found'){
-      try{ await createUserWithEmailAndPassword(auth, demoEmail, demoPwd); await signInWithEmailAndPassword(auth, demoEmail, demoPwd); showToast('Demo creada e iniciada'); }
-      catch(err){ console.error(err); showToast('Error demo'); }
-    } else { console.error(e); showToast('Error demo'); }
+    console.error(e);
+    if(e.code === 'auth/email-already-in-use') authMsg.textContent = 'El correo ya está en uso. Inicia sesión.';
+    else if(e.code === 'auth/invalid-email') authMsg.textContent = 'Correo inválido.';
+    else if(e.code === 'auth/weak-password') authMsg.textContent = 'Contraseña débil.';
+    else authMsg.textContent = 'Error al crear cuenta: ' + (e.message || e.code);
   }
 });
 
-/* Logout */
-document.getElementById('logoutBtn').addEventListener('click', async ()=>{ if(auth.currentUser){ await signOut(auth); showToast('Sesión cerrada'); show('menu'); } });
+document.getElementById('signIn').addEventListener('click', async ()=>{
+  const email = authEmail.value.trim();
+  const pwd = authPwd.value;
+  authMsg.textContent = '';
+  if(!email){ authMsg.textContent = 'Correo requerido'; return; }
+  if(!pwd){ authMsg.textContent = 'Contraseña requerida'; return; }
+  try{
+    await signInWithEmailAndPassword(auth, email, pwd);
+    authMsg.textContent = 'Sesión iniciada';
+    showToast('Sesión iniciada');
+    setTimeout(()=>{ authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); }, 700);
+  } catch(e){
+    console.error(e);
+    if(e.code === 'auth/user-not-found') authMsg.textContent = 'Cuenta no encontrada. Crea una cuenta.';
+    else if(e.code === 'auth/wrong-password') authMsg.textContent = 'Contraseña incorrecta.';
+    else if(e.code === 'auth/invalid-email') authMsg.textContent = 'Correo inválido.';
+    else authMsg.textContent = 'Error al iniciar sesión: ' + (e.message || e.code);
+  }
+});
 
-/* ---------- On auth state: ensure user doc and snapshot premium ---------- */
+/* ---------- Logout ---------- */
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{
+  try{
+    await signOut(auth);
+    showToast('Sesión cerrada');
+    show('menu');
+  } catch(e){ console.error(e); showToast('Error al cerrar sesión'); }
+});
+
+/* ---------- On auth state: ensure Firestore doc + snapshot ---------- */
 onAuthStateChanged(auth, async user=>{
   if(user){
-    userEmailEl.textContent = user.email;
-    btnAuth.textContent = 'Salir';
-    profileEmail.textContent = user.email;
-    const ref = doc(db,'users',user.uid);
-    const snap = await getDoc(ref);
+    document.getElementById('userEmail').textContent = user.email;
+    document.getElementById('btnAuth').textContent = 'Salir';
+    document.getElementById('profileEmail').textContent = user.email;
+    const uref = doc(db,'users',user.uid);
+    const snap = await getDoc(uref);
     if(!snap.exists()){
-      await setDoc(ref, { email: user.email, isPremium:false, score:0, progress:{}, puzzlesUsed:[], lastUpdated: serverTimestamp() });
+      await setDoc(uref, { email: user.email, isPremium:false, score:0, progress:{}, puzzlesUsed:[], lastUpdated: serverTimestamp() }, { merge:true });
     }
-    onSnapshot(ref, ds=>{ if(ds.exists()){ const data = ds.data(); profileStatus.textContent = 'Estado: ' + (data.isPremium ? 'Premium' : 'Gratis'); premiumBadge.style.display = data.isPremium ? 'inline-block' : 'none'; if(data.isPremium) showToast(t('premiumActive')); } });
+    onSnapshot(uref, ds => { if(ds.exists()){ const data = ds.data(); document.getElementById('profileStatus').textContent = 'Estado: ' + (data.isPremium ? 'Premium' : 'Gratis'); document.getElementById('premiumBadge').style.display = data.isPremium ? 'inline-block' : 'none'; } });
+    // after sign-in, try load progress safely
+    const prog = await safeLoadProgress();
+    if(prog && prog.level){
+      activeLevel = prog.level;
+      gridSize = prog.gridSize || gridSize;
+      currentGrid = prog.grid || currentGrid;
+      currentScore = prog.score || 0;
+      renderGrid();
+      document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
+    }
   } else {
-    userEmailEl.textContent = 'No conectado';
-    btnAuth.textContent = 'Entrar / Registrar';
-    profileEmail.textContent = '-';
-    profileStatus.textContent = 'Estado: -';
-    premiumBadge.style.display = 'none';
+    document.getElementById('userEmail').textContent = 'No conectado';
+    document.getElementById('btnAuth').textContent = 'Entrar / Registrar';
+    document.getElementById('profileEmail').textContent = '-';
+    document.getElementById('profileStatus').textContent = 'Estado: -';
+    document.getElementById('premiumBadge').style.display = 'none';
   }
 });
 
-/* ---------- Gumroad client redirect (backend webhook required to activate premium) ---------- */
+/* ---------- Gumroad redirect (client) ---------- */
 const GUMROAD_PRODUCT_URL = "https://gumroad.com/l/rnlle";
 document.getElementById('buyPremium').addEventListener('click', ()=>{ showToast(t('buying')); window.open(GUMROAD_PRODUCT_URL, '_blank'); });
 
-/* ---------- Firestore save/load/export (saveProgress/loadProgress) ---------- */
-async function saveProgress(progressObj){
-  const user = auth.currentUser;
-  if(!user) return showToast(t('connectToSave'));
-  const ref = doc(db,'users',user.uid);
-  await updateDoc(ref, { progress: progressObj, lastUpdated: serverTimestamp(), score: progressObj.score || 0 }, { merge:true });
-  showToast(t('saved'));
+/* ---------- saveProgress/loadProgress (robustos) ---------- */
+async function safeLoadProgress(){
+  try{
+    const user = auth.currentUser;
+    if(!user) return null;
+    const ref = doc(db,'users',user.uid);
+    const snap = await getDoc(ref);
+    if(!snap.exists()) return null;
+    const data = snap.data();
+    return data.progress || null;
+  } catch(e){ console.error('loadProgress error', e); return null; }
 }
-async function loadProgress(){
-  const user = auth.currentUser;
-  if(!user) return null;
-  const ref = doc(db,'users',user.uid);
-  const snap = await getDoc(ref);
-  if(snap.exists()){ showToast(t('loaded')); return snap.data().progress || {}; }
-  return null;
+async function saveProgress(progressObj){
+  try{
+    const user = auth.currentUser;
+    if(!user) return showToast(t('connectToSave'));
+    const ref = doc(db,'users',user.uid);
+    // use setDoc with merge so it won't fail if doc missing
+    await setDoc(ref, { progress: progressObj, lastUpdated: serverTimestamp(), score: progressObj.score || 0 }, { merge:true });
+    showToast(t('saved'));
+  } catch(e){ console.error('saveProgress error', e); showToast('Error guardando progreso'); }
 }
 document.getElementById('exportBtn').addEventListener('click', async ()=>{
-  const user = auth.currentUser;
-  if(!user) return showToast(t('connectToSave'));
-  const ref = doc(db,'users',user.uid);
-  const snap = await getDoc(ref);
-  const data = snap.exists() ? snap.data() : { email: user.email };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'crossmath_progress.json'; a.click();
-  URL.revokeObjectURL(url);
+  try{
+    const user = auth.currentUser;
+    if(!user) return showToast(t('connectToSave'));
+    const ref = doc(db,'users',user.uid);
+    const snap = await getDoc(ref);
+    const data = snap.exists() ? snap.data() : { email: user.email };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'crossmath_progress.json'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e){ console.error(e); showToast('Error exportando progreso'); }
 });
 
-/* ---------- Puzzle engine (robusto) ---------- */
+/* ---------- Puzzle engine (igual, robusto) ---------- */
 let activeLevel = 'easy';
 let currentGrid = [];
 let operatorSet = ['+','-'];
@@ -423,7 +443,7 @@ function currentPuzzleState(){ return { level:activeLevel, gridSize, operatorSet
 function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
 function startTimer(){ timerInterval = setInterval(()=>{ const diff = Math.floor((Date.now()-startTime)/1000); const mm = String(Math.floor(diff/60)).padStart(2,'0'); const ss = String(diff%60).padStart(2,'0'); document.getElementById('timer').textContent = `${mm}:${ss}`; }, 500); }
 
-/* ---------- Confetti & particles (visuals) ---------- */
+/* ---------- Confetti & particles ---------- */
 const confettiCanvas = document.getElementById('confetti'); confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; const confettiCtx = confettiCanvas.getContext('2d'); let confettis = [];
 function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,s:Math.random()*6+4,col:`hsl(${Math.random()*360} 80% 60%)`}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); }
 function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle=p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s*0.6); } confettis = confettis.filter(p=>p.y < innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); }
@@ -442,7 +462,7 @@ document.querySelectorAll('.level-card').forEach(el=>el.addEventListener('click'
 /* ---------- Auto-load progress on sign-in ---------- */
 onAuthStateChanged(auth, async user=>{
   if(user){
-    const prog = await loadProgress();
+    const prog = await safeLoadProgress();
     if(prog && prog.level){ activeLevel = prog.level; gridSize = prog.gridSize || gridSize; currentGrid = prog.grid || currentGrid; currentScore = prog.score || 0; renderGrid(); document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; }
   }
 });
@@ -453,11 +473,12 @@ window.addEventListener('resize', ()=>{ particles.width = innerWidth; particles.
 /* ---------- Init ---------- */
 show('menu'); showToast('CrossMathWeb listo. Reemplaza Firebase config por tu proyecto crossmath-sync-db.',3000);
 
-/* ---------- Developer notes ----------
-- Reemplaza firebaseConfig con valores de crossmath-sync-db.
-- Implementa webhook Gumroad en backend para activar isPremium en Firestore al validar compra rnlle.
-- Regla recomendada Firestore: allow write users/{uid} only if request.auth.uid == uid. Backend admin SDK para isPremium updates.
-------------------------------------- */
+/* ---------- Dev notes ----------
+- Reemplaza firebaseConfig con los valores reales del proyecto crossmath-sync-db.
+- Asegúrate de habilitar Email/Password en Authentication > Sign-in method en Firebase Console.
+- Implementa backend webhook Gumroad para activar isPremium en Firestore al validar compra rnlle.
+- Reglas Firestore recomendadas: allow write users/{uid} only if request.auth.uid == uid; backend admin SDK para actualizar isPremium.
+-------------------------------- */
 </script>
 </body>
 </html>
