@@ -3,19 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CrossMathWeb - Correcciones</title>
+<title>CrossMathWeb</title>
 <style>
-  :root{
-    --bg:#0b1020; --card:#0f1724; --accent:#ffd166; --muted:#9aa4b2;
-  }
-  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#061125 0%, #0b1020 100%); color:#e6eef6;}
+  :root{--bg:#0b1020;--card:#0f1724;--accent:#ffd166;--muted:#9aa4b2}
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#061125 0%,#0b1020 100%);color:#e6eef6}
   #particles{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .app{position:relative;z-index:1;max-width:1100px;margin:28px auto;padding:22px;}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:14px;padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+  .app{position:relative;z-index:1;max-width:1100px;margin:28px auto;padding:22px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
   header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
   h1{margin:0;font-size:20px;letter-spacing:0.6px}
   .nav{display:flex;gap:8px}
-  .btn{background:var(--accent);color:#08121a;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(255,209,102,0.12);transition:transform .12s ease,box-shadow .12s;}
+  .btn{background:var(--accent);color:#08121a;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(255,209,102,0.12);transition:transform .12s ease,box-shadow .12s}
   .btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(255,209,102,0.14)}
   .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12)}
   .small{padding:6px 9px;font-size:13px;border-radius:8px}
@@ -44,9 +42,9 @@
   .badge{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.04);font-weight:600}
   .timer{font-family:monospace;background:rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px}
   .toast{position:fixed;right:20px;bottom:20px;background:#0d2633;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6);color:#dff3f6}
-  @media (max-width:900px){
-    .grid{grid-template-columns:repeat(4,54px)}
-  }
+  .form-row{display:flex;gap:8px;align-items:center}
+  .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted)}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(4,54px)}}
 </style>
 </head>
 <body>
@@ -57,7 +55,7 @@
     <div class="profile-card">
       <div id="userEmail" class="muted">No conectado</div>
       <div id="premiumBadge" class="badge" style="display:none;background:linear-gradient(90deg,#ffd166,#f08a5d);color:#071018">Premium</div>
-      <button id="btnSign" class="btn small">Entrar</button>
+      <button id="btnAuth" class="btn small">Entrar / Registrar</button>
     </div>
   </header>
 
@@ -70,7 +68,6 @@
         <button class="btn secondary" id="settingsBtn">Ajustes</button>
         <button class="btn secondary" id="helpBtn">Ayuda</button>
       </div>
-      <div style="text-align:center;color:var(--muted);margin-top:6px" id="demoCred">Demo: premium_demo@crossmath.com / demo123</div>
     </section>
 
     <section id="levels" class="hidden card" style="margin-top:12px">
@@ -137,7 +134,7 @@
   </main>
 
   <footer>
-    <div class="muted">CrossMathWeb · Implementación conectada con Firebase (crossmath-sync-db) y Gumroad (rnlle)</div>
+    <div class="muted">&nbsp;</div>
   </footer>
 </div>
 
@@ -145,7 +142,7 @@
 <div id="toast" class="toast hidden"></div>
 
 <script type="module">
-/* ========= FIREBASE v9 modular - REEMPLAZA con credenciales del proyecto crossmath-sync-db ========= */
+/* ---------- FIREBASE v9 modular - REEMPLAZA con credenciales del proyecto crossmath-sync-db ---------- */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, updateDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
@@ -163,22 +160,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ========== Traducciones (i18n) ========== */
+/* ---------- I18N ---------- */
 const translations = {
-  es: {
-    play: "Jugar", levels: "Niveles", profile: "Perfil", settings: "Ajustes", help: "Ayuda",
-    validate: "Validar", save: "Guardar progreso", export: "Exportar JSON",
-    demoCred: "Demo: premium_demo@crossmath.com / demo123",
-    buying: "Redirigiendo a Gumroad...", saved: "Progreso guardado", loaded: "Progreso cargado", premiumActive: "Premium activo",
-    connectToSave: "Conéctate para guardar", selectCell: "Selecciona una celda"
-  },
-  en: {
-    play: "Play", levels: "Levels", profile: "Profile", settings: "Settings", help: "Help",
-    validate: "Validate", save: "Save progress", export: "Export JSON",
-    demoCred: "Demo: premium_demo@crossmath.com / demo123",
-    buying: "Redirecting to Gumroad...", saved: "Progress saved", loaded: "Progress loaded", premiumActive: "Premium active",
-    connectToSave: "Sign in to save", selectCell: "Select a cell"
-  }
+  es:{ play:"Jugar", levels:"Niveles", profile:"Perfil", settings:"Ajustes", help:"Ayuda", validate:"Validar", save:"Guardar progreso", export:"Exportar JSON", buying:"Redirigiendo a Gumroad...", saved:"Progreso guardado", loaded:"Progreso cargado", premiumActive:"Premium activo", connectToSave:"Conéctate para guardar", selectCell:"Selecciona una celda", signInPrompt:"Introduce tu correo", pwdPrompt:"Introduce tu contraseña" },
+  en:{ play:"Play", levels:"Levels", profile:"Profile", settings:"Settings", help:"Help", validate:"Validate", save:"Save progress", export:"Export JSON", buying:"Redirecting to Gumroad...", saved:"Progress saved", loaded:"Progress loaded", premiumActive:"Premium active", connectToSave:"Sign in to save", selectCell:"Select a cell", signInPrompt:"Enter your email", pwdPrompt:"Enter your password" }
 };
 let currentLang = navigator.language && navigator.language.startsWith('es') ? 'es' : 'en';
 document.getElementById('selectLang').value = currentLang;
@@ -192,139 +177,143 @@ function applyLang(){
   document.getElementById('validateBtn').textContent = t('validate');
   document.getElementById('saveBtn').textContent = t('save');
   document.getElementById('exportBtn').textContent = t('export');
-  document.getElementById('demoCred').textContent = t('demoCred');
 }
 applyLang();
-document.getElementById('selectLang').addEventListener('change', e => { currentLang = e.target.value; applyLang(); });
+document.getElementById('selectLang').addEventListener('change', e=>{ currentLang = e.target.value; applyLang(); });
 
-/* ========== RUTAS / VISTAS ========== */
+/* ---------- Routing ---------- */
 const views = ['menu','levels','game','profile','settings','help'];
-function show(view){
-  views.forEach(v=>document.getElementById(v).classList.add('hidden'));
-  document.getElementById(view).classList.remove('hidden');
-}
-document.getElementById('playBtn').addEventListener('click', ()=> { startLevel('easy'); show('game'); });
+function show(view){ views.forEach(v=>document.getElementById(v).classList.add('hidden')); document.getElementById(view).classList.remove('hidden'); }
+document.getElementById('playBtn').addEventListener('click', ()=>{ startLevel('easy'); show('game'); });
 document.getElementById('levelsBtn').addEventListener('click', ()=> show('levels'));
 document.getElementById('profileBtn').addEventListener('click', ()=> show('profile'));
 document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings'));
 document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
 
-/* ========== DEMO ACCOUNT helper (según txt) ========== */
-const DEMO = { email: "premium_demo@crossmath.com", pwd: "demo123" };
-const btnSign = document.getElementById('btnSign');
+/* ---------- Auth UI & flow (creación + inicio robustos) ---------- */
+const btnAuth = document.getElementById('btnAuth');
 const userEmailEl = document.getElementById('userEmail');
 const profileEmail = document.getElementById('profileEmail');
 const profileStatus = document.getElementById('profileStatus');
 const premiumBadge = document.getElementById('premiumBadge');
 
-async function ensureDemoUser(){
-  try{
-    await signInWithEmailAndPassword(auth, DEMO.email, DEMO.pwd);
-  }catch(e){
-    if(e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password'){
-      try{
-        await createUserWithEmailAndPassword(auth, DEMO.email, DEMO.pwd);
-        await signInWithEmailAndPassword(auth, DEMO.email, DEMO.pwd);
-      }catch(inner){ console.error(inner); showToast('Error demo user') }
-    } else { console.error(e); showToast('Auth error') }
-  }
-}
-document.getElementById('ensureDemo').addEventListener('click', ensureDemoUser);
-
-btnSign.addEventListener('click', async ()=>{
-  if(auth.currentUser) { await signOut(auth); return; }
-  const email = prompt("Email", DEMO.email);
-  const pwd = prompt("Password", DEMO.pwd);
-  if(!email || !pwd) return;
-  try{
-    await signInWithEmailAndPassword(auth, email, pwd);
-  }catch(e){
-    if(e.code === 'auth/user-not-found'){
-      try{ await createUserWithEmailAndPassword(auth, email, pwd); await signInWithEmailAndPassword(auth, email, pwd); }
-      catch(er){ console.error(er); showToast('Error creating user'); }
-    } else { console.error(e); showToast('Login error'); }
+/* Entrar / Registrar: menú claro */
+btnAuth.addEventListener('click', async ()=>{
+  const choice = prompt('Escribe 1 para Iniciar sesión, 2 para Crear cuenta', '1');
+  if(choice === null) return;
+  if(choice.trim() === '1'){
+    const email = prompt(t('signInPrompt'), '');
+    if(!email) return showToast('Correo requerido');
+    const pwd = prompt(t('pwdPrompt'), '');
+    if(!pwd) return showToast('Contraseña requerida');
+    try{
+      await signInWithEmailAndPassword(auth, email.trim(), pwd);
+      showToast('Sesión iniciada');
+    } catch(e){
+      if(e.code === 'auth/user-not-found'){
+        showToast('Cuenta no encontrada. Selecciona Crear cuenta.');
+      } else if(e.code === 'auth/wrong-password'){
+        showToast('Contraseña incorrecta');
+      } else {
+        console.error(e); showToast('Error al iniciar sesión');
+      }
+    }
+  } else if(choice.trim() === '2'){
+    const email = prompt('Correo para nueva cuenta', '');
+    if(!email) return showToast('Correo requerido');
+    const pwd = prompt('Contraseña (min 6 caracteres)', '');
+    if(!pwd) return showToast('Contraseña requerida');
+    try{
+      await createUserWithEmailAndPassword(auth, email.trim(), pwd);
+      showToast('Cuenta creada e iniciada');
+    } catch(e){
+      if(e.code === 'auth/email-already-in-use'){
+        showToast('El correo ya está en uso. Intenta iniciar sesión.');
+      } else if(e.code === 'auth/invalid-email'){
+        showToast('Correo inválido');
+      } else if(e.code === 'auth/weak-password'){
+        showToast('Contraseña débil');
+      } else { console.error(e); showToast('Error al crear cuenta'); }
+    }
+  } else {
+    showToast('Acción cancelada');
   }
 });
 
-/* ========== ON AUTH STATE: ensure Firestore doc + realtime snapshot (saveProgress/loadProgress usage) ========== */
-onAuthStateChanged(auth, async user => {
+/* Demo button (no muestra credenciales) */
+document.getElementById('ensureDemo').addEventListener('click', async ()=>{
+  const demoEmail = 'premium_demo@crossmath.com';
+  const demoPwd = 'demo123';
+  try{
+    await signInWithEmailAndPassword(auth, demoEmail, demoPwd);
+    showToast('Demo iniciada');
+  } catch(e){
+    if(e.code === 'auth/user-not-found'){
+      try{ await createUserWithEmailAndPassword(auth, demoEmail, demoPwd); await signInWithEmailAndPassword(auth, demoEmail, demoPwd); showToast('Demo creada e iniciada'); }
+      catch(err){ console.error(err); showToast('Error demo'); }
+    } else { console.error(e); showToast('Error demo'); }
+  }
+});
+
+/* Logout */
+document.getElementById('logoutBtn').addEventListener('click', async ()=>{ if(auth.currentUser){ await signOut(auth); showToast('Sesión cerrada'); show('menu'); } });
+
+/* ---------- On auth state: ensure user doc and snapshot premium ---------- */
+onAuthStateChanged(auth, async user=>{
   if(user){
     userEmailEl.textContent = user.email;
-    btnSign.textContent = 'Salir';
+    btnAuth.textContent = 'Salir';
     profileEmail.textContent = user.email;
     const ref = doc(db,'users',user.uid);
     const snap = await getDoc(ref);
     if(!snap.exists()){
-      await setDoc(ref, { email: user.email, isPremium: false, score:0, progress:{}, puzzlesUsed:[], lastUpdated: serverTimestamp() });
+      await setDoc(ref, { email: user.email, isPremium:false, score:0, progress:{}, puzzlesUsed:[], lastUpdated: serverTimestamp() });
     }
-    onSnapshot(ref, docSnap => {
-      if(docSnap.exists()){
-        const data = docSnap.data();
-        profileStatus.textContent = 'Estado: ' + (data.isPremium ? 'Premium' : 'Gratis');
-        premiumBadge.style.display = data.isPremium ? 'inline-block' : 'none';
-        if(data.isPremium) showToast(t('premiumActive'));
-      }
-    });
+    onSnapshot(ref, ds=>{ if(ds.exists()){ const data = ds.data(); profileStatus.textContent = 'Estado: ' + (data.isPremium ? 'Premium' : 'Gratis'); premiumBadge.style.display = data.isPremium ? 'inline-block' : 'none'; if(data.isPremium) showToast(t('premiumActive')); } });
   } else {
     userEmailEl.textContent = 'No conectado';
-    btnSign.textContent = 'Entrar';
+    btnAuth.textContent = 'Entrar / Registrar';
     profileEmail.textContent = '-';
     profileStatus.textContent = 'Estado: -';
     premiumBadge.style.display = 'none';
   }
 });
 
-/* ========== GUMROAD flow (cliente) - producto rnlle ========== */
-const GUMROAD_PRODUCT_URL = "https://gumroad.com/l/rnlle"; // rnlle según txt
-document.getElementById('buyPremium').addEventListener('click', async ()=>{
-  showToast(t('buying'));
-  window.open(GUMROAD_PRODUCT_URL, '_blank');
-  // Nota: webhook backend necesario para validar compra y activar isPremium en Firestore (ver instrucciones dentro).
-});
+/* ---------- Gumroad client redirect (backend webhook required to activate premium) ---------- */
+const GUMROAD_PRODUCT_URL = "https://gumroad.com/l/rnlle";
+document.getElementById('buyPremium').addEventListener('click', ()=>{ showToast(t('buying')); window.open(GUMROAD_PRODUCT_URL, '_blank'); });
 
-/* ========== saveProgress() y loadProgress() conectados al proyecto crossmath-sync-db (según txt) ========== */
+/* ---------- Firestore save/load/export (saveProgress/loadProgress) ---------- */
 async function saveProgress(progressObj){
   const user = auth.currentUser;
   if(!user) return showToast(t('connectToSave'));
-  const ref = doc(db, 'users', user.uid);
-  await updateDoc(ref, { progress: progressObj, lastUpdated: serverTimestamp(), score: progressObj.score || 0 }, { merge: true });
+  const ref = doc(db,'users',user.uid);
+  await updateDoc(ref, { progress: progressObj, lastUpdated: serverTimestamp(), score: progressObj.score || 0 }, { merge:true });
   showToast(t('saved'));
 }
-
 async function loadProgress(){
   const user = auth.currentUser;
   if(!user) return null;
-  const ref = doc(db, 'users', user.uid);
+  const ref = doc(db,'users',user.uid);
   const snap = await getDoc(ref);
-  if(snap.exists()){
-    const data = snap.data();
-    showToast(t('loaded'));
-    return data.progress || {};
-  }
+  if(snap.exists()){ showToast(t('loaded')); return snap.data().progress || {}; }
   return null;
 }
-
-/* ========== Exportación crossmath_progress.json (según txt) ========== */
 document.getElementById('exportBtn').addEventListener('click', async ()=>{
   const user = auth.currentUser;
   if(!user) return showToast(t('connectToSave'));
-  const ref = doc(db, 'users', user.uid);
+  const ref = doc(db,'users',user.uid);
   const snap = await getDoc(ref);
   const data = snap.exists() ? snap.data() : { email: user.email };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'crossmath_progress.json'; a.click();
   URL.revokeObjectURL(url);
 });
 
-/* ========== Motor de puzzles (estructura y validación robusta acorde al txt) ==========
-   Requisitos desde el archivo: cuadrícula tipo sudoku matemático, celdas fijas y vacías,
-   operadores entre celdas (+ - × ÷), validación automática, manejo de división, evitar división por cero.
-   saveProgress() y loadProgress() persisten el estado.
-========================================================================== */
-
+/* ---------- Puzzle engine (robusto) ---------- */
 let activeLevel = 'easy';
-let currentGrid = []; // [{value:number|null, fixed:boolean}]
+let currentGrid = [];
 let operatorSet = ['+','-'];
 let gridSize = 5;
 let timerInterval = null;
@@ -333,55 +322,45 @@ let currentScore = 0;
 
 function configureLevel(level){
   activeLevel = level;
-  if(level === 'easy'){ gridSize = 5; operatorSet = ['+','-']; }
-  else if(level === 'medium'){ gridSize = 5; operatorSet = ['+','-','*']; }
-  else if(level === 'hard'){ gridSize = 6; operatorSet = ['+','-','*','/']; }
-  else { gridSize = 6; operatorSet = ['+','-','*','/']; }
+  if(level==='easy'){ gridSize=5; operatorSet=['+','-']; }
+  else if(level==='medium'){ gridSize=5; operatorSet=['+','-','*']; }
+  else if(level==='hard'){ gridSize=6; operatorSet=['+','-','*','/']; }
+  else { gridSize=6; operatorSet=['+','-','*','/']; }
   document.getElementById('levelLabel').textContent = 'Nivel: ' + level;
 }
 
 function generatePuzzle(level){
   configureLevel(level);
   currentGrid = [];
-  // Generador simple pero controlado: mezcla fijos y vacíos; garantiza al menos 1 fijo por fila.
   for(let r=0;r<gridSize;r++){
     for(let c=0;c<gridSize;c++){
-      if(Math.random() < 0.36){
-        currentGrid.push({ value: Math.floor(Math.random()*19)+1, fixed:true });
-      } else {
-        currentGrid.push({ value: null, fixed:false });
-      }
+      if(Math.random() < 0.36) currentGrid.push({ value: Math.floor(Math.random()*19)+1, fixed:true });
+      else currentGrid.push({ value:null, fixed:false });
     }
   }
   for(let r=0;r<gridSize;r++){
     const row = currentGrid.slice(r*gridSize, r*gridSize+gridSize);
     if(!row.some(cell=>cell.fixed)){
       const idx = r*gridSize + Math.floor(Math.random()*gridSize);
-      currentGrid[idx].value = Math.floor(Math.random()*12)+1;
-      currentGrid[idx].fixed = true;
+      currentGrid[idx].value = Math.floor(Math.random()*12)+1; currentGrid[idx].fixed = true;
     }
   }
-  currentScore = 0;
-  renderGrid();
+  currentScore = 0; renderGrid();
 }
 
 function renderGrid(){
   const gridEl = document.getElementById('grid');
   gridEl.style.gridTemplateColumns = `repeat(${gridSize},54px)`;
   gridEl.innerHTML = '';
-  currentGrid.forEach((cell, idx)=>{
+  currentGrid.forEach((cell,idx)=>{
     const div = document.createElement('div');
     div.className = 'cell ' + (cell.fixed ? 'fixed' : 'editable');
-    div.dataset.idx = idx;
-    div.tabIndex = 0;
+    div.dataset.idx = idx; div.tabIndex = 0;
     div.textContent = cell.value === null ? '' : cell.value;
-    if(!cell.fixed){
-      div.addEventListener('click', ()=>{ focusCell(idx); });
-    }
+    if(!cell.fixed) div.addEventListener('click', ()=> focusCell(idx));
     gridEl.appendChild(div);
   });
-  renderPad();
-  resetTimer();
+  renderPad(); resetTimer();
 }
 
 let focusedIdx = null;
@@ -393,37 +372,20 @@ function focusCell(idx){
 }
 
 function renderPad(){
-  const pad = document.getElementById('pad');
-  pad.innerHTML = '';
+  const pad = document.getElementById('pad'); pad.innerHTML = '';
   const maxNum = activeLevel === 'infinite' ? 100 : 20;
   for(let n=1;n<=maxNum;n++){
-    const b = document.createElement('button');
-    b.className = 'num-btn';
-    b.textContent = n;
-    b.addEventListener('click', ()=>{ onPadPress(n); });
-    pad.appendChild(b);
+    const b = document.createElement('button'); b.className='num-btn'; b.textContent=n; b.addEventListener('click', ()=> onPadPress(n)); pad.appendChild(b);
   }
-  const clear = document.createElement('button');
-  clear.className = 'num-btn';
-  clear.textContent = 'Del';
-  clear.addEventListener('click', ()=>{ if(focusedIdx!==null && !currentGrid[focusedIdx].fixed) { currentGrid[focusedIdx].value = null; renderGrid(); } });
-  pad.appendChild(clear);
+  const clear = document.createElement('button'); clear.className='num-btn'; clear.textContent='Del'; clear.addEventListener('click', ()=>{ if(focusedIdx!==null && !currentGrid[focusedIdx].fixed){ currentGrid[focusedIdx].value = null; renderGrid(); } }); pad.appendChild(clear);
 }
 
 function onPadPress(n){
   if(focusedIdx === null) return showToast(t('selectCell'));
   if(currentGrid[focusedIdx].fixed) return;
-  currentGrid[focusedIdx].value = n;
-  renderGrid();
+  currentGrid[focusedIdx].value = n; renderGrid();
 }
 
-/* VALIDACIÓN DETALLADA:
-   - Cada fila se evalúa como una expresión left-to-right usando una secuencia de operadores
-     determinada por posicion para reproducibilidad (no aleatoria en validación).
-   - Acepta resultados enteros; para división exige que el resultado sea entero y que no haya división por cero.
-   - Rechaza si alguna celda está vacía.
-   - Retorna {valid:boolean, reason?:string}
-*/
 function validatePuzzle(){
   const nulls = currentGrid.filter(c=>c.value===null);
   if(nulls.length>0) return { valid:false, reason:'Faltan celdas por rellenar' };
@@ -442,159 +404,60 @@ function validatePuzzle(){
         val = res;
       }
     }
-    if(Math.abs(val - Math.round(val)) > 0.0001){
-      return { valid:false, reason:'Resultado no entero en fila ' + (r+1) };
-    }
+    if(Math.abs(val - Math.round(val)) > 0.0001) return { valid:false, reason:'Resultado no entero en fila ' + (r+1) };
   }
   return { valid:true };
 }
 
 document.getElementById('validateBtn').addEventListener('click', ()=>{
   const res = validatePuzzle();
-  if(res.valid){
-    currentScore += 100;
-    document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
-    runConfetti();
-    showToast('¡Correcto!');
-  } else {
-    showToast('Incorrecto: ' + res.reason);
-  }
+  if(res.valid){ currentScore += 100; document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; runConfetti(); showToast('¡Correcto!'); }
+  else showToast('Incorrecto: ' + res.reason);
 });
 
-/* ====== Guardado/Carga y botones ====== */
-document.getElementById('saveBtn').addEventListener('click', async ()=>{
-  await saveProgress(currentPuzzleState());
-});
+document.getElementById('saveBtn').addEventListener('click', async ()=>{ await saveProgress(currentPuzzleState()); });
 document.getElementById('backToMenu').addEventListener('click', ()=> show('menu'));
 
-/* ====== Estado del puzzle para persistencia ====== */
-function currentPuzzleState(){
-  return {
-    level: activeLevel,
-    gridSize,
-    operatorSet,
-    grid: currentGrid,
-    score: currentScore,
-    puzzlesUsed: [], // opcional: tracking
-    updatedAt: Date.now()
-  };
-}
+function currentPuzzleState(){ return { level:activeLevel, gridSize, operatorSet, grid:currentGrid, score:currentScore, puzzlesUsed:[], updatedAt: Date.now() }; }
 
-/* ====== Timer ====== */
-function resetTimer(){
-  clearInterval(timerInterval);
-  startTime = Date.now();
-  document.getElementById('timer').textContent = '00:00';
-}
-function startTimer(){
-  timerInterval = setInterval(()=>{
-    const diff = Math.floor((Date.now() - startTime)/1000);
-    const mm = String(Math.floor(diff/60)).padStart(2,'0');
-    const ss = String(diff%60).padStart(2,'0');
-    document.getElementById('timer').textContent = `${mm}:${ss}`;
-  }, 500);
-}
+function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
+function startTimer(){ timerInterval = setInterval(()=>{ const diff = Math.floor((Date.now()-startTime)/1000); const mm = String(Math.floor(diff/60)).padStart(2,'0'); const ss = String(diff%60).padStart(2,'0'); document.getElementById('timer').textContent = `${mm}:${ss}`; }, 500); }
 
-/* ====== Confetti ligero ====== */
-const confettiCanvas = document.getElementById('confetti');
-confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight;
-const confettiCtx = confettiCanvas.getContext('2d');
-let confettis = [];
-function runConfetti(){
-  for(let i=0;i<80;i++){
-    confettis.push({x: Math.random()*innerWidth, y: -20, vx:(Math.random()-0.5)*4, vy:Math.random()*4+2, s:Math.random()*6+4, col: `hsl(${Math.random()*360} 80% 60%)`});
-  }
-  requestAnimationFrame(confettiLoop);
-  setTimeout(()=> confettis = [], 3500);
-}
-function confettiLoop(){
-  confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
-  for(const p of confettis){
-    p.x += p.vx; p.y += p.vy; p.vy += 0.08;
-    confettiCtx.fillStyle = p.col;
-    confettiCtx.fillRect(p.x, p.y, p.s, p.s*0.6);
-  }
-  confettis = confettis.filter(p=>p.y < innerHeight+50);
-  if(confettis.length) requestAnimationFrame(confettiLoop);
-}
+/* ---------- Confetti & particles (visuals) ---------- */
+const confettiCanvas = document.getElementById('confetti'); confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; const confettiCtx = confettiCanvas.getContext('2d'); let confettis = [];
+function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,s:Math.random()*6+4,col:`hsl(${Math.random()*360} 80% 60%)`}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); }
+function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle=p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s*0.6); } confettis = confettis.filter(p=>p.y < innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); }
 
-/* ====== Fondo de partículas ligero (animado) ====== */
-const particles = document.getElementById('particles');
-particles.width = innerWidth; particles.height = innerHeight;
-const pctx = particles.getContext('2d');
-const parts = [];
-for(let i=0;i<60;i++){
-  parts.push({x: Math.random()*innerWidth, y: Math.random()*innerHeight, r: Math.random()*2+0.6, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3, a: Math.random()});
-}
-function partLoop(){
-  pctx.clearRect(0,0,particles.width,particles.height);
-  for(const p of parts){
-    p.x += p.vx; p.y += p.vy; p.a += 0.01;
-    if(p.x < -10) p.x = innerWidth+10; if(p.x > innerWidth+10) p.x = -10;
-    if(p.y < -10) p.y = innerHeight+10; if(p.y > innerHeight+10) p.y = -10;
-    pctx.fillStyle = `rgba(155,200,255,${0.06 + Math.abs(Math.sin(p.a))*0.08})`;
-    pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI*2); pctx.fill();
-  }
-  requestAnimationFrame(partLoop);
-}
+const particles = document.getElementById('particles'); particles.width = innerWidth; particles.height = innerHeight; const pctx = particles.getContext('2d'); const parts=[]; for(let i=0;i<60;i++) parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+0.6,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()});
+function partLoop(){ pctx.clearRect(0,0,particles.width,particles.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.a+=0.01; if(p.x<-10) p.x=innerWidth+10; if(p.x>innerWidth+10) p.x=-10; if(p.y<-10) p.y=innerHeight+10; if(p.y>innerHeight+10) p.y=-10; pctx.fillStyle=`rgba(155,200,255,${0.06+Math.abs(Math.sin(p.a))*0.08})`; pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI*2); pctx.fill(); } requestAnimationFrame(partLoop); }
 partLoop();
 
-/* ====== Toast helper ====== */
-const toastEl = document.getElementById('toast');
-let toastTimer = null;
-function showToast(msg, time=2500){
-  toastEl.textContent = msg;
-  toastEl.classList.remove('hidden');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{ toastEl.classList.add('hidden'); }, time);
-}
+/* ---------- Toast ---------- */
+const toastEl = document.getElementById('toast'); let toastTimer = null;
+function showToast(msg,time=2500){ toastEl.textContent = msg; toastEl.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>toastEl.classList.add('hidden'),time); }
 
-/* ====== Niveles: wiring ====== */
-document.querySelectorAll('.level-card').forEach(el=>{
-  el.addEventListener('click', ()=> { startLevel(el.dataset.level); });
-});
+/* ---------- Levels wiring ---------- */
+document.querySelectorAll('.level-card').forEach(el=>el.addEventListener('click', ()=>{ startLevel(el.dataset.level); }));
 
-/* ====== startLevel ====== */
-function startLevel(level){
-  configureLevel(level);
-  generatePuzzle(level);
-  show('game');
-  focusedIdx = currentGrid.findIndex(c=>!c.fixed);
-  if(focusedIdx === -1) focusedIdx = null;
-  resetTimer(); startTimer();
-}
-
-/* ====== Guardado automático al iniciar sesión: loadProgress conecta con save/load del txt ====== */
-onAuthStateChanged(auth, async user => {
+/* ---------- Auto-load progress on sign-in ---------- */
+onAuthStateChanged(auth, async user=>{
   if(user){
     const prog = await loadProgress();
-    if(prog && prog.level){
-      activeLevel = prog.level;
-      gridSize = prog.gridSize || gridSize;
-      currentGrid = prog.grid || currentGrid;
-      currentScore = prog.score || 0;
-      renderGrid();
-      document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
-    }
+    if(prog && prog.level){ activeLevel = prog.level; gridSize = prog.gridSize || gridSize; currentGrid = prog.grid || currentGrid; currentScore = prog.score || 0; renderGrid(); document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; }
   }
 });
 
-/* ====== UI inicial ====== */
+/* ---------- Responsive ---------- */
 window.addEventListener('resize', ()=>{ particles.width = innerWidth; particles.height = innerHeight; confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
-show('menu');
-showToast('CrossMathWeb listo. Reemplaza Firebase config por tu proyecto crossmath-sync-db.', 3500);
 
-/* ====== Nota para desarrollador (seguridad & Gumroad webhook) ======
-  - Reglas Firestore recomendadas:
-    match /users/{uid} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == uid;
-    }
-  - Implementa un backend que reciba el webhook de Gumroad; al validar compra del producto rnlle, busca el usuario por email
-    en collection users (o guarda un mapping email->uid) y actualiza users/{uid}.isPremium = true usando Admin SDK.
-  - El cliente redirige a Gumroad; la activación real viene desde el webhook del servidor.
-======================================================================= */
+/* ---------- Init ---------- */
+show('menu'); showToast('CrossMathWeb listo. Reemplaza Firebase config por tu proyecto crossmath-sync-db.',3000);
 
+/* ---------- Developer notes ----------
+- Reemplaza firebaseConfig con valores de crossmath-sync-db.
+- Implementa webhook Gumroad en backend para activar isPremium en Firestore al validar compra rnlle.
+- Regla recomendada Firestore: allow write users/{uid} only if request.auth.uid == uid. Backend admin SDK para isPremium updates.
+------------------------------------- */
 </script>
 </body>
 </html>
