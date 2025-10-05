@@ -1,99 +1,473 @@
-<!doctype html> <html lang="es"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width,initial-scale=1" /> <title>CrossMathWeb — Local</title> <style> :root{--bg:#0b1020;--card:#0f1724;--accent:#ffd166;--muted:#9aa4b2} html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#061125 0%,#0b1020 100%);color:#e6eef6} #particles{position:fixed;inset:0;z-index:0;pointer-events:none} .app{position:relative;z-index:1;max-width:1100px;margin:28px auto;padding:22px} .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6)} header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px} h1{margin:0;font-size:20px;letter-spacing:0.6px} .nav{display:flex;gap:8px} .btn{background:var(--accent);color:#08121a;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(255,209,102,0.12);transition:transform .12s ease,box-shadow .12s} .btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(255,209,102,0.14)} .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12)} .small{padding:6px 9px;font-size:13px;border-radius:8px} nav.main-buttons{display:flex;gap:10px;justify-content:center;margin:26px 0} .levels{display:flex;gap:12px;flex-wrap:wrap;justify-content:center} .level-card{width:180px;height:120px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#071018;cursor:pointer;box-shadow:0 8px 30px rgba(2,6,23,0.5);transition:transform .12s} .level-card:hover{transform:translateY(-6px)} .level-easy{background:linear-gradient(90deg,#fff3bf,#ffd166)} .level-med{background:linear-gradient(90deg,#bde0fe,#74c0fc)} .level-hard{background:linear-gradient(90deg,#f8d7da,#f28b82)} .level-inf{background:linear-gradient(90deg,#d3f9d8,#99f6b3)} .grid-wrap{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap} .grid{background:#fff7e6;border-radius:12px;padding:12px;display:grid;grid-template-columns:repeat(5,54px);grid-auto-rows:54px;gap:8px} .cell{background:#ffefc1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2a2a2a;user-select:none} .cell.fixed{background:#ffeaa7;opacity:0.95} .pad{display:grid;grid-template-columns:repeat(1,1fr);gap:8px} .num-btn{background:#1b7a4b;color:white;padding:10px;border-radius:10px;border:none;cursor:pointer} .hud{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px} .muted{color:var(--muted);font-size:13px} .confetti{position:fixed;pointer-events:none;z-index:50;inset:0} footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px} .hidden{display:none} .settings-row{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:10px} select.lang{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent);padding:6px;border-radius:6px} .profile-card{display:flex;gap:14px;align-items:center} .badge{padding:6px 8px;border-radius:8px;background:linear-gradient(90deg,#ffd166,#f08a5d);color:#071018;font-weight:700} .timer{font-family:monospace;background:rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px} .toast{position:fixed;right:20px;bottom:20px;background:#0d2633;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6);color:#dff3f6} .form-row{display:flex;gap:8px;align-items:center} .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted)} .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:60;background:rgba(2,6,23,0.5)} .modal-card{background:#07121a;padding:18px;border-radius:10px;min-width:300px} @media (max-width:900px){.grid{grid-template-columns:repeat(4,54px)}} </style> </head> <body> <canvas id="particles"></canvas>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CrossMathWeb — Local</title>
+<style>
+  :root{--bg:#0b1020;--card:#0f1724;--accent:#ffd166;--muted:#9aa4b2}
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#061125 0%,#0b1020 100%);color:#e6eef6}
+  #particles{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .app{position:relative;z-index:1;max-width:1100px;margin:28px auto;padding:22px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  h1{margin:0;font-size:20px;letter-spacing:0.6px}
+  .btn{background:var(--accent);color:#08121a;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(255,209,102,0.12);transition:transform .12s ease,box-shadow .12s}
+  .btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(255,209,102,0.14)}
+  .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12)}
+  .small{padding:6px 9px;font-size:13px;border-radius:8px}
+  .levels{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .level-card{width:180px;height:120px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#071018;cursor:pointer;box-shadow:0 8px 30px rgba(2,6,23,0.5);transition:transform .12s}
+  .grid-wrap{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+  .grid{background:#fff7e6;border-radius:12px;padding:12px;display:grid;grid-template-columns:repeat(5,54px);grid-auto-rows:54px;gap:8px}
+  .cell{background:#ffefc1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2a2a2a;user-select:none}
+  .cell.fixed{background:#ffeaa7;opacity:0.95}
+  .pad{display:grid;grid-template-columns:repeat(1,1fr);gap:8px;max-height:420px;overflow:auto}
+  .num-btn{background:#1b7a4b;color:white;padding:10px;border-radius:10px;border:none;cursor:pointer}
+  .muted{color:var(--muted);font-size:13px}
+  .badge{padding:6px 8px;border-radius:8px;background:linear-gradient(90deg,#ffd166,#f08a5d);color:#071018;font-weight:700}
+  .hidden{display:none}
+  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:60;background:rgba(2,6,23,0.5)}
+  .modal-card{background:#07121a;padding:18px;border-radius:10px;min-width:320px}
+  .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);width:100%}
+  .hud{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px}
+  .timer{font-family:monospace;background:rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px}
+  .toast{position:fixed;right:20px;bottom:20px;background:#0d2633;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6);color:#dff3f6}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(4,54px)} .pad{max-height:220px}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
 
-<div class="app card" id="app"> <header> <h1>CrossMathWeb</h1> <div class="profile-card"> <div id="userEmail" class="muted">No conectado</div> <div id="premiumBadge" class="badge hidden">Premium</div> <button id="btnAuth" class="btn small">Entrar / Registrar</button> </div> </header>
+<div class="app card" id="app">
+  <header>
+    <h1>CrossMathWeb</h1>
+    <div style="display:flex;gap:12px;align-items:center">
+      <div id="userEmail" class="muted">No conectado</div>
+      <div id="premiumBadge" class="badge hidden">Premium</div>
+      <button id="btnAuth" class="btn small">Entrar / Registrar</button>
+    </div>
+  </header>
 
-<main id="mainView"> <section id="menu" class="center"> <div class="nav main-buttons"> <button class="btn" id="playBtn">Jugar</button> <button class="btn secondary" id="levelsBtn">Niveles</button> <button class="btn secondary" id="profileBtn">Perfil</button> <button class="btn secondary" id="settingsBtn">Ajustes</button> <button class="btn secondary" id="helpBtn">Ayuda</button> </div> </section>
+  <main id="mainView">
+    <section id="menu">
+      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:18px">
+        <button class="btn" id="playBtn">Jugar</button>
+        <button class="btn secondary" id="levelsBtn">Niveles</button>
+        <button class="btn secondary" id="profileBtn">Perfil</button>
+        <button class="btn secondary" id="settingsBtn">Ajustes</button>
+        <button class="btn secondary" id="helpBtn">Ayuda</button>
+      </div>
+    </section>
 
-<section id="levels" class="hidden card" style="margin-top:12px"> <h3>Selección de niveles</h3> <div class="levels" id="levelsList" style="margin-top:12px"> <div class="level-card level-easy" data-level="easy"><strong>Fácil</strong><div class="muted">5x5 · operadores + -</div></div> <div class="level-card level-med" data-level="medium"><strong>Medio</strong><div class="muted">5x5 · + - ×</div></div> <div class="level-card level-hard" data-level="hard"><strong>Difícil</strong><div class="muted">6x6 · + - × ÷</div></div> <div class="level-card level-inf" data-level="infinite"><strong>Infinito</strong><div class="muted">Generación continua</div></div> </div> </section>
+    <section id="levels" class="hidden card" style="margin-top:12px">
+      <h3>Selección de niveles</h3>
+      <div class="levels" id="levelsList" style="margin-top:12px">
+        <div class="level-card level-easy" data-level="easy"><strong>Fácil</strong><div class="muted">5x5 · + -</div></div>
+        <div class="level-card level-med" data-level="medium"><strong>Medio</strong><div class="muted">5x5 · + - ×</div></div>
+        <div class="level-card level-hard" data-level="hard"><strong>Difícil</strong><div class="muted">6x6 · + - × ÷</div></div>
+        <div class="level-card level-inf" data-level="infinite"><strong>Infinito</strong><div class="muted">Generación continua</div></div>
+      </div>
+    </section>
 
-<section id="game" class="hidden card" style="margin-top:12px;text-align:center"> <div class="hud"> <div class="timer" id="timer">00:00</div> <div class="muted" id="levelLabel">Nivel</div> <div class="muted" id="scoreLabel">Puntos: 0</div> </div> <div class="grid-wrap" id="gridWrap"> <div id="grid" class="grid" aria-hidden="false"></div> <div class="pad" id="pad"></div> </div> <div style="margin-top:12px"> <button id="validateBtn" class="btn">Validar</button> <button id="saveLocalBtn" class="btn secondary">Descargar progreso</button> <input id="importFile" type="file" accept=".json" style="display:none" /> <button id="importBtn" class="btn secondary">Importar progreso</button> <button id="backToMenu" class="btn small secondary">Volver</button> </div> </section>
+    <section id="game" class="hidden card" style="margin-top:12px;text-align:center">
+      <div class="hud">
+        <div class="timer" id="timer">00:00</div>
+        <div class="muted" id="levelLabel">Nivel</div>
+        <div class="muted" id="scoreLabel">Puntos: 0</div>
+      </div>
+      <div class="grid-wrap" id="gridWrap">
+        <div id="grid" class="grid" aria-hidden="false"></div>
+        <div class="pad" id="pad"></div>
+      </div>
+      <div style="margin-top:12px">
+        <button id="validateBtn" class="btn">Validar</button>
+        <button id="saveLocalBtn" class="btn secondary">Descargar progreso</button>
+        <input id="importFile" type="file" accept=".json" style="display:none" />
+        <button id="importBtn" class="btn secondary">Importar progreso</button>
+        <button id="backToMenu" class="btn small secondary">Volver</button>
+      </div>
+    </section>
 
-<section id="profile" class="hidden card" style="margin-top:12px"> <h3>Perfil</h3> <div style="display:flex;gap:12px;align-items:center;justify-content:space-between"> <div> <div id="profileEmail" class="muted">-</div> <div id="profileStatus" class="muted">Estado: -</div> </div> <div style="text-align:right"> <button id="buyPremiumLocal" class="btn">Activar Premium (local)</button> <div style="margin-top:8px"> <button id="logoutBtn" class="btn secondary small">Cerrar sesión</button> </div> </div> </div> <div style="margin-top:12px;color:var(--muted);font-size:13px"> Exporta tu progreso y estado Premium con "Descargar progreso". Para mover tu cuenta a otro dispositivo sube ese archivo con "Importar progreso". </div> </section>
+    <section id="profile" class="hidden card" style="margin-top:12px">
+      <h3>Perfil</h3>
+      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+        <div>
+          <div id="profileEmail" class="muted">-</div>
+          <div id="profileStatus" class="muted">Estado: -</div>
+        </div>
+        <div style="text-align:right">
+          <button id="buyPremiumLocal" class="btn">Activar Premium (local)</button>
+          <div style="margin-top:8px">
+            <button id="logoutBtn" class="btn secondary small">Cerrar sesión</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;color:var(--muted);font-size:13px">
+        Exporta tu progreso y estado Premium con "Descargar progreso". Para mover tu cuenta a otro dispositivo sube ese archivo con "Importar progreso".
+      </div>
+    </section>
 
-<section id="settings" class="hidden card" style="margin-top:12px"> <h3>Ajustes</h3> <div class="settings-row"> <label class="muted">Idioma</label> <select id="selectLang" class="lang"> <option value="es">Español</option> <option value="en">English</option> </select> </div> </section>
+    <section id="settings" class="hidden card" style="margin-top:12px">
+      <h3>Ajustes</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="muted">Idioma</label>
+        <select id="selectLang" class="input" style="width:auto">
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </section>
 
-<section id="help" class="hidden card" style="margin-top:12px"> <h3>Ayuda</h3> <div class="muted">El guardado es 100% local: crea cuenta en este dispositivo, descarga el archivo de progreso cuando termines. Para restaurar o mover cuenta, importa el archivo en otro dispositivo.</div> </section> </main>
+    <section id="help" class="hidden card" style="margin-top:12px">
+      <h3>Ayuda</h3>
+      <div class="muted">Guardado local: descarga un archivo para transferir progreso y premium entre dispositivos. Las cuentas son locales por dispositivo.</div>
+    </section>
+  </main>
+</div>
 
-<footer><div class="muted">&nbsp;</div></footer> </div>
+<!-- Auth modal -->
+<div id="authModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-card">
+    <h3 style="margin-top:0">Entrar o crear cuenta local</h3>
+    <div style="margin-bottom:8px">
+      <input id="authUser" class="input" type="text" placeholder="Usuario (ej. correo o nombre)" />
+    </div>
+    <div style="margin-bottom:8px">
+      <input id="authPwd" class="input" type="password" placeholder="Contraseña (opcional)" />
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="closeAuth" class="btn secondary small">Cerrar</button>
+      <button id="createAccount" class="btn small">Crear cuenta</button>
+      <button id="signIn" class="btn small">Iniciar sesión</button>
+    </div>
+    <div id="authMsg" class="muted" style="margin-top:8px;font-size:13px"></div>
+  </div>
+</div>
 
-<!-- Auth modal --> <div id="authModal" class="modal hidden" aria-hidden="true"> <div class="modal-card"> <h3 style="margin-top:0">Entrar o crear cuenta local</h3> <div style="margin-bottom:8px"> <input id="authEmail" class="input" type="text" placeholder="Usuario (local, p. ej. tu correo o nombre)" style="width:100%"/> </div> <div style="margin-bottom:8px"> <input id="authPwd" class="input" type="password" placeholder="Contraseña (opcional)" style="width:100%"/> </div> <div style="display:flex;gap:8px;justify-content:flex-end"> <button id="closeAuth" class="btn secondary small">Cerrar</button> <button id="createAccount" class="btn small">Crear cuenta</button> <button id="signIn" class="btn small">Iniciar sesión</button> </div> <div id="authMsg" class="muted" style="margin-top:8px;font-size:13px"></div> </div> </div>
+<canvas id="confetti" class="confetti hidden"></canvas>
+<div id="toast" class="toast hidden"></div>
 
-<canvas id="confetti" class="confetti"></canvas> <div id="toast" class="toast hidden"></div>
+<script>
+/* -------------------------
+   CrossMathWeb local-only, corrected auth
+   - No Firebase
+   - Local accounts in localStorage under key LS_USERS_KEY
+   - Export/import JSON contains username + profile (progress, isPremium)
+--------------------------*/
 
-<script> /* ------------------------- Local-only CrossMathWeb
+/* Keys & helpers */
+const LS_USERS_KEY = 'crossmath_local_users';
+function readUsers(){ try{ return JSON.parse(localStorage.getItem(LS_USERS_KEY) || '{}'); }catch(e){ return {}; } }
+function writeUsers(u){ localStorage.setItem(LS_USERS_KEY, JSON.stringify(u)); }
+function hashSimple(s){ return s ? btoa(String(s).split('').reverse().join('')) : null; }
 
-No Firebase, no backend.
+/* i18n minimal (keeps labels from UI) */
+let currentLang = navigator.language && navigator.language.startsWith('es') ? 'es' : 'en';
+document.getElementById('selectLang').value = currentLang;
+function t(k){
+  const map = {
+    es:{ signedIn:'Sesión iniciada', signedOut:'Sesión cerrada', requireUser:'Introduce usuario', fileInvalid:'Archivo inválido', imported:'Progreso importado y sesión iniciada', exportSuccess:'Archivo descargado' },
+    en:{ signedIn:'Signed in', signedOut:'Signed out', requireUser:'Enter username', fileInvalid:'Invalid file', imported:'Progress imported and signed in', exportSuccess:'File downloaded' }
+  };
+  return (map[currentLang] && map[currentLang][k]) || k;
+}
+document.getElementById('selectLang').addEventListener('change', e=>{ currentLang = e.target.value; });
 
-Accounts stored locally in localStorage (per device).
+/* Simple SPA */
+const views = ['menu','levels','game','profile','settings','help'];
+function show(v){ views.forEach(x=>{ const el=document.getElementById(x); if(el) el.classList.add('hidden'); }); const el=document.getElementById(v); if(el) el.classList.remove('hidden'); }
+document.getElementById('playBtn').addEventListener('click', ()=>{ startLevel('easy'); show('game'); });
+document.getElementById('levelsBtn').addEventListener('click', ()=> show('levels'));
+document.getElementById('profileBtn').addEventListener('click', ()=> show('profile'));
+document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings'));
+document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
 
-Export progress+premium as JSON file that can be imported on another device.
+/* Session state */
+let currentUser = null; // username
+function updateUIForSession(){
+  const users = readUsers();
+  const profile = currentUser ? (users[currentUser] && users[currentUser].profile) : null;
+  document.getElementById('userEmail').textContent = currentUser || 'No conectado';
+  document.getElementById('btnAuth').textContent = currentUser ? 'Salir' : 'Entrar / Registrar';
+  document.getElementById('profileEmail').textContent = currentUser || '-';
+  document.getElementById('profileStatus').textContent = profile ? ('Estado: ' + (profile.isPremium ? 'Premium' : 'Gratis')) : 'Estado: -';
+  document.getElementById('premiumBadge').classList.toggle('hidden', !(profile && profile.isPremium));
+}
 
-Auth is local per device: create account saves to localStorage.users --------------------------*/
+/* Auth modal wiring */
+const authModal = document.getElementById('authModal');
+const authUser = document.getElementById('authUser');
+const authPwd = document.getElementById('authPwd');
+const authMsg = document.getElementById('authMsg');
 
-/* Basic i18n */ const translations = { es:{ play:"Jugar", levels:"Niveles", profile:"Perfil", settings:"Ajustes", help:"Ayuda", validate:"Validar", save:"Descargar progreso", import:"Importar progreso", premiumActive:"Premium activo", signedIn:"Sesión iniciada", signedOut:"Sesión cerrada", requireUser:"Introduce usuario" }, en:{ play:"Play", levels:"Levels", profile:"Profile", settings:"Settings", help:"Help", validate:"Validate", save:"Download progress", import:"Import progress", premiumActive:"Premium active", signedIn:"Signed in", signedOut:"Signed out", requireUser:"Enter username" } }; let currentLang = navigator.language && navigator.language.startsWith('es') ? 'es' : 'en'; document.getElementById('selectLang').value = currentLang; function t(k){ return translations[currentLang][k] || k; } function applyLang(){ document.getElementById('playBtn').textContent = t('play'); document.getElementById('levelsBtn').textContent = t('levels'); document.getElementById('profileBtn').textContent = t('profile'); document.getElementById('settingsBtn').textContent = t('settings'); document.getElementById('helpBtn').textContent = t('help'); document.getElementById('validateBtn').textContent = t('validate'); document.getElementById('saveLocalBtn').textContent = t('save'); document.getElementById('importBtn').textContent = t('import'); } applyLang(); document.getElementById('selectLang').addEventListener('change', e=>{ currentLang = e.target.value; applyLang(); });
+document.getElementById('btnAuth').addEventListener('click', ()=>{
+  if(currentUser){ currentUser = null; updateUIForSession(); showToast(t('signedOut')); return; }
+  authUser.value=''; authPwd.value=''; authMsg.textContent=''; authModal.classList.remove('hidden'); authModal.setAttribute('aria-hidden','false'); authUser.focus();
+});
+document.getElementById('closeAuth').addEventListener('click', ()=>{ authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
 
-/* Simple SPA */ const views = ['menu','levels','game','profile','settings','help']; function show(view){ views.forEach(v=>document.getElementById(v).classList.add('hidden')); document.getElementById(view).classList.remove('hidden'); } document.getElementById('playBtn').addEventListener('click', ()=>{ startLevel('easy'); show('game'); }); document.getElementById('levelsBtn').addEventListener('click', ()=> show('levels')); document.getElementById('profileBtn').addEventListener('click', ()=> show('profile')); document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings')); document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
+/* Create account */
+document.getElementById('createAccount').addEventListener('click', ()=>{
+  const username = authUser.value.trim();
+  const pwd = authPwd.value;
+  authMsg.textContent = '';
+  if(!username){ authMsg.textContent = t('requireUser'); return; }
+  const users = readUsers();
+  if(users[username]){ authMsg.textContent = 'Usuario ya existe. Inicia sesión.'; return; }
+  users[username] = { pwdHash: pwd ? hashSimple(pwd) : null, profile: { isPremium:false, score:0, progress:null } };
+  writeUsers(users);
+  currentUser = username;
+  updateUIForSession();
+  authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true');
+  showToast(t('signedIn'));
+});
 
-/* Local user storage helpers */ const LS_USERS_KEY = 'crossmath_local_users'; // map username -> {pwdHash(optional), profileObj} function readUsers(){ try{ return JSON.parse(localStorage.getItem(LS_USERS_KEY) || '{}'); }catch(e){ return {}; } } function writeUsers(u){ localStorage.setItem(LS_USERS_KEY, JSON.stringify(u)); } function hashSimple(s){ return btoa(String(s).split('').reverse().join('')); } // not secure, only local convenience
+/* Sign in */
+document.getElementById('signIn').addEventListener('click', ()=>{
+  const username = authUser.value.trim();
+  const pwd = authPwd.value;
+  authMsg.textContent = '';
+  if(!username){ authMsg.textContent = t('requireUser'); return; }
+  const users = readUsers();
+  const u = users[username];
+  if(!u){ authMsg.textContent = 'Usuario no encontrado.'; return; }
+  if(u.pwdHash && (!pwd || hashSimple(pwd) !== u.pwdHash)){ authMsg.textContent = 'Contraseña incorrecta.'; return; }
+  currentUser = username;
+  updateUIForSession();
+  authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true');
+  showToast(t('signedIn'));
+  // load profile progress if present
+  if(u.profile && u.profile.progress) loadProfileProgress(u.profile.progress);
+});
 
-/* Current session */ let currentUser = null; // username string function setSession(userObj){ currentUser = userObj ? userObj.username : null; if(currentUser){ document.getElementById('userEmail').textContent = currentUser; document.getElementById('btnAuth').textContent = 'Salir'; document.getElementById('profileEmail').textContent = currentUser; document.getElementById('profileStatus').textContent = 'Estado: ' + (userObj.profile.isPremium ? 'Premium' : 'Gratis'); document.getElementById('premiumBadge').classList.toggle('hidden', !userObj.profile.isPremium); showToast(t('signedIn')); } else { document.getElementById('userEmail').textContent = 'No conectado'; document.getElementById('btnAuth').textContent = 'Entrar / Registrar'; document.getElementById('profileEmail').textContent = '-'; document.getElementById('profileStatus').textContent = 'Estado: -'; document.getElementById('premiumBadge').classList.add('hidden'); showToast(t('signedOut')); } }
+/* Logout in profile */
+document.getElementById('logoutBtn').addEventListener('click', ()=>{ currentUser = null; updateUIForSession(); show('menu'); showToast(t('signedOut')); });
 
-/* Auth modal wiring */ const authModal = document.getElementById('authModal'); const authEmail = document.getElementById('authEmail'); const authPwd = document.getElementById('authPwd'); const authMsg = document.getElementById('authMsg'); document.getElementById('btnAuth').addEventListener('click', ()=>{ if(currentUser){ // act as logout currentUser = null; setSession(null); return; } authEmail.value=''; authPwd.value=''; authMsg.textContent=''; authModal.classList.remove('hidden'); authModal.setAttribute('aria-hidden','false'); authEmail.focus(); }); document.getElementById('closeAuth').addEventListener('click', ()=>{ authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
+/* Local premium activation */
+document.getElementById('buyPremiumLocal').addEventListener('click', ()=>{
+  if(!currentUser) return showToast('Inicia sesión primero');
+  const users = readUsers();
+  users[currentUser].profile.isPremium = true;
+  writeUsers(users);
+  updateUIForSession();
+  showToast('Premium activado (local)');
+});
 
-/* Create account local */ document.getElementById('createAccount').addEventListener('click', ()=>{ const username = authEmail.value.trim(); const pwd = authPwd.value; authMsg.textContent = ''; if(!username){ authMsg.textContent = t('requireUser'); return; } const users = readUsers(); if(users[username]){ authMsg.textContent = 'Usuario ya existe. Inicia sesión.'; return; } users[username] = { pwdHash: pwd ? hashSimple(pwd) : null, profile: { isPremium:false, score:0, progress:null } }; writeUsers(users); setSession({ username, profile: users[username].profile }); authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
+/* Export progress + profile */
+document.getElementById('saveLocalBtn').addEventListener('click', ()=>{
+  if(!currentUser) return showToast('Inicia sesión para exportar');
+  attachProgressToUser();
+  const users = readUsers();
+  const payload = { username: currentUser, profile: users[currentUser].profile };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `crossmath_${currentUser}_progress.json`; a.click(); URL.revokeObjectURL(url);
+  showToast(t('exportSuccess'));
+});
 
-/* Sign in local */ document.getElementById('signIn').addEventListener('click', ()=>{ const username = authEmail.value.trim(); const pwd = authPwd.value; authMsg.textContent = ''; if(!username){ authMsg.textContent = t('requireUser'); return; } const users = readUsers(); const u = users[username]; if(!u){ authMsg.textContent = 'Usuario no encontrado.'; return; } if(u.pwdHash && (!pwd || hashSimple(pwd) !== u.pwdHash)){ authMsg.textContent = 'Contraseña incorrecta.'; return; } setSession({ username, profile: u.profile }); authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
+/* Import file */
+const importFile = document.getElementById('importFile');
+document.getElementById('importBtn').addEventListener('click', ()=> importFile.click());
+importFile.addEventListener('change', async e=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  try{
+    const txt = await f.text();
+    const obj = JSON.parse(txt);
+    if(!obj.username || !obj.profile) return showToast(t('fileInvalid'));
+    const users = readUsers();
+    users[obj.username] = users[obj.username] || { pwdHash: null, profile: {} };
+    // Merge profile (prefer imported)
+    users[obj.username].profile = obj.profile;
+    writeUsers(users);
+    currentUser = obj.username;
+    updateUIForSession();
+    showToast(t('imported'));
+    if(obj.profile && obj.profile.progress) loadProfileProgress(obj.profile.progress);
+  } catch(err){ console.error(err); showToast(t('fileInvalid')); }
+  importFile.value = '';
+});
 
-/* Logout button in profile */ document.getElementById('logoutBtn').addEventListener('click', ()=>{ currentUser = null; setSession(null); show('menu'); });
+/* ---------------- Puzzle engine (unchanged robust) ---------------- */
+let activeLevel = 'easy';
+let currentGrid = [];
+let operatorSet = ['+','-'];
+let gridSize = 5;
+let timerInterval = null;
+let startTime = null;
+let currentScore = 0;
 
-/* Local premium activation (simulated) */ document.getElementById('buyPremiumLocal').addEventListener('click', ()=>{ if(!currentUser) return showToast('Inicia sesión primero'); const users = readUsers(); users[currentUser].profile.isPremium = true; writeUsers(users); setSession({ username: currentUser, profile: users[currentUser].profile }); showToast('Premium activado (local)'); });
+function configureLevel(level){
+  activeLevel = level;
+  if(level === 'easy'){ gridSize = 5; operatorSet = ['+','-']; }
+  else if(level === 'medium'){ gridSize = 5; operatorSet = ['+','-','*']; }
+  else if(level === 'hard'){ gridSize = 6; operatorSet = ['+','-','*','/']; }
+  else { gridSize = 6; operatorSet = ['+','-','*','/']; }
+  document.getElementById('levelLabel').textContent = 'Nivel: ' + level;
+}
 
-/* Export progress + premium + account data to JSON file */ document.getElementById('saveLocalBtn').addEventListener('click', ()=>{ if(!currentUser) return showToast('Inicia sesión para exportar'); const users = readUsers(); const payload = { username: currentUser, profile: users[currentUser].profile }; const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = crossmath_${currentUser}_progress.json; a.click(); URL.revokeObjectURL(url); showToast('Archivo descargado'); });
+function generatePuzzle(level){
+  configureLevel(level);
+  currentGrid = [];
+  for(let r=0;r<gridSize;r++){
+    for(let c=0;c<gridSize;c++){
+      if(Math.random() < 0.36) currentGrid.push({ value: Math.floor(Math.random()*19)+1, fixed:true });
+      else currentGrid.push({ value: null, fixed:false });
+    }
+  }
+  for(let r=0;r<gridSize;r++){
+    const row = currentGrid.slice(r*gridSize, r*gridSize+gridSize);
+    if(!row.some(cell=>cell.fixed)){
+      const idx = r*gridSize + Math.floor(Math.random()*gridSize);
+      currentGrid[idx].value = Math.floor(Math.random()*12)+1;
+      currentGrid[idx].fixed = true;
+    }
+  }
+  currentScore = 0;
+  renderGrid();
+}
 
-/* Import file (restore account/progress on this device) */ const importFile = document.getElementById('importFile'); document.getElementById('importBtn').addEventListener('click', ()=> importFile.click()); importFile.addEventListener('change', async e=>{ const f = e.target.files[0]; if(!f) return; try{ const txt = await f.text(); const obj = JSON.parse(txt); if(!obj.username || !obj.profile) return showToast('Archivo inválido'); const users = readUsers(); users[obj.username] = users[obj.username] || { pwdHash: null, profile: {} }; // keep existing password if present users[obj.username].profile = obj.profile; writeUsers(users); setSession({ username: obj.username, profile: obj.profile }); showToast('Progreso importado y sesión iniciada'); } catch(err){ console.error(err); showToast('Error al importar'); } importFile.value = ''; });
+function renderGrid(){
+  const gridEl = document.getElementById('grid');
+  gridEl.style.gridTemplateColumns = `repeat(${gridSize},54px)`;
+  gridEl.innerHTML = '';
+  currentGrid.forEach((cell, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'cell ' + (cell.fixed ? 'fixed' : 'editable');
+    div.dataset.idx = idx;
+    div.tabIndex = 0;
+    div.textContent = cell.value === null ? '' : cell.value;
+    if(!cell.fixed) div.addEventListener('click', ()=> focusCell(idx));
+    gridEl.appendChild(div);
+  });
+  renderPad();
+  resetTimer();
+}
 
-/* ---------------- Puzzle engine (same robust logic, local-only persistence) ---------------- */ let activeLevel = 'easy'; let currentGrid = []; let operatorSet = ['+','-']; let gridSize = 5; let timerInterval = null; let startTime = null; let currentScore = 0;
+let focusedIdx = null;
+function focusCell(idx){
+  focusedIdx = idx;
+  document.querySelectorAll('.cell').forEach(el=>el.style.outline='none');
+  const el = document.querySelector(`.cell[data-idx="${idx}"]`);
+  if(el) el.style.outline = '3px solid rgba(2,120,80,0.18)';
+}
 
-function configureLevel(level){ activeLevel = level; if(level === 'easy'){ gridSize = 5; operatorSet = ['+','-']; } else if(level === 'medium'){ gridSize = 5; operatorSet = ['+','-','']; } else if(level === 'hard'){ gridSize = 6; operatorSet = ['+','-','','/']; } else { gridSize = 6; operatorSet = ['+','-','*','/']; } document.getElementById('levelLabel').textContent = 'Nivel: ' + level; }
+function renderPad(){
+  const pad = document.getElementById('pad'); pad.innerHTML = '';
+  const maxNum = activeLevel === 'infinite' ? 100 : 20;
+  for(let n=1;n<=maxNum;n++){
+    const b = document.createElement('button');
+    b.className = 'num-btn';
+    b.textContent = n;
+    b.addEventListener('click', ()=> onPadPress(n));
+    pad.appendChild(b);
+  }
+  const clear = document.createElement('button');
+  clear.className = 'num-btn';
+  clear.textContent = 'Del';
+  clear.addEventListener('click', ()=>{ if(focusedIdx!==null && !currentGrid[focusedIdx].fixed){ currentGrid[focusedIdx].value = null; renderGrid(); } });
+  pad.appendChild(clear);
+}
 
-function generatePuzzle(level){ configureLevel(level); currentGrid = []; for(let r=0;r<gridSize;r++){ for(let c=0;c<gridSize;c++){ if(Math.random() < 0.36) currentGrid.push({ value: Math.floor(Math.random()19)+1, fixed:true }); else currentGrid.push({ value: null, fixed:false }); } } for(let r=0;r<gridSize;r++){ const row = currentGrid.slice(rgridSize, rgridSize+gridSize); if(!row.some(cell=>cell.fixed)){ const idx = rgridSize + Math.floor(Math.random()gridSize); currentGrid[idx].value = Math.floor(Math.random()12)+1; currentGrid[idx].fixed = true; } } currentScore = 0; renderGrid(); }
+function onPadPress(n){
+  if(focusedIdx === null) return showToast('Selecciona una celda');
+  if(currentGrid[focusedIdx].fixed) return;
+  currentGrid[focusedIdx].value = n;
+  renderGrid();
+}
 
-function renderGrid(){ const gridEl = document.getElementById('grid'); gridEl.style.gridTemplateColumns = repeat(${gridSize},54px); gridEl.innerHTML = ''; currentGrid.forEach((cell, idx)=>{ const div = document.createElement('div'); div.className = 'cell ' + (cell.fixed ? 'fixed' : 'editable'); div.dataset.idx = idx; div.tabIndex = 0; div.textContent = cell.value === null ? '' : cell.value; if(!cell.fixed) div.addEventListener('click', ()=> focusCell(idx)); gridEl.appendChild(div); }); renderPad(); resetTimer(); }
+function validatePuzzle(){
+  const nulls = currentGrid.filter(c=>c.value===null);
+  if(nulls.length>0) return { valid:false, reason:'Faltan celdas por rellenar' };
+  for(let r=0;r<gridSize;r++){
+    let val = currentGrid[r*gridSize].value;
+    for(let c=1;c<gridSize;c++){
+      const cellVal = currentGrid[r*gridSize + c].value;
+      const op = operatorSet[(r + c) % operatorSet.length];
+      if(op === '+') val = val + cellVal;
+      else if(op === '-') val = val - cellVal;
+      else if(op === '*') val = val * cellVal;
+      else if(op === '/'){
+        if(cellVal === 0) return { valid:false, reason:'División por cero' };
+        const res = val / cellVal;
+        if(Math.abs(res - Math.round(res)) > 0.0001) return { valid:false, reason:'División no entera' };
+        val = res;
+      }
+    }
+    if(Math.abs(val - Math.round(val)) > 0.0001) return { valid:false, reason:'Resultado no entero en fila ' + (r+1) };
+  }
+  return { valid:true };
+}
 
-let focusedIdx = null; function focusCell(idx){ focusedIdx = idx; document.querySelectorAll('.cell').forEach(el=>el.style.outline='none'); const el = document.querySelector(.cell[data-idx="${idx}"]); if(el) el.style.outline = '3px solid rgba(2,120,80,0.18)'; }
+document.getElementById('validateBtn').addEventListener('click', ()=>{
+  const res = validatePuzzle();
+  if(res.valid){
+    currentScore += 100;
+    document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
+    runConfetti();
+    showToast('¡Correcto!');
+  } else {
+    showToast('Incorrecto: ' + res.reason);
+  }
+});
 
-function renderPad(){ const pad = document.getElementById('pad'); pad.innerHTML = ''; const maxNum = activeLevel === 'infinite' ? 100 : 20; for(let n=1;n<=maxNum;n++){ const b = document.createElement('button'); b.className = 'num-btn'; b.textContent = n; b.addEventListener('click', ()=> onPadPress(n)); pad.appendChild(b); } const clear = document.createElement('button'); clear.className = 'num-btn'; clear.textContent = 'Del'; clear.addEventListener('click', ()=>{ if(focusedIdx!==null && !currentGrid[focusedIdx].fixed){ currentGrid[focusedIdx].value = null; renderGrid(); } }); pad.appendChild(clear); }
+/* Export/Import helpers attach progress to local profile */
+function currentPuzzleState(){ return { level: activeLevel, gridSize, operatorSet, grid: currentGrid, score: currentScore, updatedAt: Date.now() }; }
+function attachProgressToUser(){
+  if(!currentUser) return;
+  const users = readUsers();
+  users[currentUser].profile.progress = currentPuzzleState();
+  users[currentUser].profile.score = currentScore || users[currentUser].profile.score || 0;
+  writeUsers(users);
+}
+function loadProfileProgress(p){
+  if(!p) return;
+  activeLevel = p.level || activeLevel;
+  gridSize = p.gridSize || gridSize;
+  currentGrid = p.grid || currentGrid;
+  currentScore = p.score || currentScore;
+  renderGrid();
+  document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
+}
 
-function onPadPress(n){ if(focusedIdx === null) return showToast('Selecciona una celda'); if(currentGrid[focusedIdx].fixed) return; currentGrid[focusedIdx].value = n; renderGrid(); }
+/* Confetti + particles (light) */
+const confettiCanvas = document.getElementById('confetti');
+confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight;
+const confettiCtx = confettiCanvas.getContext('2d');
+let confettis = [];
+function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,s:Math.random()*6+4,col:`hsl(${Math.random()*360} 80% 60%)`}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); }
+function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle=p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s*0.6); } confettis = confettis.filter(p=>p.y < innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); }
 
-function validatePuzzle(){ const nulls = currentGrid.filter(c=>c.value===null); if(nulls.length>0) return { valid:false, reason:'Faltan celdas por rellenar' }; for(let r=0;r<gridSize;r++){ let val = currentGrid[rgridSize].value; for(let c=1;c<gridSize;c++){ const cellVal = currentGrid[rgridSize + c].value; const op = operatorSet[(r + c) % operatorSet.length]; if(op === '+') val = val + cellVal; else if(op === '-') val = val - cellVal; else if(op === '*') val = val * cellVal; else if(op === '/'){ if(cellVal === 0) return { valid:false, reason:'División por cero' }; const res = val / cellVal; if(Math.abs(res - Math.round(res)) > 0.0001) return { valid:false, reason:'División no entera' }; val = res; } } if(Math.abs(val - Math.round(val)) > 0.0001) return { valid:false, reason:'Resultado no entero en fila ' + (r+1) }; } return { valid:true }; }
+const particles = document.getElementById('particles');
+particles.width = innerWidth; particles.height = innerHeight;
+const pctx = particles.getContext('2d');
+const parts = [];
+for(let i=0;i<60;i++) parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+0.6,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()});
+function partLoop(){ pctx.clearRect(0,0,particles.width,particles.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.a+=0.01; if(p.x<-10) p.x=innerWidth+10; if(p.x>innerWidth+10) p.x=-10; if(p.y<-10) p.y=innerHeight+10; if(p.y>innerHeight+10) p.y=-10; pctx.fillStyle=`rgba(155,200,255,${0.06+Math.abs(Math.sin(p.a))*0.08})`; pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI*2); pctx.fill(); } requestAnimationFrame(partLoop); }
+partLoop();
 
-document.getElementById('validateBtn').addEventListener('click', ()=>{ const res = validatePuzzle(); if(res.valid){ currentScore += 100; document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; runConfetti(); showToast('¡Correcto!'); } else { showToast('Incorrecto: ' + res.reason); } });
+/* Toast */
+const toastEl = document.getElementById('toast');
+let toastTimer = null;
+function showToast(msg, time=2500){ toastEl.textContent = msg; toastEl.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer = setTimeout(()=> toastEl.classList.add('hidden'), time); }
 
-document.getElementById('backToMenu').addEventListener('click', ()=> show('menu'));
+/* Level card wiring */
+document.querySelectorAll('.level-card').forEach(el=> el.addEventListener('click', ()=> startLevel(el.dataset.level)));
 
-/* Export/Import piggyback into account profile when imported */ function currentPuzzleState(){ return { level: activeLevel, gridSize, operatorSet, grid: currentGrid, score: currentScore, updatedAt: Date.now() }; }
+/* startLevel + timer */
+function startLevel(level){ configureLevel(level); generatePuzzle(level); show('game'); focusedIdx = currentGrid.findIndex(c=>!c.fixed); if(focusedIdx===-1) focusedIdx=null; resetTimer(); startTimer(); }
+let timerInterval=null, startTime=null;
+function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
+function startTimer(){ timerInterval = setInterval(()=>{ const diff = Math.floor((Date.now()-startTime)/1000); const mm = String(Math.floor(diff/60)).padStart(2,'0'); const ss = String(diff%60).padStart(2,'0'); document.getElementById('timer').textContent = `${mm}:${ss}`; }, 500); }
 
-/* Confetti and particles lightweight / const confettiCanvas = document.getElementById('confetti'); confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; const confettiCtx = confettiCanvas.getContext('2d'); let confettis = []; function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()innerWidth,y:-20,vx:(Math.random()-0.5)4,vy:Math.random()4+2,s:Math.random()6+4,col:hsl(${Math.random()*360} 80% 60%)}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); } function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle = p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s0.6); } confettis = confettis.filter(p=>p.y < innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); } const particles = document.getElementById('particles'); particles.width = innerWidth; particles.height = innerHeight; const pctx = particles.getContext('2d'); const parts=[]; for(let i=0;i<60;i++) parts.push({x:Math.random()innerWidth,y:Math.random()innerHeight,r:Math.random()2+0.6,vx:(Math.random()-0.5)0.3,vy:(Math.random()-0.5)0.3,a:Math.random()}); function partLoop(){ pctx.clearRect(0,0,particles.width,particles.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.a+=0.01; if(p.x<-10) p.x=innerWidth+10; if(p.x>innerWidth+10) p.x=-10; if(p.y<-10) p.y=innerHeight+10; if(p.y>innerHeight+10) p.y=-10; pctx.fillStyle=rgba(155,200,255,${0.06 + Math.abs(Math.sin(p.a))*0.08}); pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI2); pctx.fill(); } requestAnimationFrame(partLoop); } partLoop();
+/* Initialize UI */
+updateUIForSession();
+show('menu');
+showToast('Sistema local listo. Exporta el archivo para mover tu cuenta y premium entre dispositivos.', 4000);
 
-/* Toast */ const toastEl = document.getElementById('toast'); let toastTimer = null; function showToast(msg, time=2500){ toastEl.textContent = msg; toastEl.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer = setTimeout(()=> toastEl.classList.add('hidden'), time); }
-
-/* Level cards */ document.querySelectorAll('.level-card').forEach(el=> el.addEventListener('click', ()=> { startLevel(el.dataset.level); }));
-
-/* startLevel and persistence to local users map */ function startLevel(level){ configureLevel(level); generatePuzzle(level); show('game'); focusedIdx = currentGrid.findIndex(c=>!c.fixed); if(focusedIdx === -1) focusedIdx = null; resetTimer(); startTimer(); }
-
-/* Timer */ function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; } function startTimer(){ timerInterval = setInterval(()=>{ const diff = Math.floor((Date.now()-startTime)/1000); const mm = String(Math.floor(diff/60)).padStart(2,'0'); const ss = String(diff%60).padStart(2,'0'); document.getElementById('timer').textContent = ${mm}:${ss}; }, 500); }
-
-/* On import/export also connect to local users map: when exporting we include current puzzle state into user's profile; when importing we set profile and auto-login above handled. */ function attachProgressToUser(){ if(!currentUser) return; const users = readUsers(); users[currentUser].profile.progress = currentPuzzleState(); users[currentUser].profile.score = currentScore || users[currentUser].profile.score || 0; writeUsers(users); }
-
-/* Auto-load progress after login if exists in profile */ function tryLoadProfileProgress(){ if(!currentUser) return; const users = readUsers(); const p = users[currentUser].profile.progress; if(p && p.level){ activeLevel = p.level; gridSize = p.gridSize || gridSize; currentGrid = p.grid || currentGrid; currentScore = p.score || 0; renderGrid(); document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; } }
-
-/* Sync UI when session set */ const originalSetSession = setSession; setSession = (userObj) => { originalSetSession(userObj); if(userObj) tryLoadProfileProgress(); };
-
-/* Initialize UI */ show('menu');
-
-/* Small note: when user downloads progress we attach current puzzle state into user's profile so file contains the latest */ document.getElementById('saveLocalBtn').addEventListener('click', ()=>{ if(!currentUser) return showToast('Inicia sesión para exportar'); attachProgressToUser(); const users = readUsers(); const payload = { username: currentUser, profile: users[currentUser].profile }; const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = crossmath_${currentUser}_progress.json; a.click(); URL.revokeObjectURL(url); showToast('Archivo descargado'); });
-
+/* handle window resize */
 window.addEventListener('resize', ()=>{ particles.width = innerWidth; particles.height = innerHeight; confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
-
-/* Final helpful toast */ showToast('Sistema local listo. Exporta el archivo para mover tu cuenta y premium entre dispositivos.', 4500); </script> </body> </html>
+</script>
+</body>
+</html>
