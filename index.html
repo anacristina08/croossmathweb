@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CrossMathWeb — Local</title>
+<title>CroossMathWeb — Local</title>
 <style>
   :root{--bg:#0b1020;--card:#0f1724;--accent:#ffd166;--muted:#9aa4b2}
   html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#061125 0%,#0b1020 100%);color:#e6eef6}
@@ -33,7 +33,7 @@
   .hud{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px}
   .timer{font-family:monospace;background:rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px}
   .toast{position:fixed;right:20px;bottom:20px;background:#0d2633;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6);color:#dff3f6}
-  @media (max-width:900px){.grid{grid-template-columns:repeat(4,54px)} .pad{max-height:220px}}
+  @media (max-width:900px){ .grid{grid-template-columns:repeat(4,54px)} .pad{max-height:220px} }
 </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
 
 <div class="app card" id="app">
   <header>
-    <h1>CrossMathWeb</h1>
+    <h1>CroossMathWeb</h1>
     <div style="display:flex;gap:12px;align-items:center">
       <div id="userEmail" class="muted">No conectado</div>
       <div id="premiumBadge" class="badge hidden">Premium</div>
@@ -104,7 +104,7 @@
         </div>
       </div>
       <div style="margin-top:12px;color:var(--muted);font-size:13px">
-        Exporta tu progreso y estado Premium con "Descargar progreso". Para mover tu cuenta a otro dispositivo sube ese archivo con "Importar progreso".
+        Exporta tu progreso y estado Premium con "Descargar progreso". Importa ese archivo en otro dispositivo para restaurar.
       </div>
     </section>
 
@@ -149,45 +149,32 @@
 <div id="toast" class="toast hidden"></div>
 
 <script>
-/* -------------------------
-   CrossMathWeb local-only, corrected auth
-   - No Firebase
-   - Local accounts in localStorage under key LS_USERS_KEY
-   - Export/import JSON contains username + profile (progress, isPremium)
---------------------------*/
+/* CroossMathWeb — Local-only corrected auth + local export/import */
 
-/* Keys & helpers */
-const LS_USERS_KEY = 'crossmath_local_users';
-function readUsers(){ try{ return JSON.parse(localStorage.getItem(LS_USERS_KEY) || '{}'); }catch(e){ return {}; } }
+const LS_USERS_KEY = 'croossmath_local_users';
+function readUsers(){ try{ return JSON.parse(localStorage.getItem(LS_USERS_KEY) || '{}'); } catch(e){ return {}; } }
 function writeUsers(u){ localStorage.setItem(LS_USERS_KEY, JSON.stringify(u)); }
 function hashSimple(s){ return s ? btoa(String(s).split('').reverse().join('')) : null; }
 
-/* i18n minimal (keeps labels from UI) */
-let currentLang = navigator.language && navigator.language.startsWith('es') ? 'es' : 'en';
-document.getElementById('selectLang').value = currentLang;
-function t(k){
-  const map = {
-    es:{ signedIn:'Sesión iniciada', signedOut:'Sesión cerrada', requireUser:'Introduce usuario', fileInvalid:'Archivo inválido', imported:'Progreso importado y sesión iniciada', exportSuccess:'Archivo descargado' },
-    en:{ signedIn:'Signed in', signedOut:'Signed out', requireUser:'Enter username', fileInvalid:'Invalid file', imported:'Progress imported and signed in', exportSuccess:'File downloaded' }
-  };
-  return (map[currentLang] && map[currentLang][k]) || k;
+/* UI helpers */
+function show(view){
+  const views = ['menu','levels','game','profile','settings','help'];
+  views.forEach(v => { const el = document.getElementById(v); if(el) el.classList.add('hidden'); });
+  const target = document.getElementById(view);
+  if(target) target.classList.remove('hidden');
 }
-document.getElementById('selectLang').addEventListener('change', e=>{ currentLang = e.target.value; });
+function showToast(msg, t=2300){ const el = document.getElementById('toast'); el.textContent = msg; el.classList.remove('hidden'); clearTimeout(el._timer); el._timer = setTimeout(()=> el.classList.add('hidden'), t); }
 
-/* Simple SPA */
-const views = ['menu','levels','game','profile','settings','help'];
-function show(v){ views.forEach(x=>{ const el=document.getElementById(x); if(el) el.classList.add('hidden'); }); const el=document.getElementById(v); if(el) el.classList.remove('hidden'); }
-document.getElementById('playBtn').addEventListener('click', ()=>{ startLevel('easy'); show('game'); });
-document.getElementById('levelsBtn').addEventListener('click', ()=> show('levels'));
-document.getElementById('profileBtn').addEventListener('click', ()=> show('profile'));
-document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings'));
-document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
-
-/* Session state */
-let currentUser = null; // username
-function updateUIForSession(){
+/* Session handling - defined before usage to avoid race */
+let currentUser = null;
+function setSessionByName(username){
+  currentUser = username;
+  updateSessionUI();
+  if(currentUser) tryLoadProfileProgress();
+}
+function updateSessionUI(){
   const users = readUsers();
-  const profile = currentUser ? (users[currentUser] && users[currentUser].profile) : null;
+  const profile = currentUser && users[currentUser] ? users[currentUser].profile : null;
   document.getElementById('userEmail').textContent = currentUser || 'No conectado';
   document.getElementById('btnAuth').textContent = currentUser ? 'Salir' : 'Entrar / Registrar';
   document.getElementById('profileEmail').textContent = currentUser || '-';
@@ -195,101 +182,111 @@ function updateUIForSession(){
   document.getElementById('premiumBadge').classList.toggle('hidden', !(profile && profile.isPremium));
 }
 
+/* Wire SPA buttons */
+document.getElementById('playBtn').addEventListener('click', ()=> { startLevel('easy'); show('game'); });
+document.getElementById('levelsBtn').addEventListener('click', ()=> show('levels'));
+document.getElementById('profileBtn').addEventListener('click', ()=> show('profile'));
+document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings'));
+document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
+
 /* Auth modal wiring */
 const authModal = document.getElementById('authModal');
 const authUser = document.getElementById('authUser');
 const authPwd = document.getElementById('authPwd');
 const authMsg = document.getElementById('authMsg');
 
-document.getElementById('btnAuth').addEventListener('click', ()=>{
-  if(currentUser){ currentUser = null; updateUIForSession(); showToast(t('signedOut')); return; }
-  authUser.value=''; authPwd.value=''; authMsg.textContent=''; authModal.classList.remove('hidden'); authModal.setAttribute('aria-hidden','false'); authUser.focus();
+document.getElementById('btnAuth').addEventListener('click', () => {
+  if(currentUser){
+    // logout
+    currentUser = null;
+    updateSessionUI();
+    showToast('Sesión cerrada');
+    return;
+  }
+  authUser.value = ''; authPwd.value = ''; authMsg.textContent = '';
+  authModal.classList.remove('hidden'); authModal.setAttribute('aria-hidden','false');
+  authUser.focus();
 });
-document.getElementById('closeAuth').addEventListener('click', ()=>{ authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
+document.getElementById('closeAuth').addEventListener('click', ()=> { authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
 
 /* Create account */
-document.getElementById('createAccount').addEventListener('click', ()=>{
+document.getElementById('createAccount').addEventListener('click', () => {
   const username = authUser.value.trim();
   const pwd = authPwd.value;
   authMsg.textContent = '';
-  if(!username){ authMsg.textContent = t('requireUser'); return; }
+  if(!username){ authMsg.textContent = 'Introduce usuario'; return; }
   const users = readUsers();
   if(users[username]){ authMsg.textContent = 'Usuario ya existe. Inicia sesión.'; return; }
   users[username] = { pwdHash: pwd ? hashSimple(pwd) : null, profile: { isPremium:false, score:0, progress:null } };
   writeUsers(users);
-  currentUser = username;
-  updateUIForSession();
+  setSessionByName(username);
   authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true');
-  showToast(t('signedIn'));
+  showToast('Cuenta creada e iniciada');
 });
 
 /* Sign in */
-document.getElementById('signIn').addEventListener('click', ()=>{
+document.getElementById('signIn').addEventListener('click', () => {
   const username = authUser.value.trim();
   const pwd = authPwd.value;
   authMsg.textContent = '';
-  if(!username){ authMsg.textContent = t('requireUser'); return; }
+  if(!username){ authMsg.textContent = 'Introduce usuario'; return; }
   const users = readUsers();
   const u = users[username];
   if(!u){ authMsg.textContent = 'Usuario no encontrado.'; return; }
   if(u.pwdHash && (!pwd || hashSimple(pwd) !== u.pwdHash)){ authMsg.textContent = 'Contraseña incorrecta.'; return; }
-  currentUser = username;
-  updateUIForSession();
+  setSessionByName(username);
   authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true');
-  showToast(t('signedIn'));
-  // load profile progress if present
-  if(u.profile && u.profile.progress) loadProfileProgress(u.profile.progress);
+  showToast('Sesión iniciada');
 });
 
-/* Logout in profile */
-document.getElementById('logoutBtn').addEventListener('click', ()=>{ currentUser = null; updateUIForSession(); show('menu'); showToast(t('signedOut')); });
+/* Logout button in profile */
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  currentUser = null; updateSessionUI(); show('menu'); showToast('Sesión cerrada');
+});
 
 /* Local premium activation */
-document.getElementById('buyPremiumLocal').addEventListener('click', ()=>{
+document.getElementById('buyPremiumLocal').addEventListener('click', () => {
   if(!currentUser) return showToast('Inicia sesión primero');
   const users = readUsers();
   users[currentUser].profile.isPremium = true;
   writeUsers(users);
-  updateUIForSession();
+  updateSessionUI();
   showToast('Premium activado (local)');
 });
 
 /* Export progress + profile */
-document.getElementById('saveLocalBtn').addEventListener('click', ()=>{
+document.getElementById('saveLocalBtn').addEventListener('click', () => {
   if(!currentUser) return showToast('Inicia sesión para exportar');
   attachProgressToUser();
   const users = readUsers();
   const payload = { username: currentUser, profile: users[currentUser].profile };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `crossmath_${currentUser}_progress.json`; a.click(); URL.revokeObjectURL(url);
-  showToast(t('exportSuccess'));
+  const a = document.createElement('a'); a.href = url; a.download = `croossmath_${currentUser}_progress.json`; a.click(); URL.revokeObjectURL(url);
+  showToast('Archivo descargado');
 });
 
 /* Import file */
 const importFile = document.getElementById('importFile');
 document.getElementById('importBtn').addEventListener('click', ()=> importFile.click());
-importFile.addEventListener('change', async e=>{
-  const f = e.target.files[0];
-  if(!f) return;
+importFile.addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
   try{
     const txt = await f.text();
     const obj = JSON.parse(txt);
-    if(!obj.username || !obj.profile) return showToast(t('fileInvalid'));
+    if(!obj.username || !obj.profile) return showToast('Archivo inválido');
     const users = readUsers();
     users[obj.username] = users[obj.username] || { pwdHash: null, profile: {} };
-    // Merge profile (prefer imported)
     users[obj.username].profile = obj.profile;
     writeUsers(users);
-    currentUser = obj.username;
-    updateUIForSession();
-    showToast(t('imported'));
+    setSessionByName(obj.username);
+    showToast('Progreso importado y sesión iniciada');
     if(obj.profile && obj.profile.progress) loadProfileProgress(obj.profile.progress);
-  } catch(err){ console.error(err); showToast(t('fileInvalid')); }
+  } catch(err){ console.error(err); showToast('Archivo inválido'); }
   importFile.value = '';
 });
 
-/* ---------------- Puzzle engine (unchanged robust) ---------------- */
+/* Puzzle engine (robusto) */
 let activeLevel = 'easy';
 let currentGrid = [];
 let operatorSet = ['+','-'];
@@ -324,25 +321,22 @@ function generatePuzzle(level){
       currentGrid[idx].fixed = true;
     }
   }
-  currentScore = 0;
-  renderGrid();
+  currentScore = 0; renderGrid();
 }
 
 function renderGrid(){
   const gridEl = document.getElementById('grid');
   gridEl.style.gridTemplateColumns = `repeat(${gridSize},54px)`;
   gridEl.innerHTML = '';
-  currentGrid.forEach((cell, idx)=>{
+  currentGrid.forEach((cell, idx) => {
     const div = document.createElement('div');
     div.className = 'cell ' + (cell.fixed ? 'fixed' : 'editable');
-    div.dataset.idx = idx;
-    div.tabIndex = 0;
+    div.dataset.idx = idx; div.tabIndex = 0;
     div.textContent = cell.value === null ? '' : cell.value;
     if(!cell.fixed) div.addEventListener('click', ()=> focusCell(idx));
     gridEl.appendChild(div);
   });
-  renderPad();
-  resetTimer();
+  renderPad(); resetTimer();
 }
 
 let focusedIdx = null;
@@ -357,24 +351,15 @@ function renderPad(){
   const pad = document.getElementById('pad'); pad.innerHTML = '';
   const maxNum = activeLevel === 'infinite' ? 100 : 20;
   for(let n=1;n<=maxNum;n++){
-    const b = document.createElement('button');
-    b.className = 'num-btn';
-    b.textContent = n;
-    b.addEventListener('click', ()=> onPadPress(n));
-    pad.appendChild(b);
+    const b = document.createElement('button'); b.className='num-btn'; b.textContent = n; b.addEventListener('click', ()=> onPadPress(n)); pad.appendChild(b);
   }
-  const clear = document.createElement('button');
-  clear.className = 'num-btn';
-  clear.textContent = 'Del';
-  clear.addEventListener('click', ()=>{ if(focusedIdx!==null && !currentGrid[focusedIdx].fixed){ currentGrid[focusedIdx].value = null; renderGrid(); } });
-  pad.appendChild(clear);
+  const clear = document.createElement('button'); clear.className='num-btn'; clear.textContent='Del'; clear.addEventListener('click', ()=> { if(focusedIdx!==null && !currentGrid[focusedIdx].fixed){ currentGrid[focusedIdx].value = null; renderGrid(); } }); pad.appendChild(clear);
 }
 
 function onPadPress(n){
   if(focusedIdx === null) return showToast('Selecciona una celda');
   if(currentGrid[focusedIdx].fixed) return;
-  currentGrid[focusedIdx].value = n;
-  renderGrid();
+  currentGrid[focusedIdx].value = n; renderGrid();
 }
 
 function validatePuzzle(){
@@ -402,17 +387,11 @@ function validatePuzzle(){
 
 document.getElementById('validateBtn').addEventListener('click', ()=>{
   const res = validatePuzzle();
-  if(res.valid){
-    currentScore += 100;
-    document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
-    runConfetti();
-    showToast('¡Correcto!');
-  } else {
-    showToast('Incorrecto: ' + res.reason);
-  }
+  if(res.valid){ currentScore += 100; document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; runConfetti(); showToast('¡Correcto!'); }
+  else showToast('Incorrecto: ' + res.reason);
 });
 
-/* Export/Import helpers attach progress to local profile */
+/* Export/import helpers attach progress to profile */
 function currentPuzzleState(){ return { level: activeLevel, gridSize, operatorSet, grid: currentGrid, score: currentScore, updatedAt: Date.now() }; }
 function attachProgressToUser(){
   if(!currentUser) return;
@@ -421,53 +400,41 @@ function attachProgressToUser(){
   users[currentUser].profile.score = currentScore || users[currentUser].profile.score || 0;
   writeUsers(users);
 }
+function tryLoadProfileProgress(){
+  if(!currentUser) return;
+  const users = readUsers();
+  const p = users[currentUser].profile.progress;
+  if(p && p.level) loadProfileProgress(p);
+}
 function loadProfileProgress(p){
   if(!p) return;
-  activeLevel = p.level || activeLevel;
-  gridSize = p.gridSize || gridSize;
-  currentGrid = p.grid || currentGrid;
-  currentScore = p.score || currentScore;
-  renderGrid();
-  document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
+  activeLevel = p.level || activeLevel; gridSize = p.gridSize || gridSize; currentGrid = p.grid || currentGrid; currentScore = p.score || currentScore;
+  renderGrid(); document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
 }
 
-/* Confetti + particles (light) */
-const confettiCanvas = document.getElementById('confetti');
-confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight;
-const confettiCtx = confettiCanvas.getContext('2d');
-let confettis = [];
-function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,s:Math.random()*6+4,col:`hsl(${Math.random()*360} 80% 60%)`}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); }
-function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle=p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s*0.6); } confettis = confettis.filter(p=>p.y < innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); }
+/* Visuals: confetti + particles (light) */
+const confettiCanvas = document.getElementById('confetti'); confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; const confettiCtx = confettiCanvas.getContext('2d');
+let confettis = []; function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,s:Math.random()*6+4,col:`hsl(${Math.random()*360} 80% 60%)`}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); }
+function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle=p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s*0.6); } confettis=confettis.filter(p=>p.y<innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); }
 
-const particles = document.getElementById('particles');
-particles.width = innerWidth; particles.height = innerHeight;
-const pctx = particles.getContext('2d');
-const parts = [];
-for(let i=0;i<60;i++) parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+0.6,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()});
-function partLoop(){ pctx.clearRect(0,0,particles.width,particles.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.a+=0.01; if(p.x<-10) p.x=innerWidth+10; if(p.x>innerWidth+10) p.x=-10; if(p.y<-10) p.y=innerHeight+10; if(p.y>innerHeight+10) p.y=-10; pctx.fillStyle=`rgba(155,200,255,${0.06+Math.abs(Math.sin(p.a))*0.08})`; pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI*2); pctx.fill(); } requestAnimationFrame(partLoop); }
-partLoop();
+const particles = document.getElementById('particles'); particles.width = innerWidth; particles.height = innerHeight; const pctx = particles.getContext('2d'); const parts=[]; for(let i=0;i<60;i++) parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+0.6,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()});
+function partLoop(){ pctx.clearRect(0,0,particles.width,particles.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.a+=0.01; if(p.x<-10) p.x=innerWidth+10; if(p.x>innerWidth+10) p.x=-10; if(p.y<-10) p.y=innerHeight+10; if(p.y>innerHeight+10) p.y=-10; pctx.fillStyle=`rgba(155,200,255,${0.06 + Math.abs(Math.sin(p.a))*0.08})`; pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI*2); pctx.fill(); } requestAnimationFrame(partLoop); } partLoop();
 
-/* Toast */
-const toastEl = document.getElementById('toast');
-let toastTimer = null;
-function showToast(msg, time=2500){ toastEl.textContent = msg; toastEl.classList.remove('hidden'); clearTimeout(toastTimer); toastTimer = setTimeout(()=> toastEl.classList.add('hidden'), time); }
-
-/* Level card wiring */
-document.querySelectorAll('.level-card').forEach(el=> el.addEventListener('click', ()=> startLevel(el.dataset.level)));
-
-/* startLevel + timer */
+/* Level card wiring + startLevel/timer */
+document.querySelectorAll('.level-card').forEach(el => el.addEventListener('click', ()=> { startLevel(el.dataset.level); show('game'); }));
 function startLevel(level){ configureLevel(level); generatePuzzle(level); show('game'); focusedIdx = currentGrid.findIndex(c=>!c.fixed); if(focusedIdx===-1) focusedIdx=null; resetTimer(); startTimer(); }
-let timerInterval=null, startTime=null;
-function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
+let timerInterval = null; function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
 function startTimer(){ timerInterval = setInterval(()=>{ const diff = Math.floor((Date.now()-startTime)/1000); const mm = String(Math.floor(diff/60)).padStart(2,'0'); const ss = String(diff%60).padStart(2,'0'); document.getElementById('timer').textContent = `${mm}:${ss}`; }, 500); }
 
 /* Initialize UI */
-updateUIForSession();
+updateSessionUI = updateSessionUI || (function(){});
+updateSessionUI();
 show('menu');
-showToast('Sistema local listo. Exporta el archivo para mover tu cuenta y premium entre dispositivos.', 4000);
+showToast('CroossMathWeb listo. Crea cuenta local o importa progreso.', 3800);
 
-/* handle window resize */
+/* Window resize */
 window.addEventListener('resize', ()=>{ particles.width = innerWidth; particles.height = innerHeight; confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
+
 </script>
 </body>
 </html>
