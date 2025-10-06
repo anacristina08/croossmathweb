@@ -2,181 +2,314 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>CroossMathWeb — Versión Local</title>
+  <title>CroossMathWeb — Local</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      --bg: #0f1320;
-      --card: #141a2f;
-      --accent: #4cc9f0;
-      --accent-2: #7b2cbf;
-      --text: #e9edf7;
-      --muted: #a8b0c4;
-      --ok: #27ae60;
-      --warn: #f39c12;
-      --err: #e74c3c;
+    :root{
+      /* Paleta */
+      --bg: #0b0e1a; --bg2: #0f1320;
+      --card: #121735; --card2: #0d1330;
+      --accent: #48b7ff; --accent2:#7b2cbf;
+      --text:#e9edf7; --muted:#a8b0c4;
+      --ok:#27ae60; --warn:#f39c12; --err:#e74c3c;
+
+      /* Assets (reemplaza por los tuyos) */
+      --banner-image: url('assets/banner.jpg');
+      --header-logo: url('assets/logo.png');
+      --avatar: url('assets/avatar.jpg');
+      --video-poster: url('assets/video-poster.jpg');
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      background: linear-gradient(180deg, #0b0e1a, var(--bg));
-      color: var(--text);
-      min-height: 100vh;
-    }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px; border-bottom: 1px solid #1f2540; background: #0d1120cc; backdrop-filter: blur(8px);
-      position: sticky; top: 0; z-index: 10;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .logo {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: conic-gradient(from 180deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 16px rgba(76,201,240,0.35);
-    }
-    .title { font-weight: 700; letter-spacing: 0.3px; }
-    .user-bar { display: flex; align-items: center; gap: 8px; color: var(--muted); }
-    button, .btn {
-      background: var(--accent); color: #071018; border: none; border-radius: 10px; padding: 10px 14px; font-weight: 600; cursor: pointer;
-      box-shadow: 0 8px 18px rgba(76,201,240,0.25); transition: transform 0.05s ease, filter 0.2s ease;
-    }
-    button:hover { filter: brightness(1.08); }
-    button:active { transform: translateY(1px); }
-    .btn-secondary {
-      background: #253058; color: var(--text); box-shadow: none; border: 1px solid #2e3a6a;
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      color:var(--text);
+      background: radial-gradient(1000px 600px at 20% -10%, #0d1432 10%, transparent 60%), linear-gradient(180deg, var(--bg), var(--bg2));
+      min-height:100vh;
     }
 
-    main { max-width: 980px; margin: 20px auto; padding: 0 16px 40px; }
-    .card {
-      background: linear-gradient(180deg, var(--card), #111630);
-      border: 1px solid #1f2540; border-radius: 16px; padding: 16px; margin-bottom: 16px;
-      box-shadow: 0 10px 30px rgba(17,22,48,0.35);
-    }
-    h2, h3 { margin: 10px 0 12px; }
-    .muted { color: var(--muted); font-size: 14px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-    .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .input, input, select {
-      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #2a325a; background: #0e132a; color: var(--text);
-    }
-    .kbd { display: inline-block; background: #0e132a; border: 1px solid #2a325a; color: var(--muted); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
-    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #2a325a; color: var(--muted); }
-    .message { padding: 10px 12px; border-radius: 12px; font-size: 14px; }
-    .ok { background: #12251a; border: 1px solid #1f7a47; color: #b6f3cf; }
-    .warn { background: #251f12; border: 1px solid #7a5b1f; color: #f6deb1; }
-    .err { background: #2a1515; border: 1px solid #7a1f1f; color: #f7b6b6; }
+    /* Hero portada: usa imagen o video */
+    .hero{ position:relative; width:100%; aspect-ratio:16/6; background: var(--banner-image) center/cover no-repeat; border-bottom:1px solid #1f2540; overflow:hidden;}
+    .hero::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(7,10,22,0.35), rgba(7,10,22,0.75));}
+    .hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.05) contrast(1.05) brightness(0.92);}
+    .hero-content{ position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px;}
+    .hero-title{ display:flex; align-items:center; gap:12px; background:#0b1030cc; backdrop-filter:blur(8px); border:1px solid #222a4e; border-radius:14px; padding:12px 14px;}
+    .hero-logo{ width:42px; height:42px; border-radius:8px; background: var(--header-logo) center/cover no-repeat; border:1px solid #2e3a6a; box-shadow:0 0 18px rgba(72,183,255,0.35);}
+    .hero-title .name{ font-size:20px; font-weight:800; letter-spacing:0.3px;}
+    .pill{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #2e3a6a; color:var(--muted); }
+    .kbd{ display:inline-block; background:#0e132a; border:1px solid #2a325a; color:var(--muted); padding:2px 6px; border-radius:6px; font-size:12px; }
 
-    /* Modal */
-    .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(5,8,20,0.65); backdrop-filter: blur(2px);
-      display: none; align-items: center; justify-content: center; z-index: 100;
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 16px; border-bottom:1px solid #1f2540; background:#0d1120e6; backdrop-filter:blur(8px);
+      position:sticky; top:0; z-index:10;
     }
-    .modal {
-      width: 100%; max-width: 460px; background: linear-gradient(180deg, #101734, #0c122d);
-      border: 1px solid #222a4e; border-radius: 16px; padding: 16px;
-      box-shadow: 0 20px 50px rgba(10,15,35,0.55);
+    .user-bar{ display:flex; align-items:center; gap:10px; color:var(--muted);}
+    .avatar{ width:28px; height:28px; border-radius:50%; background: var(--avatar) center/cover no-repeat; border:1px solid #2e3a6a; }
+    button{
+      background:var(--accent); color:#071018; border:none; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer;
+      box-shadow:0 8px 18px rgba(76,201,240,0.25); transition:transform .05s ease, filter .2s ease;
     }
-    .modal header { position: static; padding: 0; background: transparent; border: none; margin-bottom: 10px; }
-    .modal .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
-    .hidden { display: none !important; }
+    button:hover{ filter:brightness(1.08); }
+    button:active{ transform:translateY(1px); }
+    .btn-secondary{ background:#253058; color:var(--text); box-shadow:none; border:1px solid #2e3a6a; }
+    .btn-ghost{ background:transparent; color:var(--text); border:1px dashed #3a4577; }
 
-    /* Exercise UI */
-    .exercise {
-      display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start;
-    }
-    .progress-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
-    .progress-item {
-      display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
-      padding: 8px 10px; border-radius: 12px; border: 1px solid #21335a; background: #0d1330;
-    }
-    .footer-note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+    main{ max-width:1140px; margin:20px auto; padding:0 16px 40px; }
+    .card{ background: linear-gradient(180deg, var(--card), var(--card2)); border:1px solid #1f2540; border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:0 10px 30px rgba(17,22,48,0.35); }
+    h2,h3{ margin:10px 0 12px; }
+    .muted{ color:var(--muted); font-size:14px; }
+    .row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .row3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .flex{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .input, input, select{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a325a; background:#0e132a; color:var(--text); }
+    .message{ padding:10px 12px; border-radius:12px; font-size:14px; }
+    .ok{ background:#12251a; border:1px solid #1f7a47; color:#b6f3cf; }
+    .warn{ background:#251f12; border:1px solid #7a5b1f; color:#f6deb1; }
+    .err{ background:#2a1515; border:1px solid #7a1f1f; color:#f7b6b6; }
+    .hidden{ display:none !important; }
+
+    /* Menú principal */
+    .menu-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .menu-btn{ display:flex; align-items:center; justify-content:center; padding:20px; border-radius:16px; border:1px solid #2a325a; background:#0e132a; font-weight:800; letter-spacing:.3px; box-shadow:0 10px 24px rgba(10,15,35,.35); }
+
+    /* Selección de niveles */
+    .levels{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    .level-btn{ padding:16px; border-radius:14px; border:1px solid #2a325a; background:#101736; font-weight:700; text-align:center; }
+    .level-btn[data-d="easy"]{ background:linear-gradient(180deg,#0f2d3a,#0c1d2a); }
+    .level-btn[data-d="medium"]{ background:linear-gradient(180deg,#2b223f,#151232); }
+    .level-btn[data-d="hard"]{ background:linear-gradient(180deg,#3a1e1e,#1a1216); }
+    .level-btn[data-d="endless"]{ background:linear-gradient(180deg,#12351f,#0d2317); }
+
+    /* Pantalla de juego */
+    .hud{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+    .stat{ display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid #2e3a6a; background:#0e132a; }
+    .grid-wrap{ display:grid; grid-template-columns:2fr 1fr; gap:16px; }
+    .puzzle{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .tile{ background:#182053; border:1px solid #2a3a7a; border-radius:12px; padding:10px; min-height:64px; display:flex; align-items:center; justify-content:center; font-weight:800; }
+    .tile.blank{ cursor:pointer; background:#1a244f; outline:2px dashed #48b7ff; }
+    .board{ background:#0d1330; border:1px solid #21335a; border-radius:12px; padding:10px; display:grid; grid-template-columns:repeat(10,1fr); gap:6px; max-height:500px; overflow:auto; }
+    .num{ background:#15204a; border:1px solid #2a3a7a; color:#cfe2ff; border-radius:8px; padding:8px; text-align:center; cursor:pointer; }
+    .num.used{ opacity:.35; pointer-events:none; }
+    .num.highlight{ box-shadow:0 0 0 2px #48b7ff inset; }
+
+    /* Overlays: pausa, nivel completado, game over */
+    .overlay{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(5,8,20,.6); backdrop-filter:blur(2px); z-index:100; }
+    .panel{ width:100%; max-width:520px; background:linear-gradient(180deg,#101734,#0c122d); border:1px solid #222a4e; border-radius:16px; padding:16px; box-shadow:0 20px 50px rgba(10,15,35,.55); }
+    .stars{ display:flex; gap:8px; font-size:24px; }
+
+    /* Modal auth */
+    .modal-backdrop{ position:fixed; inset:0; background:rgba(5,8,20,.65); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; z-index:100; }
+    .modal{ width:100%; max-width:480px; background:linear-gradient(180deg,#101734,#0c122d); border:1px solid #222a4e; border-radius:16px; padding:16px; box-shadow:0 20px 50px rgba(10,15,35,.55); }
+    .modal header{ position:static; padding:0; background:transparent; border:none; margin-bottom:10px; }
+
+    /* Tienda y bonus diario */
+    .store-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .item{ background:#0e132a; border:1px solid #2a325a; border-radius:12px; padding:12px; }
+    .item .title{ font-weight:700; }
   </style>
 </head>
 <body>
+  <div class="hero" aria-label="Portada visual">
+    <!-- Para usar video de fondo, descomenta y quita el fondo de .hero -->
+    <!--
+    <video class="hero-video" autoplay muted loop playsinline poster="assets/video-poster.jpg">
+      <source src="assets/portada.mp4" type="video/mp4" />
+    </video>
+    -->
+    <div class="hero-content">
+      <div class="hero-title">
+        <div class="hero-logo" aria-hidden="true"></div>
+        <div>
+          <div class="name">CroossMathWeb — Local</div>
+          <div class="pill">Solo dispositivo · Sin internet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <header>
-    <div class="brand">
-      <div class="logo" aria-hidden="true"></div>
-      <div class="title">CroossMathWeb — Local</div>
-      <span class="pill">Solo dispositivo</span>
+    <div class="user-bar">
+      <div class="avatar" aria-hidden="true"></div>
+      <span id="userStatus" class="muted">Sin sesión</span>
     </div>
     <div class="user-bar">
-      <span id="userStatus" class="muted">Sin sesión</span>
       <button id="loginBtn">Iniciar sesión</button>
       <button id="logoutBtn" class="btn-secondary hidden">Cerrar sesión</button>
     </div>
   </header>
 
   <main>
-    <!-- Sección protegida por middleware -->
-    <section id="protectedArea" class="hidden">
-      <div class="card">
-        <h2>Panel de usuario</h2>
-        <p class="muted">Aquí gestionas tus ejercicios y tu progreso local. Este contenido requiere sesión activa.</p>
-        <div class="row">
-          <div class="card">
-            <h3>Ejercicio rápido</h3>
-            <p class="muted">Resuelve operaciones básicas para registrar avance. Cambia el nivel para ajustar dificultad.</p>
-            <div class="exercise">
-              <label for="levelSelect">Nivel</label>
-              <select id="levelSelect" class="input">
-                <option value="1">Nivel 1 (sumas 0–10)</option>
-                <option value="2">Nivel 2 (sumas 10–50)</option>
-                <option value="3">Nivel 3 (sumas y restas 0–100)</option>
-              </select>
-              <div id="exerciseProblem" class="message warn">Presiona “Nuevo” para generar un problema.</div>
-              <div class="flex">
-                <button id="newProblemBtn">Nuevo</button>
-                <input id="answerInput" class="input" type="number" placeholder="Tu respuesta" />
-                <button id="checkAnswerBtn" class="btn-secondary">Verificar</button>
-              </div>
-              <div id="exerciseFeedback" class="message hidden"></div>
-            </div>
-          </div>
+    <!-- Menú principal -->
+    <section id="mainMenu" class="card">
+      <h2 id="t_menuTitle">Menú principal</h2>
+      <p class="muted" id="t_menuDesc">Selecciona una opción para comenzar.</p>
+      <div class="menu-grid">
+        <button class="menu-btn" id="playBtn"><span id="t_play">Jugar</span></button>
+        <button class="menu-btn" id="levelsBtn"><span id="t_levels">Niveles</span></button>
+        <button class="menu-btn" id="profileBtn"><span id="t_profile">Perfil</span></button>
+        <button class="menu-btn" id="settingsBtn"><span id="t_settings">Ajustes</span></button>
+        <button class="menu-btn" id="helpBtn"><span id="t_help">Ayuda</span></button>
+        <div class="muted">Atajo: <span class="kbd">Shift + L</span> abre el acceso.</div>
+      </div>
+    </section>
 
-          <div class="card">
-            <h3>Progreso</h3>
-            <p class="muted">Guarda, exporta, importa. La portabilidad es un archivo JSON con tus niveles y puntajes.</p>
-            <div class="flex">
-              <button id="saveProgressBtn">Guardar progreso</button>
-              <button id="exportProgressBtn" class="btn-secondary">Exportar JSON</button>
-              <label class="btn" for="importFileInput" style="cursor:pointer;">Importar JSON</label>
-              <input id="importFileInput" type="file" accept="application/json" class="hidden" />
-            </div>
-            <div id="progressStatus" class="message hidden"></div>
-            <h4 style="margin-top:12px;">Histórico</h4>
-            <div id="progressList" class="progress-list"></div>
-            <p class="footer-note">Tip: puedes respaldar tu archivo en tu disco o mandarlo por correo para moverlo a otro dispositivo.</p>
+    <!-- Selección de niveles -->
+    <section id="levelSelect" class="card hidden">
+      <h2 id="t_levelSelect">Selección de niveles</h2>
+      <p class="muted" id="t_levelHint">Cada nivel ajusta dificultad, operadores y lógica.</p>
+      <div class="levels">
+        <button class="level-btn" data-d="easy" id="levelEasy">Fácil</button>
+        <button class="level-btn" data-d="medium" id="levelMedium">Medio</button>
+        <button class="level-btn" data-d="hard" id="levelHard">Difícil</button>
+        <button class="level-btn" data-d="endless" id="levelEndless">Infinito</button>
+      </div>
+      <div class="flex" style="margin-top:12px;">
+        <button class="btn-secondary" id="backToMenu1">Volver</button>
+      </div>
+    </section>
+
+    <!-- Pantalla de juego -->
+    <section id="gameScreen" class="card hidden">
+      <div class="hud">
+        <div class="stat"><strong id="t_modeLabel">Modo:</strong> <span id="modeName">Normal</span></div>
+        <div class="stat"><strong id="t_timer">Tiempo</strong> <span id="timer">00:00</span></div>
+        <div class="stat"><strong id="t_lives">Vidas</strong> <span id="lives">3</span></div>
+        <div class="stat"><strong id="t_coins">Monedas</strong> <span id="coins">0</span></div>
+        <div class="flex">
+          <button id="pauseBtn" class="btn-secondary" aria-label="Pausa">⏸️</button>
+          <button id="restartBtn" class="btn-secondary">Reiniciar</button>
+          <button id="exitBtn" class="btn-secondary">Salir</button>
+        </div>
+      </div>
+
+      <div class="grid-wrap">
+        <div>
+          <h3 id="t_puzzle">Puzzle</h3>
+          <p class="muted" id="t_puzzleHint">Pulsa un espacio en blanco y elige un número del tablero.</p>
+          <div id="puzzleGrid" class="puzzle"></div>
+          <div id="puzzleMsg" class="message hidden"></div>
+        </div>
+        <div>
+          <h3 id="t_board">Tablero 1–100</h3>
+          <div id="numberBoard" class="card board"></div>
+          <div class="flex" style="margin-top:8px;">
+            <button id="refillLifeBtn" class="btn-ghost">+1 vida (ver video)</button>
+            <button id="storeBtn" class="btn-secondary">Tienda</button>
+            <button id="dailyBtn" class="btn-secondary">Bonus diario</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Sección pública -->
-    <section id="publicArea">
-      <div class="card">
-        <h2>Bienvenida</h2>
-        <p>Esta es la versión totalmente local de CroossMathWeb. No usa servicios externos. Para comenzar, crea una cuenta local o inicia sesión.</p>
-        <div class="flex">
-          <button id="getStartedBtn">Crear cuenta</button>
-          <span class="muted">Acceso protegido por sesión. Atajos: <span class="kbd">Shift + L</span> abre el modal.</span>
+    <!-- Perfil -->
+    <section id="profileScreen" class="card hidden">
+      <h2 id="t_profileTitle">Perfil</h2>
+      <div class="row">
+        <div class="card">
+          <h3>Estado</h3>
+          <p class="muted">Usuario, premium, progreso.</p>
+          <div id="profileInfo" class="message warn">Inicia sesión para ver tu perfil.</div>
+          <div class="flex" style="margin-top:8px;">
+            <button id="buyPremiumBtn" class="btn-secondary">Comprar Premium</button>
+            <input id="premiumPinInput" class="input" placeholder="PIN premium (opcional)" />
+            <button id="activatePremiumBtn">Activar PIN</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Portabilidad</h3>
+          <div class="flex">
+            <button id="saveProgressBtn">Guardar progreso</button>
+            <button id="exportProgressBtn" class="btn-secondary">Exportar JSON</button>
+            <label class="btn" for="importFileInput" style="cursor:pointer;">Importar JSON</label>
+            <input id="importFileInput" type="file" accept="application/json" class="hidden" />
+          </div>
+          <div id="progressStatus" class="message hidden"></div>
+          <h4 style="margin-top:12px;">Histórico</h4>
+          <div id="progressList" class="card"></div>
         </div>
       </div>
+      <div class="flex" style="margin-top:12px;">
+        <button class="btn-secondary" id="backToMenu2">Volver</button>
+      </div>
+    </section>
 
-      <div class="card">
-        <h3>Cómo funciona</h3>
-        <ul>
-          <li><strong>Autenticación local:</strong> tus credenciales se almacenan en IndexedDB con hash de contraseña (Web Crypto).</li>
-          <li><strong>Portabilidad:</strong> exporta tu progreso como JSON y restáuralo con importar.</li>
-          <li><strong>Middleware de sesión:</strong> sin sesión, no ves el panel de usuario; con sesión, todo habilitado.</li>
-          <li><strong>Sin internet:</strong> todo corre en tu navegador, sin llamadas a la nube.</li>
-        </ul>
+    <!-- Ajustes -->
+    <section id="settingsScreen" class="card hidden">
+      <h2 id="t_settingsTitle">Ajustes</h2>
+      <div class="row">
+        <div class="card">
+          <h3>Idioma</h3>
+          <select id="langSelect" class="input">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+          </select>
+          <p class="muted">Detecta idioma del navegador al iniciar, puedes cambiar aquí.</p>
+        </div>
+        <div class="card">
+          <h3>Sonido</h3>
+          <div class="flex">
+            <button id="toggleSoundBtn" class="btn-secondary">Sonido: ON</button>
+          </div>
+        </div>
+      </div>
+      <div class="flex" style="margin-top:12px;">
+        <button class="btn-secondary" id="backToMenu3">Volver</button>
+      </div>
+    </section>
+
+    <!-- Ayuda -->
+    <section id="helpScreen" class="card hidden">
+      <h2 id="t_helpTitle">Ayuda</h2>
+      <ul>
+        <li><strong>Objetivo:</strong> Completar las ecuaciones colocando números del tablero 1–100.</li>
+        <li><strong>Controles:</strong> Selecciona una casilla vacía y luego un número del tablero.</li>
+        <li><strong>Vidas y pausa:</strong> Pierdes vida al fallar; pausa con ⏸️.</li>
+        <li><strong>Portabilidad:</strong> Exporta/importa tu progreso desde Perfil.</li>
+      </ul>
+      <div class="flex" style="margin-top:12px;">
+        <button class="btn-secondary" id="backToMenu4">Volver</button>
       </div>
     </section>
   </main>
 
-  <!-- Modal de Login/Registro -->
+  <!-- Overlay: Pausa -->
+  <div id="pauseOverlay" class="overlay" aria-hidden="true">
+    <div class="panel">
+      <h3>Pausa</h3>
+      <div class="flex">
+        <button id="resumeBtn">Continuar</button>
+        <button id="restartFromPauseBtn" class="btn-secondary">Reiniciar</button>
+        <button id="exitFromPauseBtn" class="btn-secondary">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay: Completado -->
+  <div id="completeOverlay" class="overlay" aria-hidden="true">
+    <div class="panel">
+      <h3>Nivel completado</h3>
+      <div class="stars">⭐ ⭐ ⭐</div>
+      <p class="muted">Puntaje: <span id="finalScore">0</span></p>
+      <div class="flex">
+        <button id="continueBtn">Continuar</button>
+        <button id="replayBtn" class="btn-secondary">Repetir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay: Game Over -->
+  <div id="gameOverOverlay" class="overlay" aria-hidden="true">
+    <div class="panel">
+      <h3>Game Over</h3>
+      <p class="muted">Sin vidas. Intenta de nuevo o vuelve al menú.</p>
+      <div class="flex">
+        <button id="retryBtn">Reintentar</button>
+        <button id="goHomeBtn" class="btn-secondary">Menú</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de autenticación -->
   <div id="authModalBackdrop" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-labelledby="authModalTitle" aria-modal="true">
       <header>
@@ -194,7 +327,7 @@
         </div>
       </div>
       <div id="authFeedback" class="message hidden"></div>
-      <div class="actions">
+      <div class="flex" style="margin-top:12px; justify-content:space-between;">
         <button id="registerBtn" class="btn-secondary">Registrar</button>
         <button id="authLoginBtn">Entrar</button>
         <button id="closeAuthBtn" class="btn-secondary">Cerrar</button>
@@ -202,387 +335,648 @@
     </div>
   </div>
 
+  <!-- Modal tienda -->
+  <div id="storeModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <h3>Tienda</h3>
+        <p class="muted">Compra boosters y monedas.</p>
+      </header>
+      <div class="store-grid">
+        <div class="item">
+          <div class="title">+5 vidas</div>
+          <p class="muted">Costo: 100 monedas</p>
+          <button data-buy="lives5">Comprar</button>
+        </div>
+        <div class="item">
+          <div class="title">+100 monedas</div>
+          <p class="muted">Gratis (ver video)</p>
+          <button data-buy="coins100">Ver video</button>
+        </div>
+        <div class="item">
+          <div class="title">Premium</div>
+          <p class="muted">Abre Gumroad</p>
+          <button data-buy="premium">Comprar Premium</button>
+        </div>
+      </div>
+      <div class="flex" style="margin-top:12px; justify-content:flex-end;">
+        <button id="closeStoreBtn" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal bonus diario -->
+  <div id="dailyModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <header>
+        <h3>Bonus diario</h3>
+        <p class="muted">Reclama tu recompensa una vez al día.</p>
+      </header>
+      <div class="row">
+        <div class="item">
+          <div class="title">+1 vida</div>
+          <button id="claimLifeBtn">Reclamar</button>
+        </div>
+        <div class="item">
+          <div class="title">+50 monedas</div>
+          <button id="claimCoinsBtn">Reclamar</button>
+        </div>
+      </div>
+      <div id="dailyMsg" class="message hidden"></div>
+      <div class="flex" style="margin-top:12px; justify-content:flex-end;">
+        <button id="closeDailyBtn" class="btn-secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // ========= Utilidades Web Crypto para hash de contraseñas =========
-    async function hashPassword(password) {
+    // ===== Multi-idioma básico =====
+    const i18n = {
+      es: {
+        menuTitle:'Menú principal', menuDesc:'Selecciona una opción para comenzar.',
+        play:'Jugar', levels:'Niveles', profile:'Perfil', settings:'Ajustes', help:'Ayuda',
+        levelSelect:'Selección de niveles', levelHint:'Cada nivel ajusta dificultad, operadores y lógica.',
+        modeLabel:'Modo:', timer:'Tiempo', lives:'Vidas', coins:'Monedas', puzzle:'Puzzle',
+        puzzleHint:'Pulsa un espacio en blanco y elige un número del tablero.',
+        board:'Tablero 1–100', profileTitle:'Perfil', settingsTitle:'Ajustes', helpTitle:'Ayuda'
+      },
+      en: {
+        menuTitle:'Main menu', menuDesc:'Pick an option to start.',
+        play:'Play', levels:'Levels', profile:'Profile', settings:'Settings', help:'Help',
+        levelSelect:'Level selection', levelHint:'Each level adjusts difficulty, operators and logic.',
+        modeLabel:'Mode:', timer:'Time', lives:'Lives', coins:'Coins', puzzle:'Puzzle',
+        puzzleHint:'Tap a blank cell and pick a number from the board.',
+        board:'Board 1–100', profileTitle:'Profile', settingsTitle:'Settings', helpTitle:'Help'
+      }
+    };
+    function applyLang(lang){
+      const t = i18n[lang] || i18n.es;
+      document.getElementById('t_menuTitle').textContent = t.menuTitle;
+      document.getElementById('t_menuDesc').textContent = t.menuDesc;
+      document.getElementById('t_play').textContent = t.play;
+      document.getElementById('t_levels').textContent = t.levels;
+      document.getElementById('t_profile').textContent = t.profile;
+      document.getElementById('t_settings').textContent = t.settings;
+      document.getElementById('t_help').textContent = t.help;
+      document.getElementById('t_levelSelect').textContent = t.levelSelect;
+      document.getElementById('t_levelHint').textContent = t.levelHint;
+      document.getElementById('t_modeLabel').textContent = t.modeLabel;
+      document.getElementById('t_timer').textContent = t.timer;
+      document.getElementById('t_lives').textContent = t.lives;
+      document.getElementById('t_coins').textContent = t.coins;
+      document.getElementById('t_puzzle').textContent = t.puzzle;
+      document.getElementById('t_puzzleHint').textContent = t.puzzleHint;
+      document.getElementById('t_board').textContent = t.board;
+      document.getElementById('t_profileTitle').textContent = t.profileTitle;
+      document.getElementById('t_settingsTitle').textContent = t.settingsTitle;
+      document.getElementById('t_helpTitle').textContent = t.helpTitle;
+    }
+
+    // ===== Hash de contraseña (Web Crypto) =====
+    async function hashPassword(password){
       const enc = new TextEncoder();
       const data = enc.encode(password);
       const digest = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(digest))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+      return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
 
-    // ========= IndexedDB: apertura, stores y helpers =========
+    // ===== IndexedDB =====
     const DB_NAME = 'crossmath-local-db';
     const DB_VERSION = 1;
     let dbInstance = null;
 
-    function openDB() {
-      return new Promise((resolve, reject) => {
+    function openDB(){
+      return new Promise((resolve,reject)=>{
         const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
+        req.onupgradeneeded = (e)=>{
           const db = e.target.result;
-          if (!db.objectStoreNames.contains('users')) {
-            db.createObjectStore('users', { keyPath: 'username' });
+          if(!db.objectStoreNames.contains('users')){
+            db.createObjectStore('users', { keyPath:'username' });
           }
-          if (!db.objectStoreNames.contains('progress')) {
-            db.createObjectStore('progress', { keyPath: 'username' });
+          if(!db.objectStoreNames.contains('progress')){
+            db.createObjectStore('progress', { keyPath:'username' });
+          }
+          if(!db.objectStoreNames.contains('meta')){
+            db.createObjectStore('meta', { keyPath:'username' });
           }
         };
-        req.onsuccess = () => {
-          dbInstance = req.result;
-          resolve(dbInstance);
-        };
-        req.onerror = () => reject(req.error);
+        req.onsuccess = ()=>{ dbInstance = req.result; resolve(dbInstance); };
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    function tx(store, mode='readonly'){ return dbInstance.transaction(store, mode).objectStore(store); }
+    function getUser(username){
+      return new Promise((resolve,reject)=>{
+        const req = tx('users').get(username);
+        req.onsuccess = ()=>resolve(req.result || null);
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    function putUser(user){
+      return new Promise((resolve,reject)=>{
+        const req = tx('users','readwrite').put(user);
+        req.onsuccess = ()=>resolve(true);
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    function getProgress(username){
+      return new Promise((resolve,reject)=>{
+        const req = tx('progress').get(username);
+        req.onsuccess = ()=>resolve(req.result || { username, levels:[], scores:[], lastUpdated:null });
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    function putProgress(progress){
+      return new Promise((resolve,reject)=>{
+        const req = tx('progress','readwrite').put(progress);
+        req.onsuccess = ()=>resolve(true);
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    function getMeta(username){
+      return new Promise((resolve,reject)=>{
+        const req = tx('meta').get(username);
+        req.onsuccess = ()=>resolve(req.result || { username, premium:false, coins:0, lives:3, lastDaily:null, sound:true });
+        req.onerror = ()=>reject(req.error);
+      });
+    }
+    function putMeta(meta){
+      return new Promise((resolve,reject)=>{
+        const req = tx('meta','readwrite').put(meta);
+        req.onsuccess = ()=>resolve(true);
+        req.onerror = ()=>reject(req.error);
       });
     }
 
-    function tx(storeName, mode = 'readonly') {
-      const tx = dbInstance.transaction(storeName, mode);
-      return tx.objectStore(storeName);
-    }
+    // ===== Sesión y UI de auth =====
+    function setSessionUser(u){ sessionStorage.setItem('authUser', u); updateAuthUI(); }
+    function getSessionUser(){ return sessionStorage.getItem('authUser'); }
+    function clearSession(){ sessionStorage.removeItem('authUser'); updateAuthUI(); }
 
-    function getUser(username) {
-      return new Promise((resolve, reject) => {
-        const store = tx('users');
-        const req = store.get(username);
-        req.onsuccess = () => resolve(req.result || null);
-        req.onerror = () => reject(req.error);
-      });
+    function guardRoutes(){
+      const authed = !!getSessionUser();
+      document.getElementById('logoutBtn').classList.toggle('hidden', !authed);
+      document.getElementById('loginBtn').classList.toggle('hidden', authed);
+      document.getElementById('profileInfo').classList.toggle('hidden', !authed);
     }
-
-    function putUser(user) {
-      return new Promise((resolve, reject) => {
-        const store = tx('users', 'readwrite');
-        const req = store.put(user);
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    function getProgress(username) {
-      return new Promise((resolve, reject) => {
-        const store = tx('progress');
-        const req = store.get(username);
-        req.onsuccess = () => resolve(req.result || { username, levels: [], lastUpdated: null });
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    function putProgress(progress) {
-      return new Promise((resolve, reject) => {
-        const store = tx('progress', 'readwrite');
-        const req = store.put(progress);
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
-      });
-    }
-
-    // ========= Estado de sesión y middleware =========
-    function setSessionUser(username) {
-      sessionStorage.setItem('authUser', username);
-      updateAuthUI();
-    }
-    function getSessionUser() {
-      return sessionStorage.getItem('authUser');
-    }
-    function clearSession() {
-      sessionStorage.removeItem('authUser');
-      updateAuthUI();
-    }
-
-    function guardRoutes() {
-      const isAuthed = Boolean(getSessionUser());
-      document.getElementById('protectedArea').classList.toggle('hidden', !isAuthed);
-      document.getElementById('publicArea').classList.toggle('hidden', isAuthed);
-    }
-
-    function updateAuthUI() {
+    async function updateAuthUI(){
       const user = getSessionUser();
-      const userStatus = document.getElementById('userStatus');
-      const logoutBtn = document.getElementById('logoutBtn');
-      const loginBtn = document.getElementById('loginBtn');
-      userStatus.textContent = user ? `Sesión: ${user}` : 'Sin sesión';
-      logoutBtn.classList.toggle('hidden', !user);
-      loginBtn.classList.toggle('hidden', !!user);
+      document.getElementById('userStatus').textContent = user ? `Sesión: ${user}` : 'Sin sesión';
       guardRoutes();
-      if (user) {
-        // Cargar lista de progreso
-        renderProgressList(user);
-      } else {
-        document.getElementById('progressList').innerHTML = '';
-      }
+      if(user) { renderProgressList(user); await syncHUD(); }
+      else { document.getElementById('progressList').innerHTML=''; }
     }
 
-    // ========= Modal de autenticación =========
     const authModalBackdrop = document.getElementById('authModalBackdrop');
     const authFeedback = document.getElementById('authFeedback');
+    function openAuthModal(){ authModalBackdrop.style.display='flex'; authModalBackdrop.setAttribute('aria-hidden','false'); authFeedback.classList.add('hidden'); authFeedback.textContent=''; }
+    function closeAuthModal(){ authModalBackdrop.style.display='none'; authModalBackdrop.setAttribute('aria-hidden','true'); }
+    function showFeedback(el,msg,type='warn'){ el.textContent=msg; el.classList.remove('hidden','ok','warn','err'); el.classList.add(type,'message'); }
 
-    function openAuthModal() {
-      authModalBackdrop.style.display = 'flex';
-      authModalBackdrop.setAttribute('aria-hidden', 'false');
-      authFeedback.classList.add('hidden');
-      authFeedback.textContent = '';
-    }
-    function closeAuthModal() {
-      authModalBackdrop.style.display = 'none';
-      authModalBackdrop.setAttribute('aria-hidden', 'true');
-    }
-    function showFeedback(el, msg, type='warn') {
-      el.textContent = msg;
-      el.classList.remove('hidden', 'ok', 'warn', 'err');
-      el.classList.add(type, 'message');
-    }
-
-    // ========= Registro e inicio de sesión =========
-    async function registerLocalUser(username, password) {
-      if (!username || !password) {
-        showFeedback(authFeedback, 'Usuario y contraseña son obligatorios.', 'err');
-        return;
-      }
+    async function registerLocalUser(username,password){
+      if(!username || !password){ showFeedback(authFeedback,'Usuario y contraseña son obligatorios.','err'); return; }
       const existing = await getUser(username);
-      if (existing) {
-        showFeedback(authFeedback, 'Ese usuario ya existe. Elige otro o inicia sesión.', 'warn');
-        return;
-      }
+      if(existing){ showFeedback(authFeedback,'Ese usuario ya existe. Elige otro o inicia sesión.','warn'); return; }
       const passHash = await hashPassword(password);
-      const user = { username, passHash, createdAt: new Date().toISOString() };
-      await putUser(user);
-      // Inicializa progreso vacío
-      await putProgress({ username, levels: [], lastUpdated: new Date().toISOString() });
-      showFeedback(authFeedback, 'Usuario creado. Ya puedes iniciar sesión.', 'ok');
+      await putUser({ username, passHash, createdAt: new Date().toISOString() });
+      await putProgress({ username, levels:[], scores:[], lastUpdated: new Date().toISOString() });
+      await putMeta({ username, premium:false, coins:0, lives:3, lastDaily:null, sound:true });
+      showFeedback(authFeedback,'Usuario creado. Ya puedes iniciar sesión.','ok');
     }
-
-    async function loginLocalUser(username, password) {
-      if (!username || !password) {
-        showFeedback(authFeedback, 'Usuario y contraseña son obligatorios.', 'err');
-        return;
-      }
+    async function loginLocalUser(username,password){
+      if(!username || !password){ showFeedback(authFeedback,'Usuario y contraseña son obligatorios.','err'); return; }
       const user = await getUser(username);
-      if (!user) {
-        showFeedback(authFeedback, 'Usuario no encontrado. Regístrate primero.', 'warn');
-        return;
-      }
+      if(!user){ showFeedback(authFeedback,'Usuario no encontrado. Regístrate primero.','warn'); return; }
       const passHash = await hashPassword(password);
-      if (passHash !== user.passHash) {
-        showFeedback(authFeedback, 'Contraseña incorrecta.', 'err');
-        return;
-      }
+      if(passHash !== user.passHash){ showFeedback(authFeedback,'Contraseña incorrecta.','err'); return; }
       setSessionUser(username);
       closeAuthModal();
     }
 
-    // ========= Núcleo de ejercicios matemáticos =========
-    let currentProblem = null;
-
-    function randInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+    // ===== Navegación de pantallas =====
+    function show(sectionId){
+      ['mainMenu','levelSelect','gameScreen','profileScreen','settingsScreen','helpScreen'].forEach(id=>{
+        document.getElementById(id).classList.toggle('hidden', id!==sectionId);
+      });
     }
 
-    function generateProblem(level) {
-      if (level === '1') {
-        const a = randInt(0, 10), b = randInt(0, 10);
-        return { text: `${a} + ${b} = ?`, answer: a + b, kind: 'sum' };
-      }
-      if (level === '2') {
-        const a = randInt(10, 50), b = randInt(10, 50);
-        return { text: `${a} + ${b} = ?`, answer: a + b, kind: 'sum' };
-      }
-      // level 3: sumas y restas 0–100
-      const a = randInt(0, 100), b = randInt(0, 100);
-      const op = Math.random() < 0.5 ? '+' : '-';
-      const ans = op === '+' ? a + b : a - b;
-      return { text: `${a} ${op} ${b} = ?`, answer: ans, kind: op === '+' ? 'sum' : 'sub' };
+    // ===== HUD meta =====
+    async function syncHUD(){
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      document.getElementById('lives').textContent = meta.lives;
+      document.getElementById('coins').textContent = meta.coins;
+      document.getElementById('toggleSoundBtn').textContent = `Sonido: ${meta.sound?'ON':'OFF'}`;
+      document.getElementById('profileInfo').classList.remove('hidden');
+      document.getElementById('profileInfo').classList.add('ok');
+      document.getElementById('profileInfo').textContent = `Usuario: ${user} · Premium: ${meta.premium ? 'Sí' : 'No'} · Vidas: ${meta.lives} · Monedas: ${meta.coins}`;
     }
 
-    async function recordAttempt(isCorrect) {
-      const user = getSessionUser();
-      if (!user) return;
-      const level = document.getElementById('levelSelect').value;
-      const progress = await getProgress(user);
-      // Busca nivel
-      const idx = progress.levels.findIndex(l => String(l.id) === String(level));
-      const now = new Date().toISOString();
-      if (idx === -1) {
-        progress.levels.push({ id: level, attempts: 1, correct: isCorrect ? 1 : 0, lastPlayed: now });
-      } else {
-        const l = progress.levels[idx];
-        l.attempts += 1;
-        l.correct += isCorrect ? 1 : 0;
-        l.lastPlayed = now;
-      }
-      progress.lastUpdated = now;
-      await putProgress(progress);
-      renderProgressList(user);
+    // ===== Puzzle: generación tipo “ecuaciones con espacios” y tablero 1–100 =====
+    const puzzleGrid = document.getElementById('puzzleGrid');
+    const numberBoard = document.getElementById('numberBoard');
+    const puzzleMsg = document.getElementById('puzzleMsg');
+    let currentLevel = 'easy';
+    let timerInt = null; let elapsed = 0;
+    let selectedBlank = null;
+    let activeTiles = []; // { id, text, isBlank, value, solution }
+
+    function formatTime(s){
+      const m = Math.floor(s/60).toString().padStart(2,'0');
+      const ss = (s%60).toString().padStart(2,'0');
+      return `${m}:${ss}`;
     }
 
-    async function renderProgressList(username) {
+    function stopTimer(){ if(timerInt) { clearInterval(timerInt); timerInt = null; } }
+    function startTimer(){ stopTimer(); elapsed = 0; document.getElementById('timer').textContent = formatTime(elapsed); timerInt = setInterval(()=>{ elapsed++; document.getElementById('timer').textContent = formatTime(elapsed); }, 1000); }
+
+    function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+    // Genera 3x3 con ecuaciones simples estilo imagen (sumas/mult/div con blancos)
+    function generatePuzzle(level){
+      // Dificultad ajusta rangos:
+      const ranges = {
+        easy: { a:[1,10], b:[1,10], ops:['+','×'] },
+        medium:{ a:[5,30], b:[2,12], ops:['+','-','×'] },
+        hard:{ a:[10,99], b:[2,15], ops:['+','-','×','÷'] },
+        endless:{ a:[1,99], b:[1,20], ops:['+','-','×','÷'] }
+      };
+      const R = ranges[level] || ranges.easy;
+      const eqs = [];
+      function makeEq(){
+        const a = randInt(R.a[0], R.a[1]);
+        const b = randInt(R.b[0], R.b[1]);
+        const op = R.ops[randInt(0,R.ops.length-1)];
+        let res;
+        if(op==='+') res = a+b;
+        else if(op==='-') res = a-b;
+        else if(op==='×') res = a*b;
+        else { // ÷
+          const mult = a*b; // fuerza división exacta: mult ÷ a = b
+          return { text: `${mult} ÷ ${a} = ?`, solution: b };
+        }
+        return { text: `${a} ${op} ${b} = ?`, solution: res };
+      }
+      // 9 celdas: mezcla ecuaciones con blancos y algunos fijos
+      for(let i=0;i<9;i++){
+        const e = makeEq();
+        // 60% blancos, 40% fijos
+        const isBlank = Math.random()<0.6;
+        eqs.push({ id:`t${i}`, text: e.text, isBlank, value: isBlank? null : e.solution, solution: e.solution });
+      }
+      return eqs;
+    }
+
+    function renderPuzzle(){
+      puzzleGrid.innerHTML = '';
+      activeTiles.forEach(tile=>{
+        const div = document.createElement('div');
+        div.className = 'tile' + (tile.isBlank ? ' blank':'');
+        if(tile.isBlank){
+          div.innerHTML = `<span>${tile.text.replace('?', tile.value ?? '___')}</span>`;
+          div.addEventListener('click', ()=>{ selectedBlank = tile.id; highlightBlanks(); });
+        }else{
+          div.textContent = `${tile.text.replace('?', tile.value)}`;
+        }
+        puzzleGrid.appendChild(div);
+      });
+    }
+    function highlightBlanks(){
+      const children = [...puzzleGrid.children];
+      children.forEach((c,i)=>{
+        const tile = activeTiles[i];
+        if(tile.isBlank){
+          c.style.outline = (tile.id===selectedBlank) ? '2px solid #48b7ff' : '2px dashed #48b7ff';
+        }else{
+          c.style.outline = 'none';
+        }
+      });
+    }
+
+    function renderBoard(){
+      numberBoard.innerHTML='';
+      for(let n=1;n<=100;n++){
+        const b = document.createElement('div');
+        b.className='num';
+        b.textContent = n;
+        b.dataset.n = n;
+        b.addEventListener('click', ()=>{
+          if(!selectedBlank){ showFeedback(puzzleMsg,'Selecciona primero una casilla en el puzzle.','warn'); puzzleMsg.classList.remove('hidden'); return; }
+          const idx = activeTiles.findIndex(t=>t.id===selectedBlank);
+          const tile = activeTiles[idx];
+          if(tile.value!=null){
+            // liberar número usado previo
+            const prev = tile.value;
+            const prevBtn = [...numberBoard.children].find(c=>Number(c.dataset.n)===prev);
+            if(prevBtn) prevBtn.classList.remove('used','highlight');
+          }
+          tile.value = n;
+          renderPuzzle();
+          const btn = b; btn.classList.add('used','highlight');
+          selectedBlank = null; highlightBlanks();
+          validatePuzzleStep(n);
+        });
+        numberBoard.appendChild(b);
+      }
+    }
+
+    async function loseLife(){
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      meta.lives = Math.max(0, meta.lives-1);
+      await putMeta(meta); await syncHUD();
+      if(meta.lives<=0) showGameOver();
+    }
+
+    function validatePuzzleStep(lastNumber){
+      // Si el último número colocado no coincide con el resultado esperado de esa casilla, marcamos error
+      const idx = activeTiles.findIndex(t=>t.value===lastNumber && t.isBlank);
+      if(idx>=0){
+        const tile = activeTiles[idx];
+        if(tile.value !== tile.solution){
+          showFeedback(puzzleMsg, `Incorrecto: la respuesta era ${tile.solution}.`, 'err');
+          puzzleMsg.classList.remove('hidden');
+          loseLife();
+        }else{
+          showFeedback(puzzleMsg, `¡Correcto!`, 'ok');
+          puzzleMsg.classList.remove('hidden');
+          checkCompletion();
+        }
+      }
+    }
+
+    async function checkCompletion(){
+      const done = activeTiles.every(t=> !t.isBlank || (t.isBlank && t.value===t.solution));
+      if(done){
+        stopTimer();
+        const score = Math.max(1000 - elapsed*5, 100);
+        document.getElementById('finalScore').textContent = score;
+        const user = getSessionUser();
+        if(user){
+          const progress = await getProgress(user);
+          progress.scores.push({ level: currentLevel, score, time: elapsed, at: new Date().toISOString() });
+          const idx = progress.levels.findIndex(l=>String(l.id)===String(currentLevel));
+          if(idx===-1) progress.levels.push({ id: currentLevel, attempts:1, correct:1, lastPlayed: new Date().toISOString() });
+          else { progress.levels[idx].attempts+=1; progress.levels[idx].correct+=1; progress.levels[idx].lastPlayed = new Date().toISOString(); }
+          progress.lastUpdated = new Date().toISOString();
+          await putProgress(progress);
+          renderProgressList(user);
+          // recompensa básica
+          const meta = await getMeta(user);
+          meta.coins += 20;
+          await putMeta(meta);
+          await syncHUD();
+        }
+        showComplete();
+      }
+    }
+
+    // ===== Progreso: render histórico =====
+    async function renderProgressList(username){
       const container = document.getElementById('progressList');
       const progress = await getProgress(username);
-      if (!progress.levels.length) {
-        container.innerHTML = '<div class="message warn">Sin registros aún. Juega y guarda para ver tu histórico.</div>';
+      if(!progress.levels.length){
+        container.innerHTML = '<div class="message warn">Sin registros aún. Juega para generar histórico.</div>';
         return;
       }
-      container.innerHTML = '';
-      progress.levels
-        .sort((a, b) => Number(a.id) - Number(b.id))
-        .forEach(lvl => {
-          const acc = lvl.attempts ? Math.round((lvl.correct / lvl.attempts) * 100) : 0;
-          const div = document.createElement('div');
-          div.className = 'progress-item';
-          div.innerHTML = `
-            <span class="pill">Nivel ${lvl.id}</span>
-            <div class="muted">Intentos: ${lvl.attempts} · Correctos: ${lvl.correct} · Precisión: ${acc}%</div>
-            <span class="kbd">${new Date(lvl.lastPlayed).toLocaleString()}</span>
-          `;
-          container.appendChild(div);
-        });
+      const rows = progress.levels
+        .sort((a,b)=> String(a.id).localeCompare(String(b.id)))
+        .map(l=>{
+          const acc = l.attempts ? Math.round((l.correct/l.attempts)*100) : 0;
+          return `<div class="message" style="background:#0d1330; border:1px solid #21335a; border-radius:12px;">
+            <strong>Nivel:</strong> ${l.id} · <strong>Intentos:</strong> ${l.attempts} · <strong>Correctos:</strong> ${l.correct} · <strong>Precisión:</strong> ${acc}% · <span class="kbd">${new Date(l.lastPlayed).toLocaleString()}</span>
+          </div>`;
+        }).join('');
+      container.innerHTML = rows;
     }
 
-    // ========= Guardar, Exportar e Importar progreso =========
-    async function saveProgress() {
-      const user = getSessionUser();
-      if (!user) return;
-      const progressStatus = document.getElementById('progressStatus');
+    // ===== Guardar/Exportar/Importar progreso =====
+    async function saveProgress(){
+      const user = getSessionUser(); if(!user) return;
+      const ps = document.getElementById('progressStatus');
       const progress = await getProgress(user);
       progress.lastUpdated = new Date().toISOString();
       await putProgress(progress);
-      showFeedback(progressStatus, 'Progreso guardado localmente.', 'ok');
-      setTimeout(() => progressStatus.classList.add('hidden'), 1800);
+      showFeedback(ps,'Progreso guardado localmente.','ok');
+      setTimeout(()=>ps.classList.add('hidden'), 1500);
     }
-
-    async function exportProgress() {
-      const user = getSessionUser();
-      if (!user) return;
+    async function exportProgress(){
+      const user = getSessionUser(); if(!user) return;
       const progress = await getProgress(user);
-      const payload = {
-        schema: 'croossmathweb.local.v1',
-        user,
-        progress
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const meta = await getMeta(user);
+      const payload = { schema:'croossmathweb.local.v1', user, progress, meta };
+      const blob = new Blob([JSON.stringify(payload,null,2)], { type:'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      const dateStr = new Date().toISOString().replace(/[:.]/g, '-');
-      a.download = `croossmath_progress_${user}_${dateStr}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      const progressStatus = document.getElementById('progressStatus');
-      showFeedback(progressStatus, 'Exportación completada. Archivo descargado.', 'ok');
-      setTimeout(() => progressStatus.classList.add('hidden'), 2000);
+      a.href = url; a.download = `croossmath_progress_${user}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      const ps = document.getElementById('progressStatus');
+      showFeedback(ps,'Exportación completada.','ok');
+      setTimeout(()=>ps.classList.add('hidden'), 1500);
     }
-
-    async function importProgressFile(file) {
-      const progressStatus = document.getElementById('progressStatus');
-      try {
+    async function importProgressFile(file){
+      const ps = document.getElementById('progressStatus');
+      try{
         const text = await file.text();
         const data = JSON.parse(text);
-        if (!data || data.schema !== 'croossmathweb.local.v1' || !data.user || !data.progress) {
-          showFeedback(progressStatus, 'Archivo inválido o esquema desconocido.', 'err');
-          return;
-        }
         const currentUser = getSessionUser();
-        if (!currentUser) {
-          showFeedback(progressStatus, 'Inicia sesión para importar progreso.', 'warn');
-          return;
-        }
-        if (data.user !== currentUser) {
-          showFeedback(progressStatus, 'El archivo pertenece a otro usuario. Usa esa sesión o cambia el nombre en el archivo bajo tu responsabilidad.', 'warn');
-          return;
-        }
-        // Fusión simple: reemplaza progreso existente por importado
-        const imported = data.progress;
-        imported.username = currentUser;
-        imported.lastUpdated = new Date().toISOString();
-        await putProgress(imported);
-        renderProgressList(currentUser);
-        showFeedback(progressStatus, 'Importación exitosa. Histórico actualizado.', 'ok');
-        setTimeout(() => progressStatus.classList.add('hidden'), 2000);
-      } catch (e) {
-        showFeedback(progressStatus, 'Error al importar: archivo corrupto o no válido.', 'err');
+        if(!currentUser){ showFeedback(ps,'Inicia sesión para importar.','warn'); return; }
+        if(!data || data.schema!=='croossmathweb.local.v1'){ showFeedback(ps,'Archivo inválido o esquema desconocido.','err'); return; }
+        if(data.user !== currentUser){ showFeedback(ps,'El archivo pertenece a otro usuario.','warn'); return; }
+        await putProgress(Object.assign({}, data.progress, { username: currentUser, lastUpdated: new Date().toISOString() }));
+        await putMeta(Object.assign({}, data.meta, { username: currentUser }));
+        await renderProgressList(currentUser); await syncHUD();
+        showFeedback(ps,'Importación exitosa.','ok');
+        setTimeout(()=>ps.classList.add('hidden'), 1500);
+      }catch(e){
+        showFeedback(ps,'Error al importar.','err');
       }
     }
 
-    // ========= Listeners de UI =========
+    // ===== Tienda y bonus diario =====
+    const storeModal = document.getElementById('storeModalBackdrop');
+    const dailyModal = document.getElementById('dailyModalBackdrop');
+    function openStore(){ storeModal.style.display='flex'; storeModal.setAttribute('aria-hidden','false'); }
+    function closeStore(){ storeModal.style.display='none'; storeModal.setAttribute('aria-hidden','true'); }
+    function openDaily(){ dailyModal.style.display='flex'; dailyModal.setAttribute('aria-hidden','false'); }
+    function closeDaily(){ dailyModal.style.display='none'; dailyModal.setAttribute('aria-hidden','true'); }
+
+    async function buyAction(kind){
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      if(kind==='lives5'){
+        if(meta.coins>=100){ meta.coins-=100; meta.lives+=5; await putMeta(meta); await syncHUD(); }
+      }else if(kind==='coins100'){
+        meta.coins += 100; await putMeta(meta); await syncHUD();
+      }else if(kind==='premium'){
+        // Abre Gumroad (reemplaza por tu producto real)
+        window.open('https://gumroad.com', '_blank');
+      }
+    }
+    async function claimDaily(type){
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      const today = new Date().toDateString();
+      const dm = document.getElementById('dailyMsg');
+      if(meta.lastDaily === today){
+        showFeedback(dm,'Ya reclamaste el bonus hoy.','warn'); dm.classList.remove('hidden'); return;
+      }
+      if(type==='life') meta.lives += 1;
+      else meta.coins += 50;
+      meta.lastDaily = today;
+      await putMeta(meta); await syncHUD();
+      showFeedback(dm,'Bonus reclamado.','ok'); dm.classList.remove('hidden');
+    }
+
+    // ===== Overlays: pausa, completado, game over =====
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const completeOverlay = document.getElementById('completeOverlay');
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    function showPause(){ pauseOverlay.style.display='flex'; pauseOverlay.setAttribute('aria-hidden','false'); stopTimer(); }
+    function hidePause(){ pauseOverlay.style.display='none'; pauseOverlay.setAttribute('aria-hidden','true'); startTimer(); }
+    function showComplete(){ completeOverlay.style.display='flex'; completeOverlay.setAttribute('aria-hidden','false'); }
+    function hideComplete(){ completeOverlay.style.display='none'; completeOverlay.setAttribute('aria-hidden','true'); }
+    function showGameOver(){ gameOverOverlay.style.display='flex'; gameOverOverlay.setAttribute('aria-hidden','false'); stopTimer(); }
+    function hideGameOver(){ gameOverOverlay.style.display='none'; gameOverOverlay.setAttribute('aria-hidden','true'); }
+
+    // ===== Inicio/Reinicio de juego =====
+    function startGame(level){
+      currentLevel = level;
+      document.getElementById('modeName').textContent = (level==='endless')?'Infinito':(level==='hard'?'Difícil':(level==='medium'?'Medio':'Fácil'));
+      activeTiles = generatePuzzle(level);
+      renderPuzzle();
+      renderBoard();
+      selectedBlank = null;
+      puzzleMsg.classList.add('hidden');
+      startTimer();
+      show('gameScreen');
+    }
+    async function restartGame(){
+      // penalización ligera: -1 moneda
+      const user = getSessionUser(); if(user){
+        const meta = await getMeta(user);
+        if(meta.coins>0){ meta.coins -= 1; await putMeta(meta); await syncHUD(); }
+      }
+      startGame(currentLevel);
+    }
+    function exitGame(){
+      stopTimer();
+      show('mainMenu');
+    }
+
+    // ===== Sonido (placeholder) =====
+    async function toggleSound(){
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      meta.sound = !meta.sound;
+      await putMeta(meta);
+      await syncHUD();
+    }
+
+    // ===== Eventos UI =====
     document.getElementById('loginBtn').addEventListener('click', openAuthModal);
-    document.getElementById('getStartedBtn').addEventListener('click', openAuthModal);
+    document.getElementById('getStartedBtn')?.addEventListener('click', openAuthModal);
     document.getElementById('closeAuthBtn').addEventListener('click', closeAuthModal);
-    document.getElementById('logoutBtn').addEventListener('click', () => { clearSession(); });
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{ clearSession(); });
 
-    document.getElementById('registerBtn').addEventListener('click', async () => {
+    document.getElementById('registerBtn').addEventListener('click', async()=>{
       const u = document.getElementById('usernameInput').value.trim();
       const p = document.getElementById('passwordInput').value;
-      await registerLocalUser(u, p);
+      await registerLocalUser(u,p);
     });
-    document.getElementById('authLoginBtn').addEventListener('click', async () => {
+    document.getElementById('authLoginBtn').addEventListener('click', async()=>{
       const u = document.getElementById('usernameInput').value.trim();
       const p = document.getElementById('passwordInput').value;
-      await loginLocalUser(u, p);
+      await loginLocalUser(u,p);
+    });
+    window.addEventListener('keydown',(e)=>{ if(e.shiftKey && e.key.toLowerCase()==='l') openAuthModal(); });
+
+    // Navegación
+    document.getElementById('playBtn').addEventListener('click', ()=> show('levelSelect'));
+    document.getElementById('levelsBtn').addEventListener('click', ()=> show('levelSelect'));
+    document.getElementById('profileBtn').addEventListener('click', ()=> show('profileScreen'));
+    document.getElementById('settingsBtn').addEventListener('click', ()=> show('settingsScreen'));
+    document.getElementById('helpBtn').addEventListener('click', ()=> show('helpScreen'));
+    document.getElementById('backToMenu1').addEventListener('click', ()=> show('mainMenu'));
+    document.getElementById('backToMenu2').addEventListener('click', ()=> show('mainMenu'));
+    document.getElementById('backToMenu3').addEventListener('click', ()=> show('mainMenu'));
+    document.getElementById('backToMenu4').addEventListener('click', ()=> show('mainMenu'));
+
+    // Selección de niveles
+    document.getElementById('levelEasy').addEventListener('click', ()=> startGame('easy'));
+    document.getElementById('levelMedium').addEventListener('click', ()=> startGame('medium'));
+    document.getElementById('levelHard').addEventListener('click', ()=> startGame('hard'));
+    document.getElementById('levelEndless').addEventListener('click', ()=> startGame('endless'));
+
+    // HUD juego
+    document.getElementById('pauseBtn').addEventListener('click', showPause);
+    document.getElementById('restartBtn').addEventListener('click', restartGame);
+    document.getElementById('exitBtn').addEventListener('click', exitGame);
+    document.getElementById('resumeBtn').addEventListener('click', hidePause);
+    document.getElementById('restartFromPauseBtn').addEventListener('click', ()=>{ hidePause(); restartGame(); });
+    document.getElementById('exitFromPauseBtn').addEventListener('click', ()=>{ hidePause(); exitGame(); });
+
+    // Completado
+    document.getElementById('continueBtn').addEventListener('click', ()=>{ hideComplete(); show('levelSelect'); });
+    document.getElementById('replayBtn').addEventListener('click', ()=>{ hideComplete(); startGame(currentLevel); });
+
+    // Game Over
+    document.getElementById('retryBtn').addEventListener('click', ()=>{ hideGameOver(); startGame(currentLevel); });
+    document.getElementById('goHomeBtn').addEventListener('click', ()=>{ hideGameOver(); show('mainMenu'); });
+
+    // Tienda y bonus
+    document.getElementById('storeBtn').addEventListener('click', openStore);
+    document.getElementById('closeStoreBtn').addEventListener('click', closeStore);
+    document.querySelectorAll('[data-buy]').forEach(btn=>{
+      btn.addEventListener('click', ()=> buyAction(btn.dataset.buy));
+    });
+    document.getElementById('dailyBtn').addEventListener('click', openDaily);
+    document.getElementById('closeDailyBtn').addEventListener('click', closeDaily);
+    document.getElementById('claimLifeBtn').addEventListener('click', ()=> claimDaily('life'));
+    document.getElementById('claimCoinsBtn').addEventListener('click', ()=> claimDaily('coins'));
+
+    // Perfil: premium
+    document.getElementById('buyPremiumBtn').addEventListener('click', ()=> window.open('https://gumroad.com','_blank'));
+    document.getElementById('activatePremiumBtn').addEventListener('click', async()=>{
+      const pin = document.getElementById('premiumPinInput').value.trim();
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      // Activación local simulada por PIN (ajusta tu lógica real)
+      if(pin && pin.length>=4){ meta.premium = true; await putMeta(meta); await syncHUD(); alert('Premium activado.'); }
+      else alert('PIN inválido.');
     });
 
-    // Atajo de teclado: Shift+L abre login
-    window.addEventListener('keydown', (e) => {
-      if (e.shiftKey && e.key.toLowerCase() === 'l') openAuthModal();
-    });
-
-    // Ejercicios
-    const exerciseProblem = document.getElementById('exerciseProblem');
-    const answerInput = document.getElementById('answerInput');
-    const exerciseFeedback = document.getElementById('exerciseFeedback');
-
-    document.getElementById('newProblemBtn').addEventListener('click', () => {
-      const level = document.getElementById('levelSelect').value;
-      currentProblem = generateProblem(level);
-      exerciseProblem.textContent = currentProblem.text;
-      exerciseProblem.classList.remove('err', 'ok');
-      exerciseProblem.classList.add('warn');
-      exerciseFeedback.classList.add('hidden');
-      answerInput.value = '';
-      answerInput.focus();
-    });
-
-    document.getElementById('checkAnswerBtn').addEventListener('click', async () => {
-      if (!currentProblem) {
-        exerciseFeedback.classList.remove('hidden');
-        showFeedback(exerciseFeedback, 'Primero genera un problema con “Nuevo”.', 'warn');
-        return;
-      }
-      const val = Number(answerInput.value);
-      if (Number.isNaN(val)) {
-        exerciseFeedback.classList.remove('hidden');
-        showFeedback(exerciseFeedback, 'Ingresa una respuesta válida.', 'err');
-        return;
-      }
-      const correct = val === currentProblem.answer;
-      if (correct) {
-        showFeedback(exerciseFeedback, '¡Correcto! Registrado en tu progreso.', 'ok');
-        await recordAttempt(true);
-      } else {
-        showFeedback(exerciseFeedback, `Incorrecto. La respuesta era ${currentProblem.answer}.`, 'err');
-        await recordAttempt(false);
-      }
-      currentProblem = null;
-      exerciseProblem.classList.remove('warn');
-      exerciseProblem.textContent = 'Presiona “Nuevo” para generar un problema.';
-    });
-
-    // Progreso: guardar, exportar, importar
+    // Portabilidad
     document.getElementById('saveProgressBtn').addEventListener('click', saveProgress);
     document.getElementById('exportProgressBtn').addEventListener('click', exportProgress);
-    document.getElementById('importFileInput').addEventListener('change', async (e) => {
+    document.getElementById('importFileInput').addEventListener('change', async (e)=>{
       const file = e.target.files?.[0];
-      if (file) await importProgressFile(file);
-      e.target.value = '';
+      if(file) await importProgressFile(file);
+      e.target.value='';
     });
 
-    // ========= Inicialización =========
-    (async function init() {
+    // Refill vida simulando “ver video”
+    document.getElementById('refillLifeBtn').addEventListener('click', async()=>{
+      const user = getSessionUser(); if(!user) return;
+      const meta = await getMeta(user);
+      meta.lives += 1; await putMeta(meta); await syncHUD();
+      showFeedback(puzzleMsg,'+1 vida agregada.','ok'); puzzleMsg.classList.remove('hidden');
+      setTimeout(()=> puzzleMsg.classList.add('hidden'), 1500);
+    });
+
+    // Ajustes
+    document.getElementById('langSelect').addEventListener('change', (e)=>{
+      const lang = e.target.value; localStorage.setItem('cm_lang', lang); applyLang(lang);
+    });
+    document.getElementById('toggleSoundBtn').addEventListener('click', toggleSound);
+
+    // Inicialización
+    (async function init(){
+      const lang = localStorage.getItem('cm_lang') || (navigator.language||'es').slice(0,2);
+      applyLang(['es','en'].includes(lang)?lang:'es');
       await openDB();
       updateAuthUI();
+      show('mainMenu');
     })();
   </script>
 </body>
