@@ -1,440 +1,589 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>CroossMathWeb — Local</title>
-<style>
-  :root{--bg:#0b1020;--card:#0f1724;--accent:#ffd166;--muted:#9aa4b2}
-  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#061125 0%,#0b1020 100%);color:#e6eef6}
-  #particles{position:fixed;inset:0;z-index:0;pointer-events:none}
-  .app{position:relative;z-index:1;max-width:1100px;margin:28px auto;padding:22px}
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 6px 30px rgba(2,6,23,0.6)}
-  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-  h1{margin:0;font-size:20px;letter-spacing:0.6px}
-  .btn{background:var(--accent);color:#08121a;padding:10px 14px;border-radius:10px;border:none;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(255,209,102,0.12);transition:transform .12s ease,box-shadow .12s}
-  .btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(255,209,102,0.14)}
-  .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(255,209,102,0.12)}
-  .small{padding:6px 9px;font-size:13px;border-radius:8px}
-  .levels{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-  .level-card{width:180px;height:120px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#071018;cursor:pointer;box-shadow:0 8px 30px rgba(2,6,23,0.5);transition:transform .12s}
-  .grid-wrap{display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
-  .grid{background:#fff7e6;border-radius:12px;padding:12px;display:grid;grid-template-columns:repeat(5,54px);grid-auto-rows:54px;gap:8px}
-  .cell{background:#ffefc1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#2a2a2a;user-select:none}
-  .cell.fixed{background:#ffeaa7;opacity:0.95}
-  .pad{display:grid;grid-template-columns:repeat(1,1fr);gap:8px;max-height:420px;overflow:auto}
-  .num-btn{background:#1b7a4b;color:white;padding:10px;border-radius:10px;border:none;cursor:pointer}
-  .muted{color:var(--muted);font-size:13px}
-  .badge{padding:6px 8px;border-radius:8px;background:linear-gradient(90deg,#ffd166,#f08a5d);color:#071018;font-weight:700}
-  .hidden{display:none}
-  .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:60;background:rgba(2,6,23,0.5)}
-  .modal-card{background:#07121a;padding:18px;border-radius:10px;min-width:320px}
-  .input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);width:100%}
-  .hud{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:12px}
-  .timer{font-family:monospace;background:rgba(0,0,0,0.06);padding:6px 8px;border-radius:8px}
-  .toast{position:fixed;right:20px;bottom:20px;background:#0d2633;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.6);color:#dff3f6}
-  @media (max-width:900px){ .grid{grid-template-columns:repeat(4,54px)} .pad{max-height:220px} }
-</style>
+  <meta charset="UTF-8" />
+  <title>CroossMathWeb — Versión Local</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0f1320;
+      --card: #141a2f;
+      --accent: #4cc9f0;
+      --accent-2: #7b2cbf;
+      --text: #e9edf7;
+      --muted: #a8b0c4;
+      --ok: #27ae60;
+      --warn: #f39c12;
+      --err: #e74c3c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b0e1a, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid #1f2540; background: #0d1120cc; backdrop-filter: blur(8px);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: conic-gradient(from 180deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 16px rgba(76,201,240,0.35);
+    }
+    .title { font-weight: 700; letter-spacing: 0.3px; }
+    .user-bar { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+    button, .btn {
+      background: var(--accent); color: #071018; border: none; border-radius: 10px; padding: 10px 14px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 8px 18px rgba(76,201,240,0.25); transition: transform 0.05s ease, filter 0.2s ease;
+    }
+    button:hover { filter: brightness(1.08); }
+    button:active { transform: translateY(1px); }
+    .btn-secondary {
+      background: #253058; color: var(--text); box-shadow: none; border: 1px solid #2e3a6a;
+    }
+
+    main { max-width: 980px; margin: 20px auto; padding: 0 16px 40px; }
+    .card {
+      background: linear-gradient(180deg, var(--card), #111630);
+      border: 1px solid #1f2540; border-radius: 16px; padding: 16px; margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(17,22,48,0.35);
+    }
+    h2, h3 { margin: 10px 0 12px; }
+    .muted { color: var(--muted); font-size: 14px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .input, input, select {
+      width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #2a325a; background: #0e132a; color: var(--text);
+    }
+    .kbd { display: inline-block; background: #0e132a; border: 1px solid #2a325a; color: var(--muted); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+    .pill { display: inline-block; padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid #2a325a; color: var(--muted); }
+    .message { padding: 10px 12px; border-radius: 12px; font-size: 14px; }
+    .ok { background: #12251a; border: 1px solid #1f7a47; color: #b6f3cf; }
+    .warn { background: #251f12; border: 1px solid #7a5b1f; color: #f6deb1; }
+    .err { background: #2a1515; border: 1px solid #7a1f1f; color: #f7b6b6; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(5,8,20,0.65); backdrop-filter: blur(2px);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal {
+      width: 100%; max-width: 460px; background: linear-gradient(180deg, #101734, #0c122d);
+      border: 1px solid #222a4e; border-radius: 16px; padding: 16px;
+      box-shadow: 0 20px 50px rgba(10,15,35,0.55);
+    }
+    .modal header { position: static; padding: 0; background: transparent; border: none; margin-bottom: 10px; }
+    .modal .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+    .hidden { display: none !important; }
+
+    /* Exercise UI */
+    .exercise {
+      display: grid; grid-template-columns: 1fr; gap: 10px; align-items: start;
+    }
+    .progress-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .progress-item {
+      display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+      padding: 8px 10px; border-radius: 12px; border: 1px solid #21335a; background: #0d1330;
+    }
+    .footer-note { margin-top: 18px; font-size: 13px; color: var(--muted); }
+  </style>
 </head>
 <body>
-<canvas id="particles"></canvas>
-
-<div class="app card" id="app">
   <header>
-    <h1>CroossMathWeb</h1>
-    <div style="display:flex;gap:12px;align-items:center">
-      <div id="userEmail" class="muted">No conectado</div>
-      <div id="premiumBadge" class="badge hidden">Premium</div>
-      <button id="btnAuth" class="btn small">Entrar / Registrar</button>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="title">CroossMathWeb — Local</div>
+      <span class="pill">Solo dispositivo</span>
+    </div>
+    <div class="user-bar">
+      <span id="userStatus" class="muted">Sin sesión</span>
+      <button id="loginBtn">Iniciar sesión</button>
+      <button id="logoutBtn" class="btn-secondary hidden">Cerrar sesión</button>
     </div>
   </header>
 
-  <main id="mainView">
-    <section id="menu">
-      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:18px">
-        <button class="btn" id="playBtn">Jugar</button>
-        <button class="btn secondary" id="levelsBtn">Niveles</button>
-        <button class="btn secondary" id="profileBtn">Perfil</button>
-        <button class="btn secondary" id="settingsBtn">Ajustes</button>
-        <button class="btn secondary" id="helpBtn">Ayuda</button>
-      </div>
-    </section>
+  <main>
+    <!-- Sección protegida por middleware -->
+    <section id="protectedArea" class="hidden">
+      <div class="card">
+        <h2>Panel de usuario</h2>
+        <p class="muted">Aquí gestionas tus ejercicios y tu progreso local. Este contenido requiere sesión activa.</p>
+        <div class="row">
+          <div class="card">
+            <h3>Ejercicio rápido</h3>
+            <p class="muted">Resuelve operaciones básicas para registrar avance. Cambia el nivel para ajustar dificultad.</p>
+            <div class="exercise">
+              <label for="levelSelect">Nivel</label>
+              <select id="levelSelect" class="input">
+                <option value="1">Nivel 1 (sumas 0–10)</option>
+                <option value="2">Nivel 2 (sumas 10–50)</option>
+                <option value="3">Nivel 3 (sumas y restas 0–100)</option>
+              </select>
+              <div id="exerciseProblem" class="message warn">Presiona “Nuevo” para generar un problema.</div>
+              <div class="flex">
+                <button id="newProblemBtn">Nuevo</button>
+                <input id="answerInput" class="input" type="number" placeholder="Tu respuesta" />
+                <button id="checkAnswerBtn" class="btn-secondary">Verificar</button>
+              </div>
+              <div id="exerciseFeedback" class="message hidden"></div>
+            </div>
+          </div>
 
-    <section id="levels" class="hidden card" style="margin-top:12px">
-      <h3>Selección de niveles</h3>
-      <div class="levels" id="levelsList" style="margin-top:12px">
-        <div class="level-card level-easy" data-level="easy"><strong>Fácil</strong><div class="muted">5x5 · + -</div></div>
-        <div class="level-card level-med" data-level="medium"><strong>Medio</strong><div class="muted">5x5 · + - ×</div></div>
-        <div class="level-card level-hard" data-level="hard"><strong>Difícil</strong><div class="muted">6x6 · + - × ÷</div></div>
-        <div class="level-card level-inf" data-level="infinite"><strong>Infinito</strong><div class="muted">Generación continua</div></div>
-      </div>
-    </section>
-
-    <section id="game" class="hidden card" style="margin-top:12px;text-align:center">
-      <div class="hud">
-        <div class="timer" id="timer">00:00</div>
-        <div class="muted" id="levelLabel">Nivel</div>
-        <div class="muted" id="scoreLabel">Puntos: 0</div>
-      </div>
-      <div class="grid-wrap" id="gridWrap">
-        <div id="grid" class="grid" aria-hidden="false"></div>
-        <div class="pad" id="pad"></div>
-      </div>
-      <div style="margin-top:12px">
-        <button id="validateBtn" class="btn">Validar</button>
-        <button id="saveLocalBtn" class="btn secondary">Descargar progreso</button>
-        <input id="importFile" type="file" accept=".json" style="display:none" />
-        <button id="importBtn" class="btn secondary">Importar progreso</button>
-        <button id="backToMenu" class="btn small secondary">Volver</button>
-      </div>
-    </section>
-
-    <section id="profile" class="hidden card" style="margin-top:12px">
-      <h3>Perfil</h3>
-      <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
-        <div>
-          <div id="profileEmail" class="muted">-</div>
-          <div id="profileStatus" class="muted">Estado: -</div>
-        </div>
-        <div style="text-align:right">
-          <button id="buyPremiumLocal" class="btn">Activar Premium (local)</button>
-          <div style="margin-top:8px">
-            <button id="logoutBtn" class="btn secondary small">Cerrar sesión</button>
+          <div class="card">
+            <h3>Progreso</h3>
+            <p class="muted">Guarda, exporta, importa. La portabilidad es un archivo JSON con tus niveles y puntajes.</p>
+            <div class="flex">
+              <button id="saveProgressBtn">Guardar progreso</button>
+              <button id="exportProgressBtn" class="btn-secondary">Exportar JSON</button>
+              <label class="btn" for="importFileInput" style="cursor:pointer;">Importar JSON</label>
+              <input id="importFileInput" type="file" accept="application/json" class="hidden" />
+            </div>
+            <div id="progressStatus" class="message hidden"></div>
+            <h4 style="margin-top:12px;">Histórico</h4>
+            <div id="progressList" class="progress-list"></div>
+            <p class="footer-note">Tip: puedes respaldar tu archivo en tu disco o mandarlo por correo para moverlo a otro dispositivo.</p>
           </div>
         </div>
       </div>
-      <div style="margin-top:12px;color:var(--muted);font-size:13px">
-        Exporta tu progreso y estado Premium con "Descargar progreso". Importa ese archivo en otro dispositivo para restaurar.
-      </div>
     </section>
 
-    <section id="settings" class="hidden card" style="margin-top:12px">
-      <h3>Ajustes</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <label class="muted">Idioma</label>
-        <select id="selectLang" class="input" style="width:auto">
-          <option value="es">Español</option>
-          <option value="en">English</option>
-        </select>
+    <!-- Sección pública -->
+    <section id="publicArea">
+      <div class="card">
+        <h2>Bienvenida</h2>
+        <p>Esta es la versión totalmente local de CroossMathWeb. No usa servicios externos. Para comenzar, crea una cuenta local o inicia sesión.</p>
+        <div class="flex">
+          <button id="getStartedBtn">Crear cuenta</button>
+          <span class="muted">Acceso protegido por sesión. Atajos: <span class="kbd">Shift + L</span> abre el modal.</span>
+        </div>
       </div>
-    </section>
 
-    <section id="help" class="hidden card" style="margin-top:12px">
-      <h3>Ayuda</h3>
-      <div class="muted">Guardado local: descarga un archivo para transferir progreso y premium entre dispositivos. Las cuentas son locales por dispositivo.</div>
+      <div class="card">
+        <h3>Cómo funciona</h3>
+        <ul>
+          <li><strong>Autenticación local:</strong> tus credenciales se almacenan en IndexedDB con hash de contraseña (Web Crypto).</li>
+          <li><strong>Portabilidad:</strong> exporta tu progreso como JSON y restáuralo con importar.</li>
+          <li><strong>Middleware de sesión:</strong> sin sesión, no ves el panel de usuario; con sesión, todo habilitado.</li>
+          <li><strong>Sin internet:</strong> todo corre en tu navegador, sin llamadas a la nube.</li>
+        </ul>
+      </div>
     </section>
   </main>
-</div>
 
-<!-- Auth modal -->
-<div id="authModal" class="modal hidden" aria-hidden="true">
-  <div class="modal-card">
-    <h3 style="margin-top:0">Entrar o crear cuenta local</h3>
-    <div style="margin-bottom:8px">
-      <input id="authUser" class="input" type="text" placeholder="Usuario (ej. correo o nombre)" />
+  <!-- Modal de Login/Registro -->
+  <div id="authModalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-labelledby="authModalTitle" aria-modal="true">
+      <header>
+        <h3 id="authModalTitle">Acceso local</h3>
+        <p class="muted">Crea una cuenta o inicia sesión. Tus datos se quedan en tu dispositivo.</p>
+      </header>
+      <div class="row">
+        <div>
+          <label for="usernameInput">Usuario</label>
+          <input id="usernameInput" class="input" type="text" placeholder="ej. ana_local" autocomplete="username" />
+        </div>
+        <div>
+          <label for="passwordInput">Contraseña</label>
+          <input id="passwordInput" class="input" type="password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+      </div>
+      <div id="authFeedback" class="message hidden"></div>
+      <div class="actions">
+        <button id="registerBtn" class="btn-secondary">Registrar</button>
+        <button id="authLoginBtn">Entrar</button>
+        <button id="closeAuthBtn" class="btn-secondary">Cerrar</button>
+      </div>
     </div>
-    <div style="margin-bottom:8px">
-      <input id="authPwd" class="input" type="password" placeholder="Contraseña (opcional)" />
-    </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button id="closeAuth" class="btn secondary small">Cerrar</button>
-      <button id="createAccount" class="btn small">Crear cuenta</button>
-      <button id="signIn" class="btn small">Iniciar sesión</button>
-    </div>
-    <div id="authMsg" class="muted" style="margin-top:8px;font-size:13px"></div>
   </div>
-</div>
 
-<canvas id="confetti" class="confetti hidden"></canvas>
-<div id="toast" class="toast hidden"></div>
-
-<script>
-/* CroossMathWeb — Local-only corrected auth + local export/import */
-
-const LS_USERS_KEY = 'croossmath_local_users';
-function readUsers(){ try{ return JSON.parse(localStorage.getItem(LS_USERS_KEY) || '{}'); } catch(e){ return {}; } }
-function writeUsers(u){ localStorage.setItem(LS_USERS_KEY, JSON.stringify(u)); }
-function hashSimple(s){ return s ? btoa(String(s).split('').reverse().join('')) : null; }
-
-/* UI helpers */
-function show(view){
-  const views = ['menu','levels','game','profile','settings','help'];
-  views.forEach(v => { const el = document.getElementById(v); if(el) el.classList.add('hidden'); });
-  const target = document.getElementById(view);
-  if(target) target.classList.remove('hidden');
-}
-function showToast(msg, t=2300){ const el = document.getElementById('toast'); el.textContent = msg; el.classList.remove('hidden'); clearTimeout(el._timer); el._timer = setTimeout(()=> el.classList.add('hidden'), t); }
-
-/* Session handling - defined before usage to avoid race */
-let currentUser = null;
-function setSessionByName(username){
-  currentUser = username;
-  updateSessionUI();
-  if(currentUser) tryLoadProfileProgress();
-}
-function updateSessionUI(){
-  const users = readUsers();
-  const profile = currentUser && users[currentUser] ? users[currentUser].profile : null;
-  document.getElementById('userEmail').textContent = currentUser || 'No conectado';
-  document.getElementById('btnAuth').textContent = currentUser ? 'Salir' : 'Entrar / Registrar';
-  document.getElementById('profileEmail').textContent = currentUser || '-';
-  document.getElementById('profileStatus').textContent = profile ? ('Estado: ' + (profile.isPremium ? 'Premium' : 'Gratis')) : 'Estado: -';
-  document.getElementById('premiumBadge').classList.toggle('hidden', !(profile && profile.isPremium));
-}
-
-/* Wire SPA buttons */
-document.getElementById('playBtn').addEventListener('click', ()=> { startLevel('easy'); show('game'); });
-document.getElementById('levelsBtn').addEventListener('click', ()=> show('levels'));
-document.getElementById('profileBtn').addEventListener('click', ()=> show('profile'));
-document.getElementById('settingsBtn').addEventListener('click', ()=> show('settings'));
-document.getElementById('helpBtn').addEventListener('click', ()=> show('help'));
-
-/* Auth modal wiring */
-const authModal = document.getElementById('authModal');
-const authUser = document.getElementById('authUser');
-const authPwd = document.getElementById('authPwd');
-const authMsg = document.getElementById('authMsg');
-
-document.getElementById('btnAuth').addEventListener('click', () => {
-  if(currentUser){
-    // logout
-    currentUser = null;
-    updateSessionUI();
-    showToast('Sesión cerrada');
-    return;
-  }
-  authUser.value = ''; authPwd.value = ''; authMsg.textContent = '';
-  authModal.classList.remove('hidden'); authModal.setAttribute('aria-hidden','false');
-  authUser.focus();
-});
-document.getElementById('closeAuth').addEventListener('click', ()=> { authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true'); });
-
-/* Create account */
-document.getElementById('createAccount').addEventListener('click', () => {
-  const username = authUser.value.trim();
-  const pwd = authPwd.value;
-  authMsg.textContent = '';
-  if(!username){ authMsg.textContent = 'Introduce usuario'; return; }
-  const users = readUsers();
-  if(users[username]){ authMsg.textContent = 'Usuario ya existe. Inicia sesión.'; return; }
-  users[username] = { pwdHash: pwd ? hashSimple(pwd) : null, profile: { isPremium:false, score:0, progress:null } };
-  writeUsers(users);
-  setSessionByName(username);
-  authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true');
-  showToast('Cuenta creada e iniciada');
-});
-
-/* Sign in */
-document.getElementById('signIn').addEventListener('click', () => {
-  const username = authUser.value.trim();
-  const pwd = authPwd.value;
-  authMsg.textContent = '';
-  if(!username){ authMsg.textContent = 'Introduce usuario'; return; }
-  const users = readUsers();
-  const u = users[username];
-  if(!u){ authMsg.textContent = 'Usuario no encontrado.'; return; }
-  if(u.pwdHash && (!pwd || hashSimple(pwd) !== u.pwdHash)){ authMsg.textContent = 'Contraseña incorrecta.'; return; }
-  setSessionByName(username);
-  authModal.classList.add('hidden'); authModal.setAttribute('aria-hidden','true');
-  showToast('Sesión iniciada');
-});
-
-/* Logout button in profile */
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  currentUser = null; updateSessionUI(); show('menu'); showToast('Sesión cerrada');
-});
-
-/* Local premium activation */
-document.getElementById('buyPremiumLocal').addEventListener('click', () => {
-  if(!currentUser) return showToast('Inicia sesión primero');
-  const users = readUsers();
-  users[currentUser].profile.isPremium = true;
-  writeUsers(users);
-  updateSessionUI();
-  showToast('Premium activado (local)');
-});
-
-/* Export progress + profile */
-document.getElementById('saveLocalBtn').addEventListener('click', () => {
-  if(!currentUser) return showToast('Inicia sesión para exportar');
-  attachProgressToUser();
-  const users = readUsers();
-  const payload = { username: currentUser, profile: users[currentUser].profile };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = `croossmath_${currentUser}_progress.json`; a.click(); URL.revokeObjectURL(url);
-  showToast('Archivo descargado');
-});
-
-/* Import file */
-const importFile = document.getElementById('importFile');
-document.getElementById('importBtn').addEventListener('click', ()=> importFile.click());
-importFile.addEventListener('change', async e => {
-  const f = e.target.files[0]; if(!f) return;
-  try{
-    const txt = await f.text();
-    const obj = JSON.parse(txt);
-    if(!obj.username || !obj.profile) return showToast('Archivo inválido');
-    const users = readUsers();
-    users[obj.username] = users[obj.username] || { pwdHash: null, profile: {} };
-    users[obj.username].profile = obj.profile;
-    writeUsers(users);
-    setSessionByName(obj.username);
-    showToast('Progreso importado y sesión iniciada');
-    if(obj.profile && obj.profile.progress) loadProfileProgress(obj.profile.progress);
-  } catch(err){ console.error(err); showToast('Archivo inválido'); }
-  importFile.value = '';
-});
-
-/* Puzzle engine (robusto) */
-let activeLevel = 'easy';
-let currentGrid = [];
-let operatorSet = ['+','-'];
-let gridSize = 5;
-let timerInterval = null;
-let startTime = null;
-let currentScore = 0;
-
-function configureLevel(level){
-  activeLevel = level;
-  if(level === 'easy'){ gridSize = 5; operatorSet = ['+','-']; }
-  else if(level === 'medium'){ gridSize = 5; operatorSet = ['+','-','*']; }
-  else if(level === 'hard'){ gridSize = 6; operatorSet = ['+','-','*','/']; }
-  else { gridSize = 6; operatorSet = ['+','-','*','/']; }
-  document.getElementById('levelLabel').textContent = 'Nivel: ' + level;
-}
-
-function generatePuzzle(level){
-  configureLevel(level);
-  currentGrid = [];
-  for(let r=0;r<gridSize;r++){
-    for(let c=0;c<gridSize;c++){
-      if(Math.random() < 0.36) currentGrid.push({ value: Math.floor(Math.random()*19)+1, fixed:true });
-      else currentGrid.push({ value: null, fixed:false });
+  <script>
+    // ========= Utilidades Web Crypto para hash de contraseñas =========
+    async function hashPassword(password) {
+      const enc = new TextEncoder();
+      const data = enc.encode(password);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
     }
-  }
-  for(let r=0;r<gridSize;r++){
-    const row = currentGrid.slice(r*gridSize, r*gridSize+gridSize);
-    if(!row.some(cell=>cell.fixed)){
-      const idx = r*gridSize + Math.floor(Math.random()*gridSize);
-      currentGrid[idx].value = Math.floor(Math.random()*12)+1;
-      currentGrid[idx].fixed = true;
+
+    // ========= IndexedDB: apertura, stores y helpers =========
+    const DB_NAME = 'crossmath-local-db';
+    const DB_VERSION = 1;
+    let dbInstance = null;
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('users')) {
+            db.createObjectStore('users', { keyPath: 'username' });
+          }
+          if (!db.objectStoreNames.contains('progress')) {
+            db.createObjectStore('progress', { keyPath: 'username' });
+          }
+        };
+        req.onsuccess = () => {
+          dbInstance = req.result;
+          resolve(dbInstance);
+        };
+        req.onerror = () => reject(req.error);
+      });
     }
-  }
-  currentScore = 0; renderGrid();
-}
 
-function renderGrid(){
-  const gridEl = document.getElementById('grid');
-  gridEl.style.gridTemplateColumns = `repeat(${gridSize},54px)`;
-  gridEl.innerHTML = '';
-  currentGrid.forEach((cell, idx) => {
-    const div = document.createElement('div');
-    div.className = 'cell ' + (cell.fixed ? 'fixed' : 'editable');
-    div.dataset.idx = idx; div.tabIndex = 0;
-    div.textContent = cell.value === null ? '' : cell.value;
-    if(!cell.fixed) div.addEventListener('click', ()=> focusCell(idx));
-    gridEl.appendChild(div);
-  });
-  renderPad(); resetTimer();
-}
+    function tx(storeName, mode = 'readonly') {
+      const tx = dbInstance.transaction(storeName, mode);
+      return tx.objectStore(storeName);
+    }
 
-let focusedIdx = null;
-function focusCell(idx){
-  focusedIdx = idx;
-  document.querySelectorAll('.cell').forEach(el=>el.style.outline='none');
-  const el = document.querySelector(`.cell[data-idx="${idx}"]`);
-  if(el) el.style.outline = '3px solid rgba(2,120,80,0.18)';
-}
+    function getUser(username) {
+      return new Promise((resolve, reject) => {
+        const store = tx('users');
+        const req = store.get(username);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-function renderPad(){
-  const pad = document.getElementById('pad'); pad.innerHTML = '';
-  const maxNum = activeLevel === 'infinite' ? 100 : 20;
-  for(let n=1;n<=maxNum;n++){
-    const b = document.createElement('button'); b.className='num-btn'; b.textContent = n; b.addEventListener('click', ()=> onPadPress(n)); pad.appendChild(b);
-  }
-  const clear = document.createElement('button'); clear.className='num-btn'; clear.textContent='Del'; clear.addEventListener('click', ()=> { if(focusedIdx!==null && !currentGrid[focusedIdx].fixed){ currentGrid[focusedIdx].value = null; renderGrid(); } }); pad.appendChild(clear);
-}
+    function putUser(user) {
+      return new Promise((resolve, reject) => {
+        const store = tx('users', 'readwrite');
+        const req = store.put(user);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-function onPadPress(n){
-  if(focusedIdx === null) return showToast('Selecciona una celda');
-  if(currentGrid[focusedIdx].fixed) return;
-  currentGrid[focusedIdx].value = n; renderGrid();
-}
+    function getProgress(username) {
+      return new Promise((resolve, reject) => {
+        const store = tx('progress');
+        const req = store.get(username);
+        req.onsuccess = () => resolve(req.result || { username, levels: [], lastUpdated: null });
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-function validatePuzzle(){
-  const nulls = currentGrid.filter(c=>c.value===null);
-  if(nulls.length>0) return { valid:false, reason:'Faltan celdas por rellenar' };
-  for(let r=0;r<gridSize;r++){
-    let val = currentGrid[r*gridSize].value;
-    for(let c=1;c<gridSize;c++){
-      const cellVal = currentGrid[r*gridSize + c].value;
-      const op = operatorSet[(r + c) % operatorSet.length];
-      if(op === '+') val = val + cellVal;
-      else if(op === '-') val = val - cellVal;
-      else if(op === '*') val = val * cellVal;
-      else if(op === '/'){
-        if(cellVal === 0) return { valid:false, reason:'División por cero' };
-        const res = val / cellVal;
-        if(Math.abs(res - Math.round(res)) > 0.0001) return { valid:false, reason:'División no entera' };
-        val = res;
+    function putProgress(progress) {
+      return new Promise((resolve, reject) => {
+        const store = tx('progress', 'readwrite');
+        const req = store.put(progress);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // ========= Estado de sesión y middleware =========
+    function setSessionUser(username) {
+      sessionStorage.setItem('authUser', username);
+      updateAuthUI();
+    }
+    function getSessionUser() {
+      return sessionStorage.getItem('authUser');
+    }
+    function clearSession() {
+      sessionStorage.removeItem('authUser');
+      updateAuthUI();
+    }
+
+    function guardRoutes() {
+      const isAuthed = Boolean(getSessionUser());
+      document.getElementById('protectedArea').classList.toggle('hidden', !isAuthed);
+      document.getElementById('publicArea').classList.toggle('hidden', isAuthed);
+    }
+
+    function updateAuthUI() {
+      const user = getSessionUser();
+      const userStatus = document.getElementById('userStatus');
+      const logoutBtn = document.getElementById('logoutBtn');
+      const loginBtn = document.getElementById('loginBtn');
+      userStatus.textContent = user ? `Sesión: ${user}` : 'Sin sesión';
+      logoutBtn.classList.toggle('hidden', !user);
+      loginBtn.classList.toggle('hidden', !!user);
+      guardRoutes();
+      if (user) {
+        // Cargar lista de progreso
+        renderProgressList(user);
+      } else {
+        document.getElementById('progressList').innerHTML = '';
       }
     }
-    if(Math.abs(val - Math.round(val)) > 0.0001) return { valid:false, reason:'Resultado no entero en fila ' + (r+1) };
-  }
-  return { valid:true };
-}
 
-document.getElementById('validateBtn').addEventListener('click', ()=>{
-  const res = validatePuzzle();
-  if(res.valid){ currentScore += 100; document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore; runConfetti(); showToast('¡Correcto!'); }
-  else showToast('Incorrecto: ' + res.reason);
-});
+    // ========= Modal de autenticación =========
+    const authModalBackdrop = document.getElementById('authModalBackdrop');
+    const authFeedback = document.getElementById('authFeedback');
 
-/* Export/import helpers attach progress to profile */
-function currentPuzzleState(){ return { level: activeLevel, gridSize, operatorSet, grid: currentGrid, score: currentScore, updatedAt: Date.now() }; }
-function attachProgressToUser(){
-  if(!currentUser) return;
-  const users = readUsers();
-  users[currentUser].profile.progress = currentPuzzleState();
-  users[currentUser].profile.score = currentScore || users[currentUser].profile.score || 0;
-  writeUsers(users);
-}
-function tryLoadProfileProgress(){
-  if(!currentUser) return;
-  const users = readUsers();
-  const p = users[currentUser].profile.progress;
-  if(p && p.level) loadProfileProgress(p);
-}
-function loadProfileProgress(p){
-  if(!p) return;
-  activeLevel = p.level || activeLevel; gridSize = p.gridSize || gridSize; currentGrid = p.grid || currentGrid; currentScore = p.score || currentScore;
-  renderGrid(); document.getElementById('scoreLabel').textContent = 'Puntos: ' + currentScore;
-}
+    function openAuthModal() {
+      authModalBackdrop.style.display = 'flex';
+      authModalBackdrop.setAttribute('aria-hidden', 'false');
+      authFeedback.classList.add('hidden');
+      authFeedback.textContent = '';
+    }
+    function closeAuthModal() {
+      authModalBackdrop.style.display = 'none';
+      authModalBackdrop.setAttribute('aria-hidden', 'true');
+    }
+    function showFeedback(el, msg, type='warn') {
+      el.textContent = msg;
+      el.classList.remove('hidden', 'ok', 'warn', 'err');
+      el.classList.add(type, 'message');
+    }
 
-/* Visuals: confetti + particles (light) */
-const confettiCanvas = document.getElementById('confetti'); confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; const confettiCtx = confettiCanvas.getContext('2d');
-let confettis = []; function runConfetti(){ for(let i=0;i<80;i++) confettis.push({x:Math.random()*innerWidth,y:-20,vx:(Math.random()-0.5)*4,vy:Math.random()*4+2,s:Math.random()*6+4,col:`hsl(${Math.random()*360} 80% 60%)`}); requestAnimationFrame(confettiLoop); setTimeout(()=>confettis=[],3500); }
-function confettiLoop(){ confettiCtx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); for(const p of confettis){ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; confettiCtx.fillStyle=p.col; confettiCtx.fillRect(p.x,p.y,p.s,p.s*0.6); } confettis=confettis.filter(p=>p.y<innerHeight+50); if(confettis.length) requestAnimationFrame(confettiLoop); }
+    // ========= Registro e inicio de sesión =========
+    async function registerLocalUser(username, password) {
+      if (!username || !password) {
+        showFeedback(authFeedback, 'Usuario y contraseña son obligatorios.', 'err');
+        return;
+      }
+      const existing = await getUser(username);
+      if (existing) {
+        showFeedback(authFeedback, 'Ese usuario ya existe. Elige otro o inicia sesión.', 'warn');
+        return;
+      }
+      const passHash = await hashPassword(password);
+      const user = { username, passHash, createdAt: new Date().toISOString() };
+      await putUser(user);
+      // Inicializa progreso vacío
+      await putProgress({ username, levels: [], lastUpdated: new Date().toISOString() });
+      showFeedback(authFeedback, 'Usuario creado. Ya puedes iniciar sesión.', 'ok');
+    }
 
-const particles = document.getElementById('particles'); particles.width = innerWidth; particles.height = innerHeight; const pctx = particles.getContext('2d'); const parts=[]; for(let i=0;i<60;i++) parts.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*2+0.6,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,a:Math.random()});
-function partLoop(){ pctx.clearRect(0,0,particles.width,particles.height); for(const p of parts){ p.x+=p.vx; p.y+=p.vy; p.a+=0.01; if(p.x<-10) p.x=innerWidth+10; if(p.x>innerWidth+10) p.x=-10; if(p.y<-10) p.y=innerHeight+10; if(p.y>innerHeight+10) p.y=-10; pctx.fillStyle=`rgba(155,200,255,${0.06 + Math.abs(Math.sin(p.a))*0.08})`; pctx.beginPath(); pctx.arc(p.x,p.y,p.r,0,Math.PI*2); pctx.fill(); } requestAnimationFrame(partLoop); } partLoop();
+    async function loginLocalUser(username, password) {
+      if (!username || !password) {
+        showFeedback(authFeedback, 'Usuario y contraseña son obligatorios.', 'err');
+        return;
+      }
+      const user = await getUser(username);
+      if (!user) {
+        showFeedback(authFeedback, 'Usuario no encontrado. Regístrate primero.', 'warn');
+        return;
+      }
+      const passHash = await hashPassword(password);
+      if (passHash !== user.passHash) {
+        showFeedback(authFeedback, 'Contraseña incorrecta.', 'err');
+        return;
+      }
+      setSessionUser(username);
+      closeAuthModal();
+    }
 
-/* Level card wiring + startLevel/timer */
-document.querySelectorAll('.level-card').forEach(el => el.addEventListener('click', ()=> { startLevel(el.dataset.level); show('game'); }));
-function startLevel(level){ configureLevel(level); generatePuzzle(level); show('game'); focusedIdx = currentGrid.findIndex(c=>!c.fixed); if(focusedIdx===-1) focusedIdx=null; resetTimer(); startTimer(); }
-let timerInterval = null; function resetTimer(){ clearInterval(timerInterval); startTime = Date.now(); document.getElementById('timer').textContent = '00:00'; }
-function startTimer(){ timerInterval = setInterval(()=>{ const diff = Math.floor((Date.now()-startTime)/1000); const mm = String(Math.floor(diff/60)).padStart(2,'0'); const ss = String(diff%60).padStart(2,'0'); document.getElementById('timer').textContent = `${mm}:${ss}`; }, 500); }
+    // ========= Núcleo de ejercicios matemáticos =========
+    let currentProblem = null;
 
-/* Initialize UI */
-updateSessionUI = updateSessionUI || (function(){});
-updateSessionUI();
-show('menu');
-showToast('CroossMathWeb listo. Crea cuenta local o importa progreso.', 3800);
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-/* Window resize */
-window.addEventListener('resize', ()=>{ particles.width = innerWidth; particles.height = innerHeight; confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; });
+    function generateProblem(level) {
+      if (level === '1') {
+        const a = randInt(0, 10), b = randInt(0, 10);
+        return { text: `${a} + ${b} = ?`, answer: a + b, kind: 'sum' };
+      }
+      if (level === '2') {
+        const a = randInt(10, 50), b = randInt(10, 50);
+        return { text: `${a} + ${b} = ?`, answer: a + b, kind: 'sum' };
+      }
+      // level 3: sumas y restas 0–100
+      const a = randInt(0, 100), b = randInt(0, 100);
+      const op = Math.random() < 0.5 ? '+' : '-';
+      const ans = op === '+' ? a + b : a - b;
+      return { text: `${a} ${op} ${b} = ?`, answer: ans, kind: op === '+' ? 'sum' : 'sub' };
+    }
 
-</script>
+    async function recordAttempt(isCorrect) {
+      const user = getSessionUser();
+      if (!user) return;
+      const level = document.getElementById('levelSelect').value;
+      const progress = await getProgress(user);
+      // Busca nivel
+      const idx = progress.levels.findIndex(l => String(l.id) === String(level));
+      const now = new Date().toISOString();
+      if (idx === -1) {
+        progress.levels.push({ id: level, attempts: 1, correct: isCorrect ? 1 : 0, lastPlayed: now });
+      } else {
+        const l = progress.levels[idx];
+        l.attempts += 1;
+        l.correct += isCorrect ? 1 : 0;
+        l.lastPlayed = now;
+      }
+      progress.lastUpdated = now;
+      await putProgress(progress);
+      renderProgressList(user);
+    }
+
+    async function renderProgressList(username) {
+      const container = document.getElementById('progressList');
+      const progress = await getProgress(username);
+      if (!progress.levels.length) {
+        container.innerHTML = '<div class="message warn">Sin registros aún. Juega y guarda para ver tu histórico.</div>';
+        return;
+      }
+      container.innerHTML = '';
+      progress.levels
+        .sort((a, b) => Number(a.id) - Number(b.id))
+        .forEach(lvl => {
+          const acc = lvl.attempts ? Math.round((lvl.correct / lvl.attempts) * 100) : 0;
+          const div = document.createElement('div');
+          div.className = 'progress-item';
+          div.innerHTML = `
+            <span class="pill">Nivel ${lvl.id}</span>
+            <div class="muted">Intentos: ${lvl.attempts} · Correctos: ${lvl.correct} · Precisión: ${acc}%</div>
+            <span class="kbd">${new Date(lvl.lastPlayed).toLocaleString()}</span>
+          `;
+          container.appendChild(div);
+        });
+    }
+
+    // ========= Guardar, Exportar e Importar progreso =========
+    async function saveProgress() {
+      const user = getSessionUser();
+      if (!user) return;
+      const progressStatus = document.getElementById('progressStatus');
+      const progress = await getProgress(user);
+      progress.lastUpdated = new Date().toISOString();
+      await putProgress(progress);
+      showFeedback(progressStatus, 'Progreso guardado localmente.', 'ok');
+      setTimeout(() => progressStatus.classList.add('hidden'), 1800);
+    }
+
+    async function exportProgress() {
+      const user = getSessionUser();
+      if (!user) return;
+      const progress = await getProgress(user);
+      const payload = {
+        schema: 'croossmathweb.local.v1',
+        user,
+        progress
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const dateStr = new Date().toISOString().replace(/[:.]/g, '-');
+      a.download = `croossmath_progress_${user}_${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      const progressStatus = document.getElementById('progressStatus');
+      showFeedback(progressStatus, 'Exportación completada. Archivo descargado.', 'ok');
+      setTimeout(() => progressStatus.classList.add('hidden'), 2000);
+    }
+
+    async function importProgressFile(file) {
+      const progressStatus = document.getElementById('progressStatus');
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!data || data.schema !== 'croossmathweb.local.v1' || !data.user || !data.progress) {
+          showFeedback(progressStatus, 'Archivo inválido o esquema desconocido.', 'err');
+          return;
+        }
+        const currentUser = getSessionUser();
+        if (!currentUser) {
+          showFeedback(progressStatus, 'Inicia sesión para importar progreso.', 'warn');
+          return;
+        }
+        if (data.user !== currentUser) {
+          showFeedback(progressStatus, 'El archivo pertenece a otro usuario. Usa esa sesión o cambia el nombre en el archivo bajo tu responsabilidad.', 'warn');
+          return;
+        }
+        // Fusión simple: reemplaza progreso existente por importado
+        const imported = data.progress;
+        imported.username = currentUser;
+        imported.lastUpdated = new Date().toISOString();
+        await putProgress(imported);
+        renderProgressList(currentUser);
+        showFeedback(progressStatus, 'Importación exitosa. Histórico actualizado.', 'ok');
+        setTimeout(() => progressStatus.classList.add('hidden'), 2000);
+      } catch (e) {
+        showFeedback(progressStatus, 'Error al importar: archivo corrupto o no válido.', 'err');
+      }
+    }
+
+    // ========= Listeners de UI =========
+    document.getElementById('loginBtn').addEventListener('click', openAuthModal);
+    document.getElementById('getStartedBtn').addEventListener('click', openAuthModal);
+    document.getElementById('closeAuthBtn').addEventListener('click', closeAuthModal);
+    document.getElementById('logoutBtn').addEventListener('click', () => { clearSession(); });
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const u = document.getElementById('usernameInput').value.trim();
+      const p = document.getElementById('passwordInput').value;
+      await registerLocalUser(u, p);
+    });
+    document.getElementById('authLoginBtn').addEventListener('click', async () => {
+      const u = document.getElementById('usernameInput').value.trim();
+      const p = document.getElementById('passwordInput').value;
+      await loginLocalUser(u, p);
+    });
+
+    // Atajo de teclado: Shift+L abre login
+    window.addEventListener('keydown', (e) => {
+      if (e.shiftKey && e.key.toLowerCase() === 'l') openAuthModal();
+    });
+
+    // Ejercicios
+    const exerciseProblem = document.getElementById('exerciseProblem');
+    const answerInput = document.getElementById('answerInput');
+    const exerciseFeedback = document.getElementById('exerciseFeedback');
+
+    document.getElementById('newProblemBtn').addEventListener('click', () => {
+      const level = document.getElementById('levelSelect').value;
+      currentProblem = generateProblem(level);
+      exerciseProblem.textContent = currentProblem.text;
+      exerciseProblem.classList.remove('err', 'ok');
+      exerciseProblem.classList.add('warn');
+      exerciseFeedback.classList.add('hidden');
+      answerInput.value = '';
+      answerInput.focus();
+    });
+
+    document.getElementById('checkAnswerBtn').addEventListener('click', async () => {
+      if (!currentProblem) {
+        exerciseFeedback.classList.remove('hidden');
+        showFeedback(exerciseFeedback, 'Primero genera un problema con “Nuevo”.', 'warn');
+        return;
+      }
+      const val = Number(answerInput.value);
+      if (Number.isNaN(val)) {
+        exerciseFeedback.classList.remove('hidden');
+        showFeedback(exerciseFeedback, 'Ingresa una respuesta válida.', 'err');
+        return;
+      }
+      const correct = val === currentProblem.answer;
+      if (correct) {
+        showFeedback(exerciseFeedback, '¡Correcto! Registrado en tu progreso.', 'ok');
+        await recordAttempt(true);
+      } else {
+        showFeedback(exerciseFeedback, `Incorrecto. La respuesta era ${currentProblem.answer}.`, 'err');
+        await recordAttempt(false);
+      }
+      currentProblem = null;
+      exerciseProblem.classList.remove('warn');
+      exerciseProblem.textContent = 'Presiona “Nuevo” para generar un problema.';
+    });
+
+    // Progreso: guardar, exportar, importar
+    document.getElementById('saveProgressBtn').addEventListener('click', saveProgress);
+    document.getElementById('exportProgressBtn').addEventListener('click', exportProgress);
+    document.getElementById('importFileInput').addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (file) await importProgressFile(file);
+      e.target.value = '';
+    });
+
+    // ========= Inicialización =========
+    (async function init() {
+      await openDB();
+      updateAuthUI();
+    })();
+  </script>
 </body>
 </html>
