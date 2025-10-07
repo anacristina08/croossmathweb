@@ -6,52 +6,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      --bg:#ffffff; --text:#1b2a4a; --muted:#7a8aa6; --blue:#2f7bff; --blue-600:#1f5fe6;
-      --line:#e6eaf2; --green:#19b36b; --red:#e04949; --tile:#ffec99;
-      --shadow:0 6px 20px rgba(31,95,230,0.12); --shadow-soft:0 6px 20px rgba(0,0,0,0.06);
+      --bg:#0b0f1a; --card:#101625; --line:#1c2135;
+      --text:#e6edf3; --muted:#9aa7bd;
+      --blue:#2f7bff; --blue-400:#4c8aff;
+      --green:#22c55e; --red:#ef4444; --yellow:#facc15;
+      --tile:#2a3550; --tile-blank:#f8e77a; --tile-op:#1b2238; --tile-num:#172038;
+      --shadow:0 6px 22px rgba(31,95,230,0.18);
+      --soft:0 6px 22px rgba(0,0,0,0.16);
     }
     *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);background:#fff;}
-    button{appearance:none;border:none;cursor:pointer;font-weight:700;border-radius:12px;padding:12px 16px;transition:filter .15s ease,transform .05s ease;}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% -10%, rgba(29,43,92,0.14), transparent 60%),
+        linear-gradient(180deg, #0b0f1a, #0d1422 60%, #0b0f1a);
+    }
+    a{color:var(--blue);text-decoration:none}
+    button{
+      appearance:none;border:none;cursor:pointer;font-weight:700;border-radius:12px;padding:12px 16px;
+      transition:filter .15s ease, transform .05s ease;
+    }
     button:active{transform:translateY(1px)}
     .btn-blue{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
-    .btn-blue:hover{filter:brightness(1.05)}
-    .btn-outline{background:#fff;color:var(--text);border:1px solid var(--line)}
-    .container{max-width:900px;margin:0 auto;padding:20px}
-    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:10}
-    .brand{font-weight:900}
+    .btn-blue:hover{filter:brightness(1.06)}
+    .btn-outline{background:var(--card);color:var(--text);border:1px solid var(--line)}
+    .btn-ghost{background:transparent;color:var(--text)}
+    .container{max-width:960px;margin:0 auto;padding:20px}
+    header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 16px;border-bottom:1px solid var(--line);background:#0d1322cc; backdrop-filter:blur(8px); position:sticky; top:0; z-index:10;
+    }
+    .brand{font-weight:900;letter-spacing:.2px}
     .userbar{display:flex;align-items:center;gap:8px;color:var(--muted)}
-    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow-soft)}
-    .home-group{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
-    .title-main{ text-align:center;margin:24px 0 12px;font-weight:900;font-size:28px }
-    .home-actions{ display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:560px;margin:0 auto }
 
-    /* HUD + crucigrama */
-    .hud{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:16px 0;background:#fff}
+    /* Home cards */
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:var(--soft);
+    }
+    .home-group{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+    .title-main{text-align:center;margin:24px 0 12px;font-weight:900;font-size:28px}
+    .home-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:0 auto}
+
+    /* HUD + Crucigrama & bank */
+    .hud{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0;
+      background:#0d1422; border:1px solid var(--line); border-radius:14px; padding:10px 12px;
+    }
     .stat{display:flex;align-items:center;gap:8px;color:var(--muted)}
     .stat strong{color:var(--text)}
-    .grid{display:grid;grid-template-columns:repeat(5, 1fr);gap:6px;border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff}
-    .cell{min-height:64px;border-radius:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.2px;text-align:center;padding:6px;position:relative}
-    .cell.op{background:#f6f9ff;color:#2f4b7b}
-    .cell.num{background:#fdfdfd}
-    .cell.blank{background:var(--tile);border-color:#d9a719;outline:2px dashed #d9a719;cursor:pointer}
-    .cell.ok{background:#e9fbf2;border-color:#b9f1d3}
-    .cell.err{background:#ffecec;border-color:#ffc2c2}
-    .eq-label{position:absolute;bottom:4px;right:6px;color:var(--muted);font-size:12px}
 
-    .bank{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;margin-top:12px}
-    .tile{padding:12px;text-align:center;font-weight:900;border-radius:12px;border:1px solid var(--line);background:#f6faff;color:var(--blue);user-select:none}
-    .tile.used{opacity:.35;pointer-events:none}
+    /* Grid 5x5 */
+    .grid{
+      display:grid; grid-template-columns:repeat(5,1fr); gap:8px;
+      background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px;
+    }
+    .cell{
+      min-height:72px; display:flex; align-items:center; justify-content:center;
+      border:1px solid var(--line); border-radius:12px; font-weight:800; font-size:20px; letter-spacing:.2px; text-align:center;
+      background:var(--tile); color:#cfe3ff; position:relative;
+    }
+    .cell.op{ background:var(--tile-op); color:#9fb0d7; }
+    .cell.num{ background:var(--tile-num); color:#e6edf3; }
+    .cell.blank{ background:var(--tile-blank); color:#121212; cursor:pointer; outline:2px dashed #e0c54e; }
+    .cell.ok{ background:#0f5132; color:#eafff2; border-color:#127a4e; }
+    .cell.err{ background:#6f1d1d; color:#ffeaea; border-color:#a32b2b; }
+    .eq-label{position:absolute;bottom:6px;right:8px;color:#9fb0d7;font-weight:700;font-size:12px}
+
+    .bank{
+      display:grid; grid-template-columns:repeat(8,1fr); gap:8px;
+      background:var(--card); border:1px solid var(--line); border-radius:16px; padding:12px; margin-top:12px;
+    }
+    .tile{
+      padding:12px; text-align:center; font-weight:900; border-radius:10px; user-select:none;
+      border:1px solid var(--line); background:#14325e; color:#e6edf3; box-shadow:0 6px 18px rgba(20,50,94,.25);
+    }
+    .tile:hover{ filter:brightness(1.08) }
+    .tile.used{ opacity:.35; pointer-events:none }
+
     .msg{margin-top:8px;font-size:14px;color:var(--muted)}
     .msg.ok{color:var(--green)}
     .msg.err{color:var(--red)}
 
-    /* Modales y overlays */
-    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:100}
-    .modal{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;max-width:520px;box-shadow:var(--shadow-soft)}
-    .input{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;color:var(--text);font-weight:600}
-    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:90}
-    .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;max-width:520px;box-shadow:var(--shadow-soft);text-align:center}
+    /* Modals & overlays */
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100}
+    .modal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;max-width:520px;box-shadow:var(--soft)}
+    .input{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#0d1322;color:var(--text);font-weight:600}
+
+    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);z-index:90}
+    .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;max-width:520px;box-shadow:var(--soft);text-align:center}
   </style>
 </head>
 <body>
@@ -209,14 +253,19 @@
   </div></div>
 
   <script>
-    // Premium Gumroad (real)
+    // Premium (solo se compra Premium, todo lo demás incluido con Premium)
     const GUMROAD_PRODUCT_ID='rnlle';
     const GUMROAD_URL='https://anacristinacz.gumroad.com/l/rnlle';
 
     // Estado global y DB
     let db=null, currentUser=null, premium=false, lives=3, coins=0, elapsed=0, timerInt=null;
     let currentMode='Daily', currentStage=1;
-    let state={grid:[], bank:[], blanks:[], equations:[]}; // crucigrama
+    let selected=null;
+
+    // Crucigrama state
+    // grid[r][c] = {kind:'op'|'num'|'blank'|'empty', text?, id?, value?, solution?}
+    // equations: [{type:'row'|'col', cells:[{r,c}], ops:[...], target:..., label?}]
+    let state={ grid:[], bank:[], blanks:[], equations:[] };
 
     // IndexedDB
     const DB_NAME='crossmath-local', DB_VERSION=1;
@@ -240,165 +289,138 @@
     function putProgress(p){return new Promise((res,rej)=>{const q=store('progress','readwrite').put(p);q.onsuccess=()=>res(true);q.onerror=()=>rej(q.error)})}
     function getMeta(u){return new Promise((res,rej)=>{const q=store('meta').get(u);q.onsuccess=()=>res(q.result||{username:u,premium:false,coins:0,lives:3,sound:true,lang:(navigator.language||'es').slice(0,2)});q.onerror=()=>rej(q.error)})}
     function putMeta(m){return new Promise((res,rej)=>{const q=store('meta','readwrite').put(m);q.onsuccess=()=>res(true);q.onerror=()=>rej(q.error)})}
-
-    // Utils
-    async function hashPassword(p){const enc=new TextEncoder();const d=enc.encode(p);const dig=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+    // Utilidades
+    async function hashPassword(p){
+      const enc=new TextEncoder();const d=enc.encode(p);
+      const dig=await crypto.subtle.digest('SHA-256',d);
+      return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
     function fmtDate(d){return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
-    function fmtTime(sec){const m=String(Math.floor(sec/60)).padStart(2,'0');const s=String(sec%60).padStart(2,'0');return `${m}:${s}`}
-    function startTimer(){stopTimer();elapsed=0;document.getElementById('hudTime').textContent=fmtTime(elapsed);timerInt=setInterval(()=>{elapsed++;document.getElementById('hudTime').textContent=fmtTime(elapsed)},1000)}
+    function fmtTime(sec){
+      const m=String(Math.floor(sec/60)).padStart(2,'0');
+      const s=String(sec%60).padStart(2,'0');
+      return `${m}:${s}`;
+    }
+    function startTimer(){
+      stopTimer();elapsed=0;
+      document.getElementById('hudTime').textContent=fmtTime(elapsed);
+      timerInt=setInterval(()=>{
+        elapsed++;
+        document.getElementById('hudTime').textContent=fmtTime(elapsed);
+      },1000);
+    }
     function stopTimer(){if(timerInt){clearInterval(timerInt);timerInt=null}}
 
-    // generatePuzzle: crucigrama 5x5 con cruce horizontal y vertical
-    // Representación:
-    // - grid[r][c] = {kind:'op'|'num'|'blank', text, value?, id?}
-    // - equations: [{type:'row'|'col', cells:[{r,c}], ops:['+','-','×','÷'], target:number, label?}]
-    function generatePuzzle(mode){
-      // Plantilla base 5x5 (visible):
-      // Filas visibles con ecuación:
-      // Row 0: □ + □ = 8
-      // Row 2: □ - □ = 2
-      // Row 4: 6 ÷ □ = 3
-      // Operadores y símbolos colocados; el resto celdas vacías o separadores.
-      const grid = Array.from({length:5},()=>Array.from({length:5},()=>({kind:'empty',text:''})));
-      // Row 0
-      grid[0][0]={kind:'blank', text:'□', id:'r0c0'};
-      grid[0][1]={kind:'op', text:'+'};
-      grid[0][2]={kind:'blank', text:'□', id:'r0c2'};
-      grid[0][3]={kind:'op', text:'='};
-      grid[0][4]={kind:'num', text:'8'};
-      // Row 2
-      grid[2][0]={kind:'blank', text:'□', id:'r2c0'};
-      grid[2][1]={kind:'op', text:'-'};
-      grid[2][2]={kind:'blank', text:'□', id:'r2c2'};
-      grid[2][3]={kind:'op', text:'='};
-      grid[2][4]={kind:'num', text:'2'};
-      // Row 4
-      grid[4][0]={kind:'num', text:'6'};
-      grid[4][1]={kind:'op', text:'÷'};
-      grid[4][2]={kind:'blank', text:'□', id:'r4c2'};
-      grid[4][3]={kind:'op', text:'='};
-      grid[4][4]={kind:'num', text:'3'};
+    // Generador de crucigrama fijo 5x5
+    function generatePuzzle(){
+      const g=Array.from({length:5},()=>Array.from({length:5},()=>({kind:'empty',text:''})));
+      // Fila 0: 3+5=8
+      g[0][0]={kind:'blank',id:'a',text:'□'};
+      g[0][1]={kind:'op',text:'+'};
+      g[0][2]={kind:'blank',id:'b',text:'□'};
+      g[0][3]={kind:'op',text:'='};
+      g[0][4]={kind:'num',text:'8'};
+      // Fila 2: 7-5=2
+      g[2][0]={kind:'blank',id:'c',text:'□'};
+      g[2][1]={kind:'op',text:'-'};
+      g[2][2]={kind:'blank',id:'d',text:'□'};
+      g[2][3]={kind:'op',text:'='};
+      g[2][4]={kind:'num',text:'2'};
+      // Fila 4: 6÷2=3
+      g[4][0]={kind:'num',text:'6'};
+      g[4][1]={kind:'op',text:'÷'};
+      g[4][2]={kind:'blank',id:'e',text:'□'};
+      g[4][3]={kind:'op',text:'='};
+      g[4][4]={kind:'num',text:'3'};
 
-      // Vertical (no visibles, pero validados):
-      // Col 0: r0c0 × r2c0 = 21 (3×7)
-      // Col 2: r0c2 + r2c2 + r4c2 = 12 (5+5+2)
-      const equations = [
-        { type:'row', cells:[{r:0,c:0},{r:0,c:2}], ops:['+'], target:8, label:'=8' },
-        { type:'row', cells:[{r:2,c:0},{r:2,c:2}], ops:['-'], target:2, label:'=2' },
-        { type:'row', cells:[{r:4,c:2}], ops:['div-from-left'], target: {left:6, right:3}, label:'6÷□=3' },
+      const solutions={a:3,b:5,c:7,d:5,e:2};
 
-        { type:'col', cells:[{r:0,c:0},{r:2,c:0}], ops:['×'], target:21, label:'' },
-        { type:'col', cells:[{r:0,c:2},{r:2,c:2},{r:4,c:2}], ops:['+','+'], target:12, label:'' }
+      const equations=[
+        {type:'row',cells:[{r:0,c:0},{r:0,c:2}],ops:['+'],target:8},
+        {type:'row',cells:[{r:2,c:0},{r:2,c:2}],ops:['-'],target:2},
+        {type:'row',cells:[{r:4,c:2}],ops:['div-left'],target:{left:6,right:3}},
+        {type:'col',cells:[{r:0,c:0},{r:2,c:0}],ops:['×'],target:21},
+        {type:'col',cells:[{r:0,c:2},{r:2,c:2},{r:4,c:2}],ops:['+','+'],target:12}
       ];
 
-      // Soluciones destino (consistentes con ambas direcciones)
-      const solutions = {
-        r0c0: 3,
-        r0c2: 5,
-        r2c0: 7,
-        r2c2: 5,
-        r4c2: 2
-      };
-
-      // Banco de números: agrega los necesarios y relleno
-      const bankSet = new Set(Object.values(solutions));
-      while (bankSet.size < 12) {
-        const n = Math.floor(Math.random()*40)+1;
-        bankSet.add(n);
-      }
-      const bank = Array.from(bankSet).sort((a,b)=>a-b);
-
-      // Blanks array para facilitar acceso
-      const blanks = [];
-      for (let r=0;r<5;r++){
-        for (let c=0;c<5;c++){
-          const cell = grid[r][c];
+      const blanks=[];
+      for(let r=0;r<5;r++){
+        for(let c=0;c<5;c++){
+          const cell=g[r][c];
           if(cell.kind==='blank'){
             cell.value=null;
-            cell.solution = solutions[`r${r}c${c}`] ?? null;
+            cell.solution=solutions[cell.id];
             blanks.push({r,c,id:cell.id});
           }
         }
       }
-      return { grid, bank, blanks, equations };
+
+      const bankSet=new Set(Object.values(solutions));
+      while(bankSet.size<12){bankSet.add(Math.floor(Math.random()*30)+1);}
+      const bank=Array.from(bankSet).sort((a,b)=>a-b);
+
+      return {grid:g,bank,blanks,equations};
     }
 
-    // Validación de ecuaciones: evalúa horizontales y verticales que involucren la celda
-    function evalEquation(eq, grid){
-      const vals = eq.cells.map(pos=>{
-        const cell = grid[pos.r][pos.c];
-        return cell.value;
-      });
-      // Si hay blanks sin valor, no evaluar aún
-      if (vals.some(v=>v==null)) return {ready:false, ok:false};
-      if (eq.type==='row'){
-        // 'div-from-left' especial: left ÷ val = right
-        if (eq.ops[0]==='div-from-left'){
-          const v = vals[0];
-          return {ready:true, ok: (eq.target.left / v) === eq.target.right};
+    function evalEquation(eq,grid){
+      const vals=eq.cells.map(pos=>grid[pos.r][pos.c].value);
+      if(vals.some(v=>v==null)) return {ready:false,ok:false};
+      if(eq.type==='row'){
+        if(eq.ops[0]==='div-left'){
+          const v=vals[0];
+          return {ready:true,ok:(eq.target.left/v)===eq.target.right};
         }
-        // binaria: + o -
-        let acc = vals[0];
+        let acc=vals[0];
         for(let i=0;i<eq.ops.length;i++){
-          const op=eq.ops[i];
-          const next=vals[i+1];
-          if(op==='+') acc = acc + next;
-          else if(op==='-') acc = acc - next;
-          else if(op==='×') acc = acc * next;
-          else if(op==='÷') acc = acc / next;
+          const op=eq.ops[i],next=vals[i+1];
+          if(op==='+') acc+=next;
+          else if(op==='-') acc-=next;
+          else if(op==='×') acc*=next;
+          else if(op==='÷') acc/=next;
         }
-        return {ready:true, ok: acc === eq.target};
+        return {ready:true,ok:acc===eq.target};
       }else{
-        // columna: eval secuencial
-        let acc = vals[0];
+        let acc=vals[0];
         for(let i=0;i<eq.ops.length;i++){
-          const op=eq.ops[i];
-          const next=vals[i+1];
-          if(op==='+') acc = acc + next;
-          else if(op==='-') acc = acc - next;
-          else if(op==='×') acc = acc * next;
-          else if(op==='÷') acc = acc / next;
+          const op=eq.ops[i],next=vals[i+1];
+          if(op==='+') acc+=next;
+          else if(op==='-') acc-=next;
+          else if(op==='×') acc*=next;
+          else if(op==='÷') acc/=next;
         }
-        return {ready:true, ok: acc === eq.target};
+        return {ready:true,ok:acc===eq.target};
       }
     }
 
-    // Render crucigrama
     function renderPuzzle(){
-      const gridEl = document.getElementById('puzzleGrid');
-      const bankEl = document.getElementById('numberBank');
-      const msgEl = document.getElementById('gameMsg');
+      const gridEl=document.getElementById('puzzleGrid');
+      const bankEl=document.getElementById('numberBank');
+      const msgEl=document.getElementById('gameMsg');
       gridEl.innerHTML=''; bankEl.innerHTML=''; msgEl.textContent='';
 
-      // Render grid
       for(let r=0;r<5;r++){
         for(let c=0;c<5;c++){
-          const cell = state.grid[r][c];
-          const el = document.createElement('div');
-          el.className = 'cell';
-          if(cell.kind==='op'){ el.classList.add('op'); el.textContent = cell.text; }
-          else if(cell.kind==='num'){ el.classList.add('num'); el.textContent = cell.text; }
+          const cell=state.grid[r][c];
+          const el=document.createElement('div');
+          el.className='cell';
+          if(cell.kind==='op'){el.classList.add('op');el.textContent=cell.text;}
+          else if(cell.kind==='num'){el.classList.add('num');el.textContent=cell.text;}
           else if(cell.kind==='blank'){
             el.classList.add('blank');
-            el.textContent = cell.value==null ? '□' : String(cell.value);
-            el.addEventListener('click', ()=>{ selected = {r,c}; highlightSelection(r,c); });
-          } else {
-            el.textContent = '';
-          }
-          // Etiquetas visibles en filas para referencia
-          if (r===0 && c===4) { const lab=document.createElement('div'); lab.className='eq-label'; lab.textContent='=8'; el.appendChild(lab); }
-          if (r===2 && c===4) { const lab=document.createElement('div'); lab.className='eq-label'; lab.textContent='=2'; el.appendChild(lab); }
-          if (r===4 && c===4) { const lab=document.createElement('div'); lab.className='eq-label'; lab.textContent='=3'; el.appendChild(lab); }
+            el.textContent=cell.value==null?'□':String(cell.value);
+            el.addEventListener('click',()=>{selected={r,c};highlightSelection(r,c);});
+          }else{el.textContent='';}
+          if(r===0&&c===4){const lab=document.createElement('div');lab.className='eq-label';lab.textContent='=8';el.appendChild(lab);}
+          if(r===2&&c===4){const lab=document.createElement('div');lab.className='eq-label';lab.textContent='=2';el.appendChild(lab);}
+          if(r===4&&c===4){const lab=document.createElement('div');lab.className='eq-label';lab.textContent='=3';el.appendChild(lab);}
           gridEl.appendChild(el);
         }
       }
 
-      // Render bank
       state.bank.forEach(n=>{
         const t=document.createElement('div');
-        t.className='tile';
-        t.textContent = n;
-        t.addEventListener('click', ()=> placeNumber(n));
+        t.className='tile';t.textContent=n;
+        t.addEventListener('click',()=>placeNumber(n));
         bankEl.appendChild(t);
       });
     }
@@ -406,295 +428,208 @@
     function highlightSelection(sr,sc){
       const gridEl=document.getElementById('puzzleGrid');
       [...gridEl.children].forEach((el,i)=>{
-        const r=Math.floor(i/5), c=i%5;
-        if(r===sr && c===sc) el.style.outline='2px solid '+ '#1f5fe6';
-        else {
+        const r=Math.floor(i/5),c=i%5;
+        if(r===sr&&c===sc) el.style.outline='2px solid #4c8aff';
+        else{
           const cell=state.grid[r][c];
-          el.style.outline = cell.kind==='blank' ? '2px dashed #9aa7bd' : 'none';
+          el.style.outline=cell.kind==='blank'?'2px dashed #3a4a7c':'none';
         }
       });
     }
 
-    let selected=null;
     function placeNumber(n){
-      const msgEl = document.getElementById('gameMsg');
-      if(!selected){ msgEl.textContent='Selecciona una casilla'; msgEl.className='msg err'; return; }
-      const {r,c} = selected;
-      const cell = state.grid[r][c];
+      const msgEl=document.getElementById('gameMsg');
+      if(!selected){msgEl.textContent='Selecciona una casilla';msgEl.className='msg err';return;}
+      const {r,c}=selected;
+      const cell=state.grid[r][c];
       if(cell.kind!=='blank') return;
-      // Asignar
-      cell.value = n;
+      cell.value=n;
       renderPuzzle();
-      // Validar ecuaciones que involucran (r,c)
-      const related = state.equations.filter(eq => eq.cells.some(pos => pos.r===r && pos.c===c));
-      let allReadyOk = true, anyReadyBad = false;
+      const related=state.equations.filter(eq=>eq.cells.some(pos=>pos.r===r&&pos.c===c));
+      let anyBad=false;
       for(const eq of related){
-        const res = evalEquation(eq, state.grid);
-        if (res.ready && !res.ok) { anyReadyBad = true; break; }
-        if (!res.ready) allReadyOk = false;
+        const res=evalEquation(eq,state.grid);
+        if(res.ready&&!res.ok){anyBad=true;break;}
       }
       const gridEl=document.getElementById('puzzleGrid');
-      const idx=r*5+c;
-      const cellEl=gridEl.children[idx];
+      const idx=r*5+c;const cellEl=gridEl.children[idx];
       cellEl.classList.remove('ok','err');
-      if(anyReadyBad){
+      if(anyBad){
         cellEl.classList.add('err');
-        msgEl.textContent=`Incorrecto para el cruce.`;
-        msgEl.className='msg err';
+        msgEl.textContent='Incorrecto para el cruce.';msgEl.className='msg err';
         loseLife();
       }else{
         cellEl.classList.add('ok');
-        msgEl.textContent='¡Correcto!';
-        msgEl.className='msg ok';
-        saveHUD();
-        checkCompletion();
-      }
-      selected=null; highlightSelection(-1,-1);
-      // Marcar bank tile usado (primera coincidencia)
-      const bankEl=document.getElementById('numberBank');
-      const btn=[...bankEl.children].find(t=>Number(t.textContent)===n && !t.classList.contains('used'));
-      if(btn) btn.classList.add('used');
+        msgEl.textContent='
+           // Utilidades
+    async function hashPassword(p){
+      const enc=new TextEncoder();const d=enc.encode(p);
+      const dig=await crypto.subtle.digest('SHA-256',d);
+      return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
+    function fmtDate(d){return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
+    function fmtTime(sec){
+      const m=String(Math.floor(sec/60)).padStart(2,'0');
+      const s=String(sec%60).padStart(2,'0');
+      return `${m}:${s}`;
+    }
+    function startTimer(){
+      stopTimer();elapsed=0;
+      document.getElementById('hudTime').textContent=fmtTime(elapsed);
+      timerInt=setInterval(()=>{
+        elapsed++;
+        document.getElementById('hudTime').textContent=fmtTime(elapsed);
+      },1000);
+    }
+    function stopTimer(){if(timerInt){clearInterval(timerInt);timerInt=null}}
 
-    async function checkCompletion(){
-      // Completado si todos los blanks tienen valor y todas ecuaciones evalúan true
-      const allBlanksFilled = state.blanks.every(b=> state.grid[b.r][b.c].value!=null );
-      if(!allBlanksFilled) return;
-      for(const eq of state.equations){
-        const res = evalEquation(eq, state.grid);
-        if(!res.ready || !res.ok) return;
-      }
-      // Todo correcto
-      stopTimer();
-      const score = Math.max(1000 - elapsed*5, 100);
-      document.getElementById('finalScore').textContent=String(score);
-      // Progreso
-      if(currentUser){
-        const prog=await getProgress(currentUser);
-        prog.scores.push({mode:currentMode,stage:currentStage,score,time:elapsed,at:new Date().toISOString()});
-        if(currentMode==='Endless' && score > (prog.endlessBest||0)) prog.endlessBest = score;
-        if(currentMode==='Daily' && score > (prog.dailyBest||0)) prog.dailyBest = score;
-        if(currentMode==='Expert'){ const ex=prog.expert||{}; ex[currentStage]=Math.max(ex[currentStage]||0, score); prog.expert=ex; }
-        prog.lastSaved={mode:currentMode,stage:currentStage};
-        await putProgress(prog);
-      }
-      coins += 20; await saveHUD();
-      document.getElementById('completeOverlay').style.display='flex';
-    }
+    // Generador de crucigrama fijo 5x5
+    function generatePuzzle(){
+      const g=Array.from({length:5},()=>Array.from({length:5},()=>({kind:'empty',text:''})));
+      // Fila 0: 3+5=8
+      g[0][0]={kind:'blank',id:'a',text:'□'};
+      g[0][1]={kind:'op',text:'+'};
+      g[0][2]={kind:'blank',id:'b',text:'□'};
+      g[0][3]={kind:'op',text:'='};
+      g[0][4]={kind:'num',text:'8'};
+      // Fila 2: 7-5=2
+      g[2][0]={kind:'blank',id:'c',text:'□'};
+      g[2][1]={kind:'op',text:'-'};
+      g[2][2]={kind:'blank',id:'d',text:'□'};
+      g[2][3]={kind:'op',text:'='};
+      g[2][4]={kind:'num',text:'2'};
+      // Fila 4: 6÷2=3
+      g[4][0]={kind:'num',text:'6'};
+      g[4][1]={kind:'op',text:'÷'};
+      g[4][2]={kind:'blank',id:'e',text:'□'};
+      g[4][3]={kind:'op',text:'='};
+      g[4][4]={kind:'num',text:'3'};
 
-    async function loseLife(){
-      lives = Math.max(0, lives-1);
-      await saveHUD();
-      if(lives<=0){
-        stopTimer();
-        document.getElementById('gameOverOverlay').style.display='flex';
-      }
-    }
-    async function saveHUD(){
-      if(!currentUser) return;
-      const meta=await getMeta(currentUser);
-      meta.coins=coins; meta.lives=lives;
-      await putMeta(meta);
-      updateHUD();
-    }
-    function updateHUD(){
-      document.getElementById('hudLives').textContent=lives;
-      document.getElementById('hudCoins').textContent=coins;
-    }
+      const solutions={a:3,b:5,c:7,d:5,e:2};
 
-    // Navegación y juego
-    function show(el){ ['homeScreen','levelSelectScreen','gameScreen'].forEach(id=>{document.getElementById(id).style.display='none'}); el.style.display='block' }
-    async function startGameSession(){
-      if(!currentUser){ authBackdrop.style.display='flex'; return; }
-      // Cargar meta
-      const meta=await getMeta(currentUser);
-      lives = meta.lives ?? 3; coins = meta.coins ?? 0; premium = !!meta.premium;
-      // Enforce premium para Expert
-      if(currentMode==='Expert' && !premium){
-        alert('Requiere Premium.');
-        show(document.getElementById('homeScreen'));
-        return;
-      }
-      // Generar crucigrama
-      state = generatePuzzle(currentMode);
-      renderPuzzle();
-      document.getElementById('hudMode').textContent=currentMode;
-      startTimer();
-      show(document.getElementById('gameScreen'));
-      // Guardar última sesión
-      const prog=await getProgress(currentUser);
-      prog.lastSaved={mode:currentMode,stage:currentStage};
-      await putProgress(prog);
-      await refreshHome();
-    }
+      const equations=[
+        {type:'row',cells:[{r:0,c:0},{r:0,c:2}],ops:['+'],target:8},
+        {type:'row',cells:[{r:2,c:0},{r:2,c:2}],ops:['-'],target:2},
+        {type:'row',cells:[{r:4,c:2}],ops:['div-left'],target:{left:6,right:3}},
+        {type:'col',cells:[{r:0,c:0},{r:2,c:0}],ops:['×'],target:21},
+        {type:'col',cells:[{r:0,c:2},{r:2,c:2},{r:4,c:2}],ops:['+','+'],target:12}
+      ];
 
-    // HOME y Level Select
-    async function refreshHome(){
-      document.getElementById('dailyDate').textContent=fmtDate(new Date());
-      if(currentUser){
-        const prog=await getProgress(currentUser);
-        const meta=await getMeta(currentUser);
-        document.getElementById('endlessBest').textContent=prog.endlessBest||0;
-        coins=meta.coins; lives=meta.lives; premium=meta.premium;
-        document.getElementById('profileInfo').textContent=`Usuario: ${currentUser} · Premium: ${premium?'Sí':'No'} · Vidas: ${lives} · Monedas: ${coins}`;
-        document.getElementById('continueBtn').style.display = prog.lastSaved ? 'inline-block':'none';
-      }else{
-        document.getElementById('endlessBest').textContent=0;
-        document.getElementById('continueBtn').style.display='none';
-        document.getElementById('profileInfo').textContent='Inicia sesión para ver tu estado.';
-      }
-    }
-    function renderLevelGrid(){
-      const lg=document.getElementById('levelGrid'); lg.innerHTML='';
-      for(let i=1;i<=15;i++){
-        const c=document.createElement('button'); c.className='btn-outline'; c.textContent=String(i);
-        c.addEventListener('click', async()=>{ currentMode='Expert'; currentStage=i; await startGameSession(); });
-        lg.appendChild(c);
-      }
-    }
-
-    // Gumroad licencia
-    async function verifyGumroadLicense(license){
-      if(!currentUser) return {ok:false,msg:'Sin sesión'};
-      if(!license) return {ok:false,msg:'Ingresa licencia válida.'};
-      try{
-        const body=new URLSearchParams({product_id:GUMROAD_PRODUCT_ID,license_key:license});
-        const resp=await fetch('https://gumroad.com/api/v2/licenses/verify',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
-        const data=await resp.json();
-        if(data && data.success){
-          const meta=await getMeta(currentUser);
-          meta.premium=true; await putMeta(meta);
-          return {ok:true,msg:'Licencia verificada. Premium activado.'};
-        }else{
-          return {ok:false,msg:(data && data.message)?data.message:'No se pudo verificar la licencia.'};
+      const blanks=[];
+      for(let r=0;r<5;r++){
+        for(let c=0;c<5;c++){
+          const cell=g[r][c];
+          if(cell.kind==='blank'){
+            cell.value=null;
+            cell.solution=solutions[cell.id];
+            blanks.push({r,c,id:cell.id});
+          }
         }
-      }catch(e){
-        return {ok:false,msg:'Error de red al verificar la licencia.'};
+      }
+
+      const bankSet=new Set(Object.values(solutions));
+      while(bankSet.size<12){bankSet.add(Math.floor(Math.random()*30)+1);}
+      const bank=Array.from(bankSet).sort((a,b)=>a-b);
+
+      return {grid:g,bank,blanks,equations};
+    }
+
+    function evalEquation(eq,grid){
+      const vals=eq.cells.map(pos=>grid[pos.r][pos.c].value);
+      if(vals.some(v=>v==null)) return {ready:false,ok:false};
+      if(eq.type==='row'){
+        if(eq.ops[0]==='div-left'){
+          const v=vals[0];
+          return {ready:true,ok:(eq.target.left/v)===eq.target.right};
+        }
+        let acc=vals[0];
+        for(let i=0;i<eq.ops.length;i++){
+          const op=eq.ops[i],next=vals[i+1];
+          if(op==='+') acc+=next;
+          else if(op==='-') acc-=next;
+          else if(op==='×') acc*=next;
+          else if(op==='÷') acc/=next;
+        }
+        return {ready:true,ok:acc===eq.target};
+      }else{
+        let acc=vals[0];
+        for(let i=0;i<eq.ops.length;i++){
+          const op=eq.ops[i],next=vals[i+1];
+          if(op==='+') acc+=next;
+          else if(op==='-') acc-=next;
+          else if(op==='×') acc*=next;
+          else if(op==='÷') acc/=next;
+        }
+        return {ready:true,ok:acc===eq.target};
       }
     }
 
-    // Eventos UI
-    document.getElementById('loginOpenBtn').addEventListener('click',()=>{ document.getElementById('authBackdrop').style.display='flex'; });
-    document.getElementById('closeAuthBtn').addEventListener('click',()=>{ document.getElementById('authBackdrop').style.display='none'; });
-    document.getElementById('registerBtn').addEventListener('click',async()=>{
-      const u=document.getElementById('authUser').value.trim(); const p=document.getElementById('authPass').value;
-      const msg=document.getElementById('authMsg');
-      if(!u||!p){msg.textContent='Usuario/contraseña requeridos';msg.className='msg err';return;}
-      if(await getUser(u)){msg.textContent='Usuario ya existe';msg.className='msg err';return;}
-      const ph=await hashPassword(p);
-      await putUser({username:u,passHash:ph,createdAt:new Date().toISOString()});
-      await putProgress({username:u,dailyBest:0,endlessBest:0,expert:{},lastSaved:null,scores:[]});
-      const demo = u.toLowerCase()==='premium_demo@crossmath.com';
-      await putMeta({username:u,premium:demo,coins:demo?999:0,lives:3,sound:true,lang:(navigator.language||'es').slice(0,2)});
-      msg.textContent='Usuario creado. Inicia sesión.'; msg.className='msg ok';
-    });
-    document.getElementById('loginBtnModal').addEventListener('click',async()=>{
-      const u=document.getElementById('authUser').value.trim(); const p=document.getElementById('authPass').value;
-      const msg=document.getElementById('authMsg');
-      if(!u||!p){msg.textContent='Usuario/contraseña requeridos';msg.className='msg err';return;}
-      const user=await getUser(u);
-      if(!user){msg.textContent='Usuario no encontrado';msg.className='msg err';return;}
-      const ph=await hashPassword(p);
-      if(ph!==user.passHash){msg.textContent='Contraseña incorrecta';msg.className='msg err';return;}
-      currentUser=u; document.getElementById('userStatus').textContent=`Sesión: ${u}`;
-      document.getElementById('logoutBtn').style.display='inline-block';
-      document.getElementById('authBackdrop').style.display='none';
-      await refreshHome();
-    });
-    document.getElementById('logoutBtn').addEventListener('click',async()=>{
-      currentUser=null; premium=false; lives=3; coins=0;
-      document.getElementById('userStatus').textContent='Sin sesión';
-      document.getElementById('logoutBtn').style.display='none';
-      await refreshHome();
-    });
+    function renderPuzzle(){
+      const gridEl=document.getElementById('puzzleGrid');
+      const bankEl=document.getElementById('numberBank');
+      const msgEl=document.getElementById('gameMsg');
+      gridEl.innerHTML=''; bankEl.innerHTML=''; msgEl.textContent='';
 
-    document.getElementById('playDailyBtn').addEventListener('click',async()=>{ if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;} currentMode='Daily'; currentStage=1; await startGameSession(); });
-    document.getElementById('playEndlessBtn').addEventListener('click',async()=>{ if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;} currentMode='Endless'; currentStage=1; await startGameSession(); });
-    document.getElementById('newGameBtn').addEventListener('click',async()=>{
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      const meta=await getMeta(currentUser);
-      if(meta.premium){ renderLevelGrid(); show(document.getElementById('levelSelectScreen')); }
-      else { currentMode='Daily'; currentStage=1; await startGameSession(); }
-    });
-    document.getElementById('continueBtn').addEventListener('click',async()=>{
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      const prog=await getProgress(currentUser);
-      if(prog.lastSaved){ currentMode=prog.lastSaved.mode; currentStage=prog.lastSaved.stage||1; await startGameSession(); }
-    });
-    document.getElementById('backHomeBtn').addEventListener('click',()=> show(document.getElementById('homeScreen')));
-
-    // HUD juego
-    document.getElementById('pauseBtn').addEventListener('click',()=>{ document.getElementById('pauseOverlay').style.display='flex'; stopTimer(); });
-    document.getElementById('resumeBtn').addEventListener('click',()=>{ document.getElementById('pauseOverlay').style.display='none'; startTimer(); });
-    document.getElementById('restartBtn').addEventListener('click',async()=>{ await startGameSession(); });
-    document.getElementById('restartFromPauseBtn').addEventListener('click',async()=>{ document.getElementById('pauseOverlay').style.display='none'; await startGameSession(); });
-    document.getElementById('exitBtn').addEventListener('click',()=>{ stopTimer(); show(document.getElementById('homeScreen')); });
-    document.getElementById('exitFromPauseBtn').addEventListener('click',()=>{ document.getElementById('pauseOverlay').style.display='none'; stopTimer(); show(document.getElementById('homeScreen')); });
-
-    document.getElementById('continueAfterCompleteBtn').addEventListener('click',async()=>{
-      document.getElementById('completeOverlay').style.display='none';
-      if(currentMode==='Endless'){ await startGameSession(); } else { show(document.getElementById('homeScreen')); }
-    });
-    document.getElementById('replayBtn').addEventListener('click',async()=>{ document.getElementById('completeOverlay').style.display='none'; await startGameSession(); });
-    document.getElementById('retryBtn').addEventListener('click',async()=>{ document.getElementById('gameOverOverlay').style.display='none'; lives=3; await saveHUD(); await startGameSession(); });
-    document.getElementById('goHomeBtn').addEventListener('click',()=>{ document.getElementById('gameOverOverlay').style.display='none'; show(document.getElementById('homeScreen')); });
-
-    // Tienda Premium
-    document.getElementById('buyPremiumBtn').addEventListener('click',()=> window.open(GUMROAD_URL,'_blank'));
-    document.getElementById('verifyLicenseBtn').addEventListener('click',async()=>{
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      const lic=document.getElementById('gumroadLicenseInput').value.trim();
-      const res=await verifyGumroadLicense(lic);
-      alert(res.msg); await refreshHome();
-    });
-
-    // Portabilidad
-    document.getElementById('exportBtn').addEventListener('click',async()=>{
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      const prog=await getProgress(currentUser); const meta=await getMeta(currentUser);
-      const payload={schema:'crossmath.local.v1', user:currentUser, progress:prog, meta:meta};
-      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a');
-      a.href=url; a.download=`crossmath_${currentUser}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    });
-    document.getElementById('importInput').addEventListener('change',async(e)=>{
-      const f=e.target.files?.[0]; if(!f) return;
-      const txt=await f.text(); let data;
-      try{ data=JSON.parse(txt); }catch{ alert('Archivo inválido'); return; }
-      if(!data || data.schema!=='crossmath.local.v1'){ alert('Esquema desconocido'); return; }
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      if(data.user!==currentUser){ alert('Archivo de otro usuario'); return; }
-      await putProgress(Object.assign({},data.progress,{username:currentUser}));
-      await putMeta(Object.assign({},data.meta,{username:currentUser}));
-      alert('Importación exitosa'); await refreshHome(); e.target.value='';
-    });
-
-    // Ajustes
-    document.getElementById('toggleSoundBtn').addEventListener('click',async()=>{
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      const meta=await getMeta(currentUser); meta.sound=!meta.sound; await putMeta(meta);
-      document.getElementById('toggleSoundBtn').textContent=`Sonido: ${meta.sound?'ON':'OFF'}`;
-    });
-    document.getElementById('langSelect').addEventListener('change',async(e)=>{
-      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
-      const meta=await getMeta(currentUser); meta.lang=e.target.value; await putMeta(meta);
-      // UI minimal: las etiquetas principales ya están en ES/EN; aquí podrías aplicar i18n ampliado si lo deseas.
-    });
-
-    // Init
-    (async function init(){
-      await openDB();
-      // Precrear demo premium
-      if(!(await getUser('premium_demo@crossmath.com'))){
-        const ph=await hashPassword('demo123');
-        await putUser({username:'premium_demo@crossmath.com',passHash:ph,createdAt:new Date().toISOString()});
-        await putProgress({username:'premium_demo@crossmath.com',dailyBest:0,endlessBest:0,expert:{},lastSaved:null,scores:[]});
-        await putMeta({username:'premium_demo@crossmath.com',premium:true,coins:999,lives:5,sound:true,lang:(navigator.language||'es').slice(0,2)});
+      for(let r=0;r<5;r++){
+        for(let c=0;c<5;c++){
+          const cell=state.grid[r][c];
+          const el=document.createElement('div');
+          el.className='cell';
+          if(cell.kind==='op'){el.classList.add('op');el.textContent=cell.text;}
+          else if(cell.kind==='num'){el.classList.add('num');el.textContent=cell.text;}
+          else if(cell.kind==='blank'){
+            el.classList.add('blank');
+            el.textContent=cell.value==null?'□':String(cell.value);
+            el.addEventListener('click',()=>{selected={r,c};highlightSelection(r,c);});
+          }else{el.textContent='';}
+          if(r===0&&c===4){const lab=document.createElement('div');lab.className='eq-label';lab.textContent='=8';el.appendChild(lab);}
+          if(r===2&&c===4){const lab=document.createElement('div');lab.className='eq-label';lab.textContent='=2';el.appendChild(lab);}
+          if(r===4&&c===4){const lab=document.createElement('div');lab.className='eq-label';lab.textContent='=3';el.appendChild(lab);}
+          gridEl.appendChild(el);
+        }
       }
-      document.getElementById('dailyDate').textContent=fmtDate(new Date());
-      await refreshHome();
-    })();
-  </script>
-</body>
-</html>
+
+      state.bank.forEach(n=>{
+        const t=document.createElement('div');
+        t.className='tile';t.textContent=n;
+        t.addEventListener('click',()=>placeNumber(n));
+        bankEl.appendChild(t);
+      });
+    }
+
+    function highlightSelection(sr,sc){
+      const gridEl=document.getElementById('puzzleGrid');
+      [...gridEl.children].forEach((el,i)=>{
+        const r=Math.floor(i/5),c=i%5;
+        if(r===sr&&c===sc) el.style.outline='2px solid #4c8aff';
+        else{
+          const cell=state.grid[r][c];
+          el.style.outline=cell.kind==='blank'?'2px dashed #3a4a7c':'none';
+        }
+      });
+    }
+
+    function placeNumber(n){
+      const msgEl=document.getElementById('gameMsg');
+      if(!selected){msgEl.textContent='Selecciona una casilla';msgEl.className='msg err';return;}
+      const {r,c}=selected;
+      const cell=state.grid[r][c];
+      if(cell.kind!=='blank') return;
+      cell.value=n;
+      renderPuzzle();
+      const related=state.equations.filter(eq=>eq.cells.some(pos=>pos.r===r&&pos.c===c));
+      let anyBad=false;
+      for(const eq of related){
+        const res=evalEquation(eq,state.grid);
+        if(res.ready&&!res.ok){anyBad=true;break;}
+      }
+      const gridEl=document.getElementById('puzzleGrid');
+      const idx=r*5+c;const cellEl=gridEl.children[idx];
+      cellEl.classList.remove('ok','err');
+      if(anyBad){
+        cellEl.classList.add('err');
+        msgEl.textContent='Incorrecto para el cruce.';msgEl.className='msg err';
+        loseLife();
+      }else{
+        cellEl.classList.add('ok');
+        msgEl.textContent='   
