@@ -6,131 +6,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      /* Paleta estilo fotos nuevas: fondo blanco, acentos azules */
-      --bg: #ffffff;
-      --text: #1b2a4a;
-      --muted: #7a8aa6;
-      --blue: #2f7bff;
-      --blue-600: #1f5fe6;
-      --blue-50: #eaf2ff;
-      --line: #e6eaf2;
-      --green: #19b36b;
-      --red: #e04949;
-      --yellow: #f7c948;
-      --yellow-600: #d9a719;
-      --tile: #ffec99;
+      --bg:#ffffff; --text:#1b2a4a; --muted:#7a8aa6; --blue:#2f7bff; --blue-600:#1f5fe6;
+      --line:#e6eaf2; --green:#19b36b; --red:#e04949; --tile:#ffec99;
+      --shadow:0 6px 20px rgba(31,95,230,0.12); --shadow-soft:0 6px 20px rgba(0,0,0,0.06);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--text);background:#fff;}
+    button{appearance:none;border:none;cursor:pointer;font-weight:700;border-radius:12px;padding:12px 16px;transition:filter .15s ease,transform .05s ease;}
+    button:active{transform:translateY(1px)}
+    .btn-blue{background:var(--blue);color:#fff;box-shadow:var(--shadow)}
+    .btn-blue:hover{filter:brightness(1.05)}
+    .btn-outline{background:#fff;color:var(--text);border:1px solid var(--line)}
+    .container{max-width:900px;margin:0 auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:10}
+    .brand{font-weight:900}
+    .userbar{display:flex;align-items:center;gap:8px;color:var(--muted)}
+    .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:var(--shadow-soft)}
+    .home-group{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+    .title-main{ text-align:center;margin:24px 0 12px;font-weight:900;font-size:28px }
+    .home-actions{ display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:560px;margin:0 auto }
 
-      --shadow: 0 6px 20px rgba(31,95,230,0.12);
-      --shadow-soft: 0 6px 20px rgba(0,0,0,0.06);
-    }
-    *{ box-sizing: border-box; }
-    body{
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color: var(--text);
-      background: var(--bg);
-    }
-    a{ color: var(--blue); text-decoration: none; }
-    button{
-      appearance: none; border: none; cursor: pointer;
-      font-weight: 700; border-radius: 12px; padding: 12px 16px;
-      transition: filter .15s ease, transform .05s ease;
-    }
-    button:active{ transform: translateY(1px); }
-    .btn-blue{ background: var(--blue); color: #fff; box-shadow: var(--shadow); }
-    .btn-blue:hover{ filter: brightness(1.05); }
-    .btn-outline{ background: #fff; color: var(--text); border: 1px solid var(--line); }
-    .btn-ghost{ background: transparent; color: var(--blue); }
-    .btn-muted{ background: #f6f8fb; color: var(--text); border: 1px solid var(--line); }
+    /* HUD + crucigrama */
+    .hud{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:16px 0;background:#fff}
+    .stat{display:flex;align-items:center;gap:8px;color:var(--muted)}
+    .stat strong{color:var(--text)}
+    .grid{display:grid;grid-template-columns:repeat(5, 1fr);gap:6px;border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff}
+    .cell{min-height:64px;border-radius:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.2px;text-align:center;padding:6px;position:relative}
+    .cell.op{background:#f6f9ff;color:#2f4b7b}
+    .cell.num{background:#fdfdfd}
+    .cell.blank{background:var(--tile);border-color:#d9a719;outline:2px dashed #d9a719;cursor:pointer}
+    .cell.ok{background:#e9fbf2;border-color:#b9f1d3}
+    .cell.err{background:#ffecec;border-color:#ffc2c2}
+    .eq-label{position:absolute;bottom:4px;right:6px;color:var(--muted);font-size:12px}
 
-    .container{ max-width: 820px; margin: 0 auto; padding: 20px; }
-    header{
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px; border-bottom: 1px solid var(--line);
-      position: sticky; top: 0; background: #fff; z-index: 10;
-    }
-    .brand{ font-weight: 900; letter-spacing: .2px; }
-    .userbar{ display: flex; align-items: center; gap: 8px; color: var(--muted); }
+    .bank{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff;margin-top:12px}
+    .tile{padding:12px;text-align:center;font-weight:900;border-radius:12px;border:1px solid var(--line);background:#f6faff;color:var(--blue);user-select:none}
+    .tile.used{opacity:.35;pointer-events:none}
+    .msg{margin-top:8px;font-size:14px;color:var(--muted)}
+    .msg.ok{color:var(--green)}
+    .msg.err{color:var(--red)}
 
-    /* Tarjetas Home */
-    .home-group{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-    .card{
-      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px;
-      box-shadow: var(--shadow-soft);
-    }
-    .card h3{ margin: 4px 0 6px; }
-    .card .muted{ color: var(--muted); font-size: 14px; }
-    .card .footer{ margin-top: 12px; display: flex; justify-content: flex-start; gap: 10px; }
-
-    .title-main{ text-align: center; margin: 24px 0 12px; font-weight: 900; font-size: 28px; }
-    .home-actions{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 560px; margin: 0 auto; }
-
-    /* Pantalla puzzle (Expert-like) */
-    .hud{
-      display: flex; align-items: center; justify-content: space-between;
-      border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin: 16px 0;
-      background: #fff;
-    }
-    .stat{ display: flex; align-items: center; gap: 8px; color: var(--muted); }
-    .stat strong{ color: var(--text); }
-
-    .board-wrap{ display: grid; grid-template-columns: 1fr; gap: 16px; }
-    .grid{
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-      border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: #fff;
-    }
-    .cell{
-      min-height: 64px; border-radius: 12px; border: 1px solid var(--line); background: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 18px; letter-spacing: .2px; text-align: center; padding: 8px;
-      position: relative;
-    }
-    .cell.eq{ background: #f9fbff; }
-    .cell.blank{ background: var(--tile); border-color: var(--yellow-600); outline: 2px dashed var(--yellow-600); }
-    .cell.ok{ background: #e9fbf2; border-color: #b9f1d3; }
-    .cell.err{ background: #ffecec; border-color: #ffc2c2; }
-
-    .star{
-      position: absolute; top: 6px; right: 6px; font-size: 14px; color: #f5b700;
-    }
-
-    .bank{
-      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
-      border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: #fff;
-    }
-    .tile{
-      padding: 12px; text-align: center; font-weight: 900; border-radius: 12px;
-      border: 1px solid var(--line); background: #f6faff; color: var(--blue);
-      user-select: none;
-    }
-    .tile.used{ opacity: .35; pointer-events: none; }
-    .msg{ margin-top: 8px; font-size: 14px; color: var(--muted); }
-    .msg.ok{ color: var(--green); }
-    .msg.err{ color: var(--red); }
-
-    /* Mapa niveles */
-    .level-map{ margin-top: 12px; }
-    .level-grid{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .level-cell{
-      padding: 12px; text-align: center; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; font-weight: 700;
-    }
-
-    /* Modales */
-    .backdrop{
-      position: fixed; inset: 0; background: rgba(0,0,0,.35);
-      display: none; align-items: center; justify-content: center; z-index: 100;
-    }
-    .modal{
-      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; width: 100%; max-width: 520px;
-      box-shadow: var(--shadow-soft);
-    }
-    .modal header h3{ margin: 0 0 6px; }
-    .input{ width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; color: var(--text); }
-
-    /* Paneles overlay */
-    .overlay{ position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.35); z-index: 90; }
-    .panel{ background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; width: 100%; max-width: 520px; box-shadow: var(--shadow-soft); text-align: center; }
-    .stars{ font-size: 22px; margin: 6px 0 10px; }
+    /* Modales y overlays */
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:100}
+    .modal{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;max-width:520px;box-shadow:var(--shadow-soft)}
+    .input{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;color:var(--text);font-weight:600}
+    .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.35);z-index:90}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;width:100%;max-width:520px;box-shadow:var(--shadow-soft);text-align:center}
   </style>
 </head>
 <body>
@@ -138,26 +59,26 @@
     <div class="brand">Cross Math</div>
     <div class="userbar">
       <span id="userStatus">Sin sesión</span>
-      <button id="loginBtn" class="btn-outline">Acceso</button>
+      <button id="loginOpenBtn" class="btn-outline">Acceso</button>
       <button id="logoutBtn" class="btn-outline" style="display:none;">Salir</button>
     </div>
   </header>
 
   <main class="container">
-    <!-- HOME: Daily Challenge / Endless Mode + Continue / New Game -->
+    <!-- HOME -->
     <section id="homeScreen">
       <div class="home-group">
         <div class="card">
-          <h3 id="t_dailyTitle">Daily Challenge</h3>
+          <h3>Daily Challenge</h3>
           <div class="muted" id="dailyDate"></div>
-          <div class="footer">
+          <div class="flex" style="gap:8px;margin-top:8px;">
             <button id="playDailyBtn" class="btn-blue">Play</button>
           </div>
         </div>
         <div class="card">
-          <h3 id="t_endlessTitle">Endless Mode</h3>
+          <h3>Endless Mode</h3>
           <div class="muted">Highest score: <span id="endlessBest">0</span></div>
-          <div class="footer">
+          <div class="flex" style="gap:8px;margin-top:8px;">
             <button id="playEndlessBtn" class="btn-blue">Play</button>
           </div>
         </div>
@@ -179,7 +100,7 @@
           <button id="verifyLicenseBtn" class="btn-outline">Verificar licencia</button>
         </div>
         <p class="muted" style="margin-top:8px;">Cuenta demo: premium_demo@crossmath.com / demo123 (Premium activado)</p>
-        <div class="flex" style="gap:8px; margin-top:10px;">
+        <div class="flex" style="gap:8px;margin-top:10px;">
           <button id="exportBtn" class="btn-outline">Exportar JSON</button>
           <label for="importInput" class="btn-outline" style="cursor:pointer;">Importar JSON</label>
           <input id="importInput" type="file" accept="application/json" style="display:none;" />
@@ -189,7 +110,7 @@
 
       <div class="card">
         <h3>Ajustes</h3>
-        <div class="row">
+        <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div>
             <label class="muted">Idioma</label>
             <select id="langSelect" class="input">
@@ -207,21 +128,19 @@
       </div>
     </section>
 
-    <!-- LEVEL SELECT (Expert-like): Mapa 1–15 (solo si Premium) -->
+    <!-- LEVEL SELECT (Expert, solo Premium) -->
     <section id="levelSelectScreen" style="display:none;">
       <div class="card">
         <h3>Expert</h3>
         <p class="muted">Selecciona etapa (1–15). Requiere Premium.</p>
-        <div class="level-map">
-          <div id="levelGrid" class="level-grid"></div>
-        </div>
-        <div class="flex" style="margin-top:12px;">
+        <div id="levelGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;"></div>
+        <div class="flex" style="gap:8px;margin-top:12px;">
           <button id="backHomeBtn" class="btn-outline">Back</button>
         </div>
       </div>
     </section>
 
-    <!-- GAME: HUD + Grid + Bank -->
+    <!-- GAME -->
     <section id="gameScreen" style="display:none;">
       <div class="hud">
         <div class="stat"><strong>Modo:</strong> <span id="hudMode">Daily</span></div>
@@ -235,11 +154,9 @@
         </div>
       </div>
 
-      <div class="board-wrap">
-        <div class="grid" id="puzzleGrid"></div>
-        <div class="bank" id="numberBank"></div>
-        <div id="gameMsg" class="msg"></div>
-      </div>
+      <div class="grid" id="puzzleGrid"></div>
+      <div class="bank" id="numberBank"></div>
+      <div id="gameMsg" class="msg"></div>
     </section>
   </main>
 
@@ -250,18 +167,12 @@
         <h3>Acceso</h3>
         <p class="muted">Crea cuenta o inicia sesión. Todo se guarda localmente.</p>
       </header>
-      <div class="row" style="margin-top:8px;">
-        <div>
-          <label class="muted">Usuario / Email</label>
-          <input id="authUser" class="input" placeholder="ej. premium_demo@crossmath.com" />
-        </div>
-        <div>
-          <label class="muted">Contraseña</label>
-          <input id="authPass" type="password" class="input" placeholder="••••••••" />
-        </div>
+      <div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><label class="muted">Usuario / Email</label><input id="authUser" class="input" placeholder="premium_demo@crossmath.com" /></div>
+        <div><label class="muted">Contraseña</label><input id="authPass" type="password" class="input" placeholder="••••••••" /></div>
       </div>
       <div id="authMsg" class="msg"></div>
-      <div class="flex" style="margin-top:12px;">
+      <div class="flex" style="gap:8px;margin-top:12px;">
         <button id="registerBtn" class="btn-outline">Registrar</button>
         <button id="loginBtnModal" class="btn-blue">Entrar</button>
         <button id="closeAuthBtn" class="btn-outline">Cerrar</button>
@@ -272,7 +183,7 @@
   <!-- OVERLAYS -->
   <div id="pauseOverlay" class="overlay"><div class="panel">
     <h3>Pausa</h3>
-    <div class="flex" style="justify-content:center; gap:8px;">
+    <div class="flex" style="justify-content:center;gap:8px;">
       <button id="resumeBtn" class="btn-blue">Continuar</button>
       <button id="restartFromPauseBtn" class="btn-outline">Reiniciar</button>
       <button id="exitFromPauseBtn" class="btn-outline">Salir</button>
@@ -281,9 +192,8 @@
 
   <div id="completeOverlay" class="overlay"><div class="panel">
     <h3>Nivel completado</h3>
-    <div class="stars">⭐ ⭐ ⭐</div>
     <p class="muted">Puntaje: <span id="finalScore">0</span></p>
-    <div class="flex" style="justify-content:center; gap:8px;">
+    <div class="flex" style="justify-content:center;gap:8px;">
       <button id="continueAfterCompleteBtn" class="btn-blue">Continue</button>
       <button id="replayBtn" class="btn-outline">Replay</button>
     </div>
@@ -292,587 +202,499 @@
   <div id="gameOverOverlay" class="overlay"><div class="panel">
     <h3>Game Over</h3>
     <p class="muted">Sin vidas. Intenta de nuevo o vuelve al menú.</p>
-    <div class="flex" style="justify-content:center; gap:8px;">
+    <div class="flex" style="justify-content:center;gap:8px;">
       <button id="retryBtn" class="btn-blue">Retry</button>
       <button id="goHomeBtn" class="btn-outline">Menu</button>
     </div>
   </div></div>
 
   <script>
-    // Constantes Gumroad Premium (solo compra Premium; todo lo demás se incluye con Premium)
-    const GUMROAD_PRODUCT_ID = 'rnlle';
-    const GUMROAD_URL = 'https://anacristinacz.gumroad.com/l/rnlle';
+    // Premium Gumroad (real)
+    const GUMROAD_PRODUCT_ID='rnlle';
+    const GUMROAD_URL='https://anacristinacz.gumroad.com/l/rnlle';
 
-    // Estado en memoria
-    let db = null;
-    let timerInt = null;
-    let elapsed = 0;
-    let currentUser = null;
-    let currentMode = 'Daily'; // 'Daily' | 'Endless' | 'Expert'
-    let currentStage = 1; // Expert stage 1–15
-    let lives = 3;
-    let coins = 0;
-    let premium = false;
-    let lastSaved = null;
+    // Estado global y DB
+    let db=null, currentUser=null, premium=false, lives=3, coins=0, elapsed=0, timerInt=null;
+    let currentMode='Daily', currentStage=1;
+    let state={grid:[], bank:[], blanks:[], equations:[]}; // crucigrama
 
     // IndexedDB
-    const DB_NAME = 'crossmath-local';
-    const DB_VERSION = 1;
+    const DB_NAME='crossmath-local', DB_VERSION=1;
     async function openDB(){
       return new Promise((resolve,reject)=>{
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e)=>{
-          const d = e.target.result;
-          if(!d.objectStoreNames.contains('users')) d.createObjectStore('users', { keyPath: 'username' });
-          if(!d.objectStoreNames.contains('progress')) d.createObjectStore('progress', { keyPath: 'username' });
-          if(!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'username' });
+        const req=indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded=e=>{
+          const d=e.target.result;
+          if(!d.objectStoreNames.contains('users')) d.createObjectStore('users',{keyPath:'username'});
+          if(!d.objectStoreNames.contains('progress')) d.createObjectStore('progress',{keyPath:'username'});
+          if(!d.objectStoreNames.contains('meta')) d.createObjectStore('meta',{keyPath:'username'});
         };
-        req.onsuccess = ()=>{ db = req.result; resolve(db); };
-        req.onerror = ()=> reject(req.error);
+        req.onsuccess=()=>{db=req.result;resolve(db)};
+        req.onerror=()=>reject(req.error);
       });
     }
-    function store(name, mode='readonly'){ return db.transaction(name, mode).objectStore(name); }
-    function getUser(username){
-      return new Promise((resolve,reject)=>{
-        const q = store('users').get(username);
-        q.onsuccess = ()=> resolve(q.result || null);
-        q.onerror = ()=> reject(q.error);
-      });
-    }
-    function putUser(user){
-      return new Promise((resolve,reject)=>{
-        const q = store('users','readwrite').put(user);
-        q.onsuccess = ()=> resolve(true);
-        q.onerror = ()=> reject(q.error);
-      });
-    }
-    function getProgress(username){
-      return new Promise((resolve,reject)=>{
-        const q = store('progress').get(username);
-        q.onsuccess = ()=> resolve(q.result || { username, dailyBest: 0, endlessBest: 0, expert: {}, lastSaved: null, scores: [] });
-        q.onerror = ()=> reject(q.error);
-      });
-    }
-    function putProgress(progress){
-      return new Promise((resolve,reject)=>{
-        const q = store('progress','readwrite').put(progress);
-        q.onsuccess = ()=> resolve(true);
-        q.onerror = ()=> reject(q.error);
-      });
-    }
-    function getMeta(username){
-      return new Promise((resolve,reject)=>{
-        const q = store('meta').get(username);
-        q.onsuccess = ()=> resolve(q.result || { username, premium: false, coins: 0, lives: 3, sound: true, lang: (navigator.language||'es').slice(0,2) });
-        q.onerror = ()=> reject(q.error);
-      });
-    }
-    function putMeta(meta){
-      return new Promise((resolve,reject)=>{
-        const q = store('meta','readwrite').put(meta);
-        q.onsuccess = ()=> resolve(true);
-        q.onerror = ()=> reject(q.error);
-      });
-    }
+    function store(name,mode='readonly'){return db.transaction(name,mode).objectStore(name)}
+    function getUser(u){return new Promise((res,rej)=>{const q=store('users').get(u);q.onsuccess=()=>res(q.result||null);q.onerror=()=>rej(q.error)})}
+    function putUser(u){return new Promise((res,rej)=>{const q=store('users','readwrite').put(u);q.onsuccess=()=>res(true);q.onerror=()=>rej(q.error)})}
+    function getProgress(u){return new Promise((res,rej)=>{const q=store('progress').get(u);q.onsuccess=()=>res(q.result||{username:u,dailyBest:0,endlessBest:0,expert:{},lastSaved:null,scores:[]});q.onerror=()=>rej(q.error)})}
+    function putProgress(p){return new Promise((res,rej)=>{const q=store('progress','readwrite').put(p);q.onsuccess=()=>res(true);q.onerror=()=>rej(q.error)})}
+    function getMeta(u){return new Promise((res,rej)=>{const q=store('meta').get(u);q.onsuccess=()=>res(q.result||{username:u,premium:false,coins:0,lives:3,sound:true,lang:(navigator.language||'es').slice(0,2)});q.onerror=()=>rej(q.error)})}
+    function putMeta(m){return new Promise((res,rej)=>{const q=store('meta','readwrite').put(m);q.onsuccess=()=>res(true);q.onerror=()=>rej(q.error)})}
 
-    // Utilidades
-    async function hashPassword(p){
-      const enc = new TextEncoder(); const d = enc.encode(p);
-      const dig = await crypto.subtle.digest('SHA-256', d);
-      return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    }
-    function fmtDate(d){ return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }); }
-    function fmtTime(sec){ const m=String(Math.floor(sec/60)).padStart(2,'0'); const s=String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
-    function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+    // Utils
+    async function hashPassword(p){const enc=new TextEncoder();const d=enc.encode(p);const dig=await crypto.subtle.digest('SHA-256',d);return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+    function fmtDate(d){return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})}
+    function fmtTime(sec){const m=String(Math.floor(sec/60)).padStart(2,'0');const s=String(sec%60).padStart(2,'0');return `${m}:${s}`}
+    function startTimer(){stopTimer();elapsed=0;document.getElementById('hudTime').textContent=fmtTime(elapsed);timerInt=setInterval(()=>{elapsed++;document.getElementById('hudTime').textContent=fmtTime(elapsed)},1000)}
+    function stopTimer(){if(timerInt){clearInterval(timerInt);timerInt=null}}
 
-    // UI refs
-    const home = document.getElementById('homeScreen');
-    const levelSelect = document.getElementById('levelSelectScreen');
-    const game = document.getElementById('gameScreen');
-    const dailyDateEl = document.getElementById('dailyDate');
-    const endlessBestEl = document.getElementById('endlessBest');
-    const continueBtn = document.getElementById('continueBtn');
+    // generatePuzzle: crucigrama 5x5 con cruce horizontal y vertical
+    // Representación:
+    // - grid[r][c] = {kind:'op'|'num'|'blank', text, value?, id?}
+    // - equations: [{type:'row'|'col', cells:[{r,c}], ops:['+','-','×','÷'], target:number, label?}]
+    function generatePuzzle(mode){
+      // Plantilla base 5x5 (visible):
+      // Filas visibles con ecuación:
+      // Row 0: □ + □ = 8
+      // Row 2: □ - □ = 2
+      // Row 4: 6 ÷ □ = 3
+      // Operadores y símbolos colocados; el resto celdas vacías o separadores.
+      const grid = Array.from({length:5},()=>Array.from({length:5},()=>({kind:'empty',text:''})));
+      // Row 0
+      grid[0][0]={kind:'blank', text:'□', id:'r0c0'};
+      grid[0][1]={kind:'op', text:'+'};
+      grid[0][2]={kind:'blank', text:'□', id:'r0c2'};
+      grid[0][3]={kind:'op', text:'='};
+      grid[0][4]={kind:'num', text:'8'};
+      // Row 2
+      grid[2][0]={kind:'blank', text:'□', id:'r2c0'};
+      grid[2][1]={kind:'op', text:'-'};
+      grid[2][2]={kind:'blank', text:'□', id:'r2c2'};
+      grid[2][3]={kind:'op', text:'='};
+      grid[2][4]={kind:'num', text:'2'};
+      // Row 4
+      grid[4][0]={kind:'num', text:'6'};
+      grid[4][1]={kind:'op', text:'÷'};
+      grid[4][2]={kind:'blank', text:'□', id:'r4c2'};
+      grid[4][3]={kind:'op', text:'='};
+      grid[4][4]={kind:'num', text:'3'};
 
-    const hudModeEl = document.getElementById('hudMode');
-    const hudTimeEl = document.getElementById('hudTime');
-    const hudLivesEl = document.getElementById('hudLives');
-    const hudCoinsEl = document.getElementById('hudCoins');
-    const puzzleGrid = document.getElementById('puzzleGrid');
-    const numberBank = document.getElementById('numberBank');
-    const gameMsg = document.getElementById('gameMsg');
+      // Vertical (no visibles, pero validados):
+      // Col 0: r0c0 × r2c0 = 21 (3×7)
+      // Col 2: r0c2 + r2c2 + r4c2 = 12 (5+5+2)
+      const equations = [
+        { type:'row', cells:[{r:0,c:0},{r:0,c:2}], ops:['+'], target:8, label:'=8' },
+        { type:'row', cells:[{r:2,c:0},{r:2,c:2}], ops:['-'], target:2, label:'=2' },
+        { type:'row', cells:[{r:4,c:2}], ops:['div-from-left'], target: {left:6, right:3}, label:'6÷□=3' },
 
-    const authBackdrop = document.getElementById('authBackdrop');
-    const authUser = document.getElementById('authUser');
-    const authPass = document.getElementById('authPass');
-    const authMsg = document.getElementById('authMsg');
-    const userStatus = document.getElementById('userStatus');
-    const logoutBtn = document.getElementById('logoutBtn');
+        { type:'col', cells:[{r:0,c:0},{r:2,c:0}], ops:['×'], target:21, label:'' },
+        { type:'col', cells:[{r:0,c:2},{r:2,c:2},{r:4,c:2}], ops:['+','+'], target:12, label:'' }
+      ];
 
-    const pauseOverlay = document.getElementById('pauseOverlay');
-    const completeOverlay = document.getElementById('completeOverlay');
-    const finalScoreEl = document.getElementById('finalScore');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    const profileInfo = document.getElementById('profileInfo');
+      // Soluciones destino (consistentes con ambas direcciones)
+      const solutions = {
+        r0c0: 3,
+        r0c2: 5,
+        r2c0: 7,
+        r2c2: 5,
+        r4c2: 2
+      };
 
-    // Navegación
-    function show(el){ home.style.display='none'; levelSelect.style.display='none'; game.style.display='none'; el.style.display='block'; }
-    function startTimer(){ stopTimer(); elapsed = 0; hudTimeEl.textContent = fmtTime(elapsed); timerInt = setInterval(()=>{ elapsed++; hudTimeEl.textContent = fmtTime(elapsed); },1000); }
-    function stopTimer(){ if(timerInt){ clearInterval(timerInt); timerInt = null; } }
-
-    // AUTH
-    document.getElementById('loginBtn').addEventListener('click', ()=>{ authBackdrop.style.display='flex'; });
-    document.getElementById('closeAuthBtn').addEventListener('click', ()=>{ authBackdrop.style.display='none'; });
-    document.getElementById('registerBtn').addEventListener('click', async()=>{
-      const u = authUser.value.trim(); const p = authPass.value;
-      if(!u||!p){ authMsg.textContent = 'Usuario/contraseña requeridos'; authMsg.className='msg err'; return; }
-      if(await getUser(u)){ authMsg.textContent = 'Ese usuario ya existe'; authMsg.className='msg err'; return; }
-      const ph = await hashPassword(p);
-      await putUser({ username: u, passHash: ph, createdAt: new Date().toISOString() });
-      await putProgress({ username: u, dailyBest: 0, endlessBest: 0, expert:{}, lastSaved: null, scores: [] });
-      const isDemo = u.toLowerCase()==='premium_demo@crossmath.com';
-      await putMeta({ username: u, premium: isDemo, coins: isDemo?999:0, lives: 3, sound: true, lang: (navigator.language||'es').slice(0,2) });
-      authMsg.textContent = 'Usuario creado. Ahora inicia sesión.'; authMsg.className='msg ok';
-    });
-    document.getElementById('loginBtnModal').addEventListener('click', async()=>{
-      const u = authUser.value.trim(); const p = authPass.value;
-      if(!u||!p){ authMsg.textContent = 'Usuario/contraseña requeridos'; authMsg.className='msg err'; return; }
-      const user = await getUser(u);
-      if(!user){ authMsg.textContent = 'Usuario no encontrado'; authMsg.className='msg err'; return; }
-      const ph = await hashPassword(p);
-      if(ph !== user.passHash){ authMsg.textContent = 'Contraseña incorrecta'; authMsg.className='msg err'; return; }
-      currentUser = u;
-      const meta = await getMeta(currentUser);
-      premium = !!meta.premium; coins = meta.coins; lives = meta.lives;
-      userStatus.textContent = `Sesión: ${currentUser}`;
-      logoutBtn.style.display = 'inline-block';
-      authBackdrop.style.display = 'none';
-      await refreshHome();
-    });
-    logoutBtn.addEventListener('click', async()=>{
-      currentUser = null; premium = false; coins = 0; lives = 3;
-      userStatus.textContent = 'Sin sesión';
-      logoutBtn.style.display = 'none';
-      await refreshHome();
-    });
-
-    // HOME actions
-    document.getElementById('playDailyBtn').addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      currentMode = 'Daily'; hudModeEl.textContent = 'Daily';
-      currentStage = 1;
-      await startGameSession();
-    });
-    document.getElementById('playEndlessBtn').addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      currentMode = 'Endless'; hudModeEl.textContent = 'Endless';
-      currentStage = 1;
-      await startGameSession();
-    });
-    document.getElementById('newGameBtn').addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      // Nueva partida: si Premium, permitir Expert seleccionar; si no, Daily/Endless
-      if(premium){ renderLevelGrid(); show(levelSelect); }
-      else { currentMode = 'Daily'; hudModeEl.textContent = 'Daily'; currentStage = 1; await startGameSession(); }
-    });
-    continueBtn.addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      const prog = await getProgress(currentUser);
-      if(prog.lastSaved){
-        currentMode = prog.lastSaved.mode;
-        currentStage = prog.lastSaved.stage || 1;
-        hudModeEl.textContent = currentMode;
-        await startGameSession(prog.lastSaved.seed); // usa la semilla previa
+      // Banco de números: agrega los necesarios y relleno
+      const bankSet = new Set(Object.values(solutions));
+      while (bankSet.size < 12) {
+        const n = Math.floor(Math.random()*40)+1;
+        bankSet.add(n);
       }
-    });
-    document.getElementById('backHomeBtn').addEventListener('click', ()=> show(home));
+      const bank = Array.from(bankSet).sort((a,b)=>a-b);
 
-    // Level select Expert (Premium only)
-    function renderLevelGrid(){
-      const lg = document.getElementById('levelGrid'); lg.innerHTML = '';
-      for(let i=1; i<=15; i++){
-        const c = document.createElement('div');
-        c.className = 'level-cell';
-        c.textContent = i;
-        c.addEventListener('click', async()=>{
-          currentMode = 'Expert'; hudModeEl.textContent = 'Expert';
-          currentStage = i;
-          await startGameSession();
-        });
-        lg.appendChild(c);
+      // Blanks array para facilitar acceso
+      const blanks = [];
+      for (let r=0;r<5;r++){
+        for (let c=0;c<5;c++){
+          const cell = grid[r][c];
+          if(cell.kind==='blank'){
+            cell.value=null;
+            cell.solution = solutions[`r${r}c${c}`] ?? null;
+            blanks.push({r,c,id:cell.id});
+          }
+        }
       }
+      return { grid, bank, blanks, equations };
     }
 
-    // GAME buttons
-    document.getElementById('pauseBtn').addEventListener('click', ()=>{ pauseOverlay.style.display='flex'; stopTimer(); });
-    document.getElementById('resumeBtn').addEventListener('click', ()=>{ pauseOverlay.style.display='none'; startTimer(); });
-    document.getElementById('restartBtn').addEventListener('click', async()=>{ await startGameSession(); });
-    document.getElementById('restartFromPauseBtn').addEventListener('click', async()=>{ pauseOverlay.style.display='none'; await startGameSession(); });
-    document.getElementById('exitBtn').addEventListener('click', ()=>{ stopTimer(); show(home); });
-    document.getElementById('exitFromPauseBtn').addEventListener('click', ()=>{ pauseOverlay.style.display='none'; stopTimer(); show(home); });
-
-    document.getElementById('continueAfterCompleteBtn').addEventListener('click', async()=>{
-      completeOverlay.style.display='none';
-      if(currentMode==='Endless'){ await startGameSession(); } else { show(home); }
-    });
-    document.getElementById('replayBtn').addEventListener('click', async()=>{
-      completeOverlay.style.display='none';
-      await startGameSession();
-    });
-    document.getElementById('retryBtn').addEventListener('click', async()=>{
-      gameOverOverlay.style.display='none';
-      lives = 3; await startGameSession();
-    });
-    document.getElementById('goHomeBtn').addEventListener('click', ()=>{
-      gameOverOverlay.style.display='none';
-      show(home);
-    });
-
-    // Premium purchase / verify
-    document.getElementById('buyPremiumBtn').addEventListener('click', ()=>{
-      window.open(GUMROAD_URL, '_blank');
-    });
-    document.getElementById('verifyLicenseBtn').addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      const lic = document.getElementById('gumroadLicenseInput').value.trim();
-      if(!lic){ alert('Ingresa licencia Gumroad.'); return; }
-      const res = await verifyGumroadLicense(lic);
-      alert(res.msg);
-      await refreshHome();
-    });
-
-    // Portabilidad
-    document.getElementById('exportBtn').addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      const prog = await getProgress(currentUser);
-      const meta = await getMeta(currentUser);
-      const payload = { schema:'crossmath.local.v1', user: currentUser, progress: prog, meta: meta };
-      const blob = new Blob([JSON.stringify(payload,null,2)], { type:'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `crossmath_${currentUser}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    });
-    document.getElementById('importInput').addEventListener('change', async(e)=>{
-      const f = e.target.files?.[0]; if(!f) return;
-      const txt = await f.text(); let data;
-      try{ data = JSON.parse(txt); }catch{ alert('Archivo inválido'); return; }
-      if(!data || data.schema!=='crossmath.local.v1'){ alert('Esquema desconocido'); return; }
-      if(!(await ensureLogged())) return;
-      if(data.user !== currentUser){ alert('Archivo de otro usuario'); return; }
-      await putProgress(Object.assign({}, data.progress, { username: currentUser }));
-      await putMeta(Object.assign({}, data.meta, { username: currentUser }));
-      alert('Importación exitosa');
-      await refreshHome();
-      e.target.value='';
-    });
-
-    // Ajustes
-    document.getElementById('toggleSoundBtn').addEventListener('click', async()=>{
-      if(!(await ensureLogged())) return;
-      const meta = await getMeta(currentUser);
-      meta.sound = !meta.sound;
-      await putMeta(meta);
-      document.getElementById('toggleSoundBtn').textContent = `Sonido: ${meta.sound?'ON':'OFF'}`;
-    });
-    document.getElementById('langSelect').addEventListener('change', async(e)=>{
-      if(!(await ensureLogged())) return;
-      const meta = await getMeta(currentUser);
-      meta.lang = e.target.value;
-      await putMeta(meta);
-      await applyLang(meta.lang);
-    });
-
-    // Daily / Endless info refresh
-    async function refreshHome(){
-      const today = new Date();
-      dailyDateEl.textContent = fmtDate(today);
-      if(currentUser){
-        const prog = await getProgress(currentUser);
-        const meta = await getMeta(currentUser);
-        endlessBestEl.textContent = prog.endlessBest || 0;
-        coins = meta.coins; lives = meta.lives; premium = meta.premium;
-        profileInfo.textContent = `Usuario: ${currentUser} · Premium: ${premium?'Sí':'No'} · Vidas: ${lives} · Monedas: ${coins}`;
-        // Continue
-        continueBtn.style.display = prog.lastSaved ? 'inline-block' : 'none';
+    // Validación de ecuaciones: evalúa horizontales y verticales que involucren la celda
+    function evalEquation(eq, grid){
+      const vals = eq.cells.map(pos=>{
+        const cell = grid[pos.r][pos.c];
+        return cell.value;
+      });
+      // Si hay blanks sin valor, no evaluar aún
+      if (vals.some(v=>v==null)) return {ready:false, ok:false};
+      if (eq.type==='row'){
+        // 'div-from-left' especial: left ÷ val = right
+        if (eq.ops[0]==='div-from-left'){
+          const v = vals[0];
+          return {ready:true, ok: (eq.target.left / v) === eq.target.right};
+        }
+        // binaria: + o -
+        let acc = vals[0];
+        for(let i=0;i<eq.ops.length;i++){
+          const op=eq.ops[i];
+          const next=vals[i+1];
+          if(op==='+') acc = acc + next;
+          else if(op==='-') acc = acc - next;
+          else if(op==='×') acc = acc * next;
+          else if(op==='÷') acc = acc / next;
+        }
+        return {ready:true, ok: acc === eq.target};
       }else{
-        endlessBestEl.textContent = 0;
-        continueBtn.style.display = 'none';
-        profileInfo.textContent = 'Inicia sesión para ver tu estado.';
+        // columna: eval secuencial
+        let acc = vals[0];
+        for(let i=0;i<eq.ops.length;i++){
+          const op=eq.ops[i];
+          const next=vals[i+1];
+          if(op==='+') acc = acc + next;
+          else if(op==='-') acc = acc - next;
+          else if(op==='×') acc = acc * next;
+          else if(op==='÷') acc = acc / next;
+        }
+        return {ready:true, ok: acc === eq.target};
       }
     }
 
-    async function ensureLogged(){
-      if(!currentUser){ authBackdrop.style.display='flex'; return false; }
-      return true;
-    }
-
-    // Puzzle generation based on mode
-    let state = { cells: [], bank: [] }; // cells: array of {type:'eq'|'blank', text, value, solution, star?}
-    function seedForDaily(date){ // deterministic seed
-      return Number(String(date.getFullYear()) + String(date.getMonth()+1).padStart(2,'0') + String(date.getDate()).padStart(2,'0'));
-    }
-    function makeEquationBlank(op, a, b){
-      // Returns equation text with one blank and solution for the blank
-      if(op==='+'){ return Math.random()<0.5 ? { text:`□ + ${b} = ${a+b}`, solution: a } : { text:`${a} + □ = ${a+b}`, solution: b }; }
-      if(op==='-'){ return Math.random()<0.5 ? { text:`□ - ${b} = ${a-b}`, solution: a } : { text:`${a} - □ = ${a-b}`, solution: b }; }
-      if(op==='×'){ return Math.random()<0.5 ? { text:`□ × ${b} = ${a*b}`, solution: a } : { text:`${a} × □ = ${a*b}`, solution: b }; }
-      if(op==='÷'){
-        // enforce exact division
-        const mult = a*b;
-        return Math.random()<0.5 ? { text:`□ ÷ ${b} = ${a}`, solution: mult } : { text:`${mult} ÷ □ = ${a}`, solution: b };
-      }
-      return { text:`□ + ${b} = ${a+b}`, solution:a };
-    }
-    function makeEquationKnown(op, a, b){
-      if(op==='+') return { text:`${a} + ${b} = □`, solution: a+b };
-      if(op==='-') return { text:`${a} - ${b} = □`, solution: a-b };
-      if(op==='×') return { text:`${a} × ${b} = □`, solution: a*b };
-      if(op==='÷'){ const mult = a*b; return { text:`${mult} ÷ ${a} = □`, solution: b }; }
-      return { text:`${a} + ${b} = □`, solution: a+b };
-    }
-    function randomOp(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
-
-    function generatePuzzle(seed){
-      const rng = seed || Date.now();
-      const mode = currentMode;
-      const poolOps = mode==='Expert' ? ['+','-','×','÷'] : (mode==='Endless' ? ['+','-','×'] : ['+','×']);
-      const cells = [];
-      // 12 celdas como la referencia (mezcla blanks y eq known)
-      for(let i=0;i<12;i++){
-        const a = rnd(1, mode==='Expert'? 40 : 20);
-        const b = rnd(1, mode==='Expert'? 20 : 12);
-        const op = randomOp(poolOps);
-        let eq;
-        if(Math.random() < 0.5) eq = makeEquationBlank(op, a, b);
-        else eq = makeEquationKnown(op, a, b);
-        cells.push({ type: 'blank', text: eq.text, value: null, solution: eq.solution, star: Math.random()<0.2 });
-      }
-      // Inserta algunas celdas informativas (igualdades puras) estilo "□ = 25"
-      cells[3] = { type: 'blank', text: '□ = ' + rnd(5,35), value: null, solution: Number(cells[3]?.text?.split('=')[1])||rnd(5,35), star: Math.random()<0.2 };
-      cells[7] = { type: 'blank', text: '□ + □ = ' + rnd(8,20), value: null, solution: null, star: Math.random()<0.2, pairSum: true };
-
-      // Banco de números (12 como la imagen)
-      const bank = [];
-      while(bank.length < 12){
-        const n = rnd(1, 40);
-        if(!bank.includes(n)) bank.push(n);
-      }
-      return { cells, bank };
-    }
-
+    // Render crucigrama
     function renderPuzzle(){
-      puzzleGrid.innerHTML = '';
-      numberBank.innerHTML = '';
-      // Render cells
-      state.cells.forEach((c, idx)=>{
-        const el = document.createElement('div');
-        el.className = 'cell ' + (c.type==='blank' ? 'blank' : 'eq');
-        // pairSum: "□ + □ = N" -> mostrar como texto; validación especial
-        const shown = c.value==null ? (c.pairSum ? c.text : c.text.replace('□', ' ? ')) : (c.pairSum ? c.text : c.text.replace('□', String(c.value)));
-        el.innerHTML = `<span>${shown}</span>`;
-        if(c.star){ const star = document.createElement('span'); star.className='star'; star.textContent='★'; el.appendChild(star); }
-        el.addEventListener('click', ()=> selectCell(idx));
-        puzzleGrid.appendChild(el);
-      });
+      const gridEl = document.getElementById('puzzleGrid');
+      const bankEl = document.getElementById('numberBank');
+      const msgEl = document.getElementById('gameMsg');
+      gridEl.innerHTML=''; bankEl.innerHTML=''; msgEl.textContent='';
+
+      // Render grid
+      for(let r=0;r<5;r++){
+        for(let c=0;c<5;c++){
+          const cell = state.grid[r][c];
+          const el = document.createElement('div');
+          el.className = 'cell';
+          if(cell.kind==='op'){ el.classList.add('op'); el.textContent = cell.text; }
+          else if(cell.kind==='num'){ el.classList.add('num'); el.textContent = cell.text; }
+          else if(cell.kind==='blank'){
+            el.classList.add('blank');
+            el.textContent = cell.value==null ? '□' : String(cell.value);
+            el.addEventListener('click', ()=>{ selected = {r,c}; highlightSelection(r,c); });
+          } else {
+            el.textContent = '';
+          }
+          // Etiquetas visibles en filas para referencia
+          if (r===0 && c===4) { const lab=document.createElement('div'); lab.className='eq-label'; lab.textContent='=8'; el.appendChild(lab); }
+          if (r===2 && c===4) { const lab=document.createElement('div'); lab.className='eq-label'; lab.textContent='=2'; el.appendChild(lab); }
+          if (r===4 && c===4) { const lab=document.createElement('div'); lab.className='eq-label'; lab.textContent='=3'; el.appendChild(lab); }
+          gridEl.appendChild(el);
+        }
+      }
+
       // Render bank
-      state.bank.forEach((n, i)=>{
-        const t = document.createElement('div');
-        t.className = 'tile';
+      state.bank.forEach(n=>{
+        const t=document.createElement('div');
+        t.className='tile';
         t.textContent = n;
-        t.draggable = true;
-        t.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', String(n)); });
-        // click-to-place alternative
         t.addEventListener('click', ()=> placeNumber(n));
-        numberBank.appendChild(t);
+        bankEl.appendChild(t);
       });
-      // Enable drop on cells
-      [...puzzleGrid.children].forEach((el, i)=>{
-        el.addEventListener('dragover', (e)=> e.preventDefault());
-        el.addEventListener('drop', (e)=>{
-          e.preventDefault();
-          const n = Number(e.dataTransfer.getData('text/plain'));
-          placeIntoCell(i, n);
-        });
-      });
-      updateHUD();
-      gameMsg.textContent = '';
-      gameMsg.className = 'msg';
     }
 
-    let selectedIndex = null;
-    function selectCell(idx){
-      selectedIndex = idx;
-      [...puzzleGrid.children].forEach((el, i)=>{
-        el.style.outline = i===idx ? '2px solid '+(state.cells[i].value==null ? '#1f5fe6' : '#9aa7bd') : 'none';
+    function highlightSelection(sr,sc){
+      const gridEl=document.getElementById('puzzleGrid');
+      [...gridEl.children].forEach((el,i)=>{
+        const r=Math.floor(i/5), c=i%5;
+        if(r===sr && c===sc) el.style.outline='2px solid '+ '#1f5fe6';
+        else {
+          const cell=state.grid[r][c];
+          el.style.outline = cell.kind==='blank' ? '2px dashed #9aa7bd' : 'none';
+        }
       });
     }
+
+    let selected=null;
     function placeNumber(n){
-      if(selectedIndex==null){ gameMsg.textContent='Selecciona una casilla'; gameMsg.className='msg err'; return; }
-      placeIntoCell(selectedIndex, n);
-    }
-    function placeIntoCell(idx, n){
-      const c = state.cells[idx];
-      if(!c) return;
-      if(c.pairSum){
-        // pair sum logic: mark one slot filled (we accept one placement then wait the other)
-        // For simplicity, treat as correct if any placement equals half (when even) or proceed to resolve later.
-        gameMsg.textContent='Completa la segunda parte de la suma'; gameMsg.className='msg';
-        c.value = (c.value==null ? n : c.value + n);
-        puzzleGrid.children[idx].classList.remove('err','ok');
-        // Visual feedback
-        puzzleGrid.children[idx].classList.add('ok');
-      }else{
-        c.value = n;
-        const el = puzzleGrid.children[idx];
-        el.innerHTML = `<span>${c.text.replace('□', String(n))}</span>${c.star?'<span class="star">★</span>':''}`;
-        validateCell(idx);
+      const msgEl = document.getElementById('gameMsg');
+      if(!selected){ msgEl.textContent='Selecciona una casilla'; msgEl.className='msg err'; return; }
+      const {r,c} = selected;
+      const cell = state.grid[r][c];
+      if(cell.kind!=='blank') return;
+      // Asignar
+      cell.value = n;
+      renderPuzzle();
+      // Validar ecuaciones que involucran (r,c)
+      const related = state.equations.filter(eq => eq.cells.some(pos => pos.r===r && pos.c===c));
+      let allReadyOk = true, anyReadyBad = false;
+      for(const eq of related){
+        const res = evalEquation(eq, state.grid);
+        if (res.ready && !res.ok) { anyReadyBad = true; break; }
+        if (!res.ready) allReadyOk = false;
       }
-      // mark bank tile used
-      const btn = [...numberBank.children].find(t=> Number(t.textContent)===n && !t.classList.contains('used'));
+      const gridEl=document.getElementById('puzzleGrid');
+      const idx=r*5+c;
+      const cellEl=gridEl.children[idx];
+      cellEl.classList.remove('ok','err');
+      if(anyReadyBad){
+        cellEl.classList.add('err');
+        msgEl.textContent=`Incorrecto para el cruce.`;
+        msgEl.className='msg err';
+        loseLife();
+      }else{
+        cellEl.classList.add('ok');
+        msgEl.textContent='¡Correcto!';
+        msgEl.className='msg ok';
+        saveHUD();
+        checkCompletion();
+      }
+      selected=null; highlightSelection(-1,-1);
+      // Marcar bank tile usado (primera coincidencia)
+      const bankEl=document.getElementById('numberBank');
+      const btn=[...bankEl.children].find(t=>Number(t.textContent)===n && !t.classList.contains('used'));
       if(btn) btn.classList.add('used');
-      selectedIndex = null;
-      // check completion
-      checkCompletion();
-    }
-    async function validateCell(idx){
-      const c = state.cells[idx];
-      const el = puzzleGrid.children[idx];
-      el.classList.remove('ok','err');
-      // pairSum special check
-      if(c.pairSum){
-        // If we set a value, wait until the user places another equal number (not enforced strictly for UX)
-        return;
-      }
-      const correct = Number(c.value) === Number(c.solution);
-      if(correct){
-        el.classList.add('ok'); gameMsg.textContent='¡Correcto!'; gameMsg.className='msg ok';
-        if(c.star){ coins += 5; gameMsg.textContent='¡Correcto! +5 monedas por estrella'; }
-        await saveHUD();
-      }else{
-        el.classList.add('err'); gameMsg.textContent=`Incorrecto. Debía ser ${c.solution}`; gameMsg.className='msg err';
-        await loseLife();
-      }
     }
 
-    async function saveHUD(){
-      if(!currentUser) return;
-      const meta = await getMeta(currentUser);
-      meta.coins = coins; meta.lives = lives;
-      await putMeta(meta);
-      updateHUD();
+    async function checkCompletion(){
+      // Completado si todos los blanks tienen valor y todas ecuaciones evalúan true
+      const allBlanksFilled = state.blanks.every(b=> state.grid[b.r][b.c].value!=null );
+      if(!allBlanksFilled) return;
+      for(const eq of state.equations){
+        const res = evalEquation(eq, state.grid);
+        if(!res.ready || !res.ok) return;
+      }
+      // Todo correcto
+      stopTimer();
+      const score = Math.max(1000 - elapsed*5, 100);
+      document.getElementById('finalScore').textContent=String(score);
+      // Progreso
+      if(currentUser){
+        const prog=await getProgress(currentUser);
+        prog.scores.push({mode:currentMode,stage:currentStage,score,time:elapsed,at:new Date().toISOString()});
+        if(currentMode==='Endless' && score > (prog.endlessBest||0)) prog.endlessBest = score;
+        if(currentMode==='Daily' && score > (prog.dailyBest||0)) prog.dailyBest = score;
+        if(currentMode==='Expert'){ const ex=prog.expert||{}; ex[currentStage]=Math.max(ex[currentStage]||0, score); prog.expert=ex; }
+        prog.lastSaved={mode:currentMode,stage:currentStage};
+        await putProgress(prog);
+      }
+      coins += 20; await saveHUD();
+      document.getElementById('completeOverlay').style.display='flex';
     }
+
     async function loseLife(){
       lives = Math.max(0, lives-1);
       await saveHUD();
       if(lives<=0){
         stopTimer();
-        gameOverOverlay.style.display='flex';
+        document.getElementById('gameOverOverlay').style.display='flex';
       }
+    }
+    async function saveHUD(){
+      if(!currentUser) return;
+      const meta=await getMeta(currentUser);
+      meta.coins=coins; meta.lives=lives;
+      await putMeta(meta);
+      updateHUD();
     }
     function updateHUD(){
-      hudLivesEl.textContent = lives;
-      hudCoinsEl.textContent = coins;
+      document.getElementById('hudLives').textContent=lives;
+      document.getElementById('hudCoins').textContent=coins;
     }
 
-    async function checkCompletion(){
-      // done if all non-pair cells match solution and pairSum received at least two placements (simple)
-      const allFilled = state.cells.every(c=> c.pairSum ? (c.value!=null) : (c.value!==null));
-      if(!allFilled) return;
-      stopTimer();
-      // score basic
-      const score = Math.max(1000 - elapsed*5, 100);
-      finalScoreEl.textContent = String(score);
-      // update progress
-      if(currentUser){
-        const prog = await getProgress(currentUser);
-        prog.scores.push({ mode: currentMode, stage: currentStage, score, time: elapsed, at: new Date().toISOString() });
-        if(currentMode==='Endless' && score > (prog.endlessBest||0)) prog.endlessBest = score;
-        if(currentMode==='Daily' && score > (prog.dailyBest||0)) prog.dailyBest = score;
-        if(currentMode==='Expert'){
-          const ex = prog.expert || {};
-          ex[currentStage] = Math.max(ex[currentStage]||0, score);
-          prog.expert = ex;
-        }
-        prog.lastSaved = { mode: currentMode, stage: currentStage, seed: state.seed || null };
-        await putProgress(prog);
-      }
-      // reward coins
-      coins += 20; await saveHUD();
-      completeOverlay.style.display='flex';
-    }
-
-    async function startGameSession(seed){
-      if(!currentUser) return;
-      // restore meta
-      const meta = await getMeta(currentUser);
+    // Navegación y juego
+    function show(el){ ['homeScreen','levelSelectScreen','gameScreen'].forEach(id=>{document.getElementById(id).style.display='none'}); el.style.display='block' }
+    async function startGameSession(){
+      if(!currentUser){ authBackdrop.style.display='flex'; return; }
+      // Cargar meta
+      const meta=await getMeta(currentUser);
       lives = meta.lives ?? 3; coins = meta.coins ?? 0; premium = !!meta.premium;
-      // enforce Premium for Expert
+      // Enforce premium para Expert
       if(currentMode==='Expert' && !premium){
-        alert('Requiere Premium. Compra y verifica tu licencia para acceder.');
-        show(home); return;
+        alert('Requiere Premium.');
+        show(document.getElementById('homeScreen'));
+        return;
       }
-      // prepare puzzle
-      const s = (currentMode==='Daily') ? seedForDaily(new Date()) : (seed || Date.now());
-      const gen = generatePuzzle(s);
-      gen.seed = s;
-      state = gen;
+      // Generar crucigrama
+      state = generatePuzzle(currentMode);
       renderPuzzle();
-      hudModeEl.textContent = currentMode;
+      document.getElementById('hudMode').textContent=currentMode;
       startTimer();
-      show(game);
-      // save last session
-      const prog = await getProgress(currentUser);
-      prog.lastSaved = { mode: currentMode, stage: currentStage, seed: s };
+      show(document.getElementById('gameScreen'));
+      // Guardar última sesión
+      const prog=await getProgress(currentUser);
+      prog.lastSaved={mode:currentMode,stage:currentStage};
       await putProgress(prog);
       await refreshHome();
     }
 
-    // Premium verification (Gumroad)
-    async function verifyGumroadLicense(license){
-      if(!currentUser){ return { ok:false, msg:'Sin sesión' }; }
-      try{
-        const body = new URLSearchParams({ product_id: GUMROAD_PRODUCT_ID, license_key: license });
-        const resp = await fetch('https://gumroad.com/api/v2/licenses/verify', {
-          method: 'POST',
-          headers: { 'Content-Type':'application/x-www-form-urlencoded' },
-          body
-        });
-        const data = await resp.json();
-        if(data && data.success){
-          const meta = await getMeta(currentUser);
-          meta.premium = true;
-          await putMeta(meta);
-          return { ok:true, msg:'Licencia verificada. Premium activado.' };
-        }else{
-          return { ok:false, msg: (data && data.message) ? data.message : 'No se pudo verificar la licencia.' };
-        }
-      }catch(e){
-        return { ok:false, msg:'Error de red al verificar la licencia.' };
+    // HOME y Level Select
+    async function refreshHome(){
+      document.getElementById('dailyDate').textContent=fmtDate(new Date());
+      if(currentUser){
+        const prog=await getProgress(currentUser);
+        const meta=await getMeta(currentUser);
+        document.getElementById('endlessBest').textContent=prog.endlessBest||0;
+        coins=meta.coins; lives=meta.lives; premium=meta.premium;
+        document.getElementById('profileInfo').textContent=`Usuario: ${currentUser} · Premium: ${premium?'Sí':'No'} · Vidas: ${lives} · Monedas: ${coins}`;
+        document.getElementById('continueBtn').style.display = prog.lastSaved ? 'inline-block':'none';
+      }else{
+        document.getElementById('endlessBest').textContent=0;
+        document.getElementById('continueBtn').style.display='none';
+        document.getElementById('profileInfo').textContent='Inicia sesión para ver tu estado.';
+      }
+    }
+    function renderLevelGrid(){
+      const lg=document.getElementById('levelGrid'); lg.innerHTML='';
+      for(let i=1;i<=15;i++){
+        const c=document.createElement('button'); c.className='btn-outline'; c.textContent=String(i);
+        c.addEventListener('click', async()=>{ currentMode='Expert'; currentStage=i; await startGameSession(); });
+        lg.appendChild(c);
       }
     }
 
-    // Idioma (simple placeholder; textos clave ya están en inglés/español por diseño minimal)
-    async function applyLang(lang){
-      // Para esta versión, mantenemos la UI minimal y bilingüe base. Puedes expandir i18n aquí si deseas sustituir etiquetas.
-      const meta = currentUser ? await getMeta(currentUser) : null;
-      if(meta){ meta.lang = lang; await putMeta(meta); }
+    // Gumroad licencia
+    async function verifyGumroadLicense(license){
+      if(!currentUser) return {ok:false,msg:'Sin sesión'};
+      if(!license) return {ok:false,msg:'Ingresa licencia válida.'};
+      try{
+        const body=new URLSearchParams({product_id:GUMROAD_PRODUCT_ID,license_key:license});
+        const resp=await fetch('https://gumroad.com/api/v2/licenses/verify',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+        const data=await resp.json();
+        if(data && data.success){
+          const meta=await getMeta(currentUser);
+          meta.premium=true; await putMeta(meta);
+          return {ok:true,msg:'Licencia verificada. Premium activado.'};
+        }else{
+          return {ok:false,msg:(data && data.message)?data.message:'No se pudo verificar la licencia.'};
+        }
+      }catch(e){
+        return {ok:false,msg:'Error de red al verificar la licencia.'};
+      }
     }
+
+    // Eventos UI
+    document.getElementById('loginOpenBtn').addEventListener('click',()=>{ document.getElementById('authBackdrop').style.display='flex'; });
+    document.getElementById('closeAuthBtn').addEventListener('click',()=>{ document.getElementById('authBackdrop').style.display='none'; });
+    document.getElementById('registerBtn').addEventListener('click',async()=>{
+      const u=document.getElementById('authUser').value.trim(); const p=document.getElementById('authPass').value;
+      const msg=document.getElementById('authMsg');
+      if(!u||!p){msg.textContent='Usuario/contraseña requeridos';msg.className='msg err';return;}
+      if(await getUser(u)){msg.textContent='Usuario ya existe';msg.className='msg err';return;}
+      const ph=await hashPassword(p);
+      await putUser({username:u,passHash:ph,createdAt:new Date().toISOString()});
+      await putProgress({username:u,dailyBest:0,endlessBest:0,expert:{},lastSaved:null,scores:[]});
+      const demo = u.toLowerCase()==='premium_demo@crossmath.com';
+      await putMeta({username:u,premium:demo,coins:demo?999:0,lives:3,sound:true,lang:(navigator.language||'es').slice(0,2)});
+      msg.textContent='Usuario creado. Inicia sesión.'; msg.className='msg ok';
+    });
+    document.getElementById('loginBtnModal').addEventListener('click',async()=>{
+      const u=document.getElementById('authUser').value.trim(); const p=document.getElementById('authPass').value;
+      const msg=document.getElementById('authMsg');
+      if(!u||!p){msg.textContent='Usuario/contraseña requeridos';msg.className='msg err';return;}
+      const user=await getUser(u);
+      if(!user){msg.textContent='Usuario no encontrado';msg.className='msg err';return;}
+      const ph=await hashPassword(p);
+      if(ph!==user.passHash){msg.textContent='Contraseña incorrecta';msg.className='msg err';return;}
+      currentUser=u; document.getElementById('userStatus').textContent=`Sesión: ${u}`;
+      document.getElementById('logoutBtn').style.display='inline-block';
+      document.getElementById('authBackdrop').style.display='none';
+      await refreshHome();
+    });
+    document.getElementById('logoutBtn').addEventListener('click',async()=>{
+      currentUser=null; premium=false; lives=3; coins=0;
+      document.getElementById('userStatus').textContent='Sin sesión';
+      document.getElementById('logoutBtn').style.display='none';
+      await refreshHome();
+    });
+
+    document.getElementById('playDailyBtn').addEventListener('click',async()=>{ if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;} currentMode='Daily'; currentStage=1; await startGameSession(); });
+    document.getElementById('playEndlessBtn').addEventListener('click',async()=>{ if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;} currentMode='Endless'; currentStage=1; await startGameSession(); });
+    document.getElementById('newGameBtn').addEventListener('click',async()=>{
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      const meta=await getMeta(currentUser);
+      if(meta.premium){ renderLevelGrid(); show(document.getElementById('levelSelectScreen')); }
+      else { currentMode='Daily'; currentStage=1; await startGameSession(); }
+    });
+    document.getElementById('continueBtn').addEventListener('click',async()=>{
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      const prog=await getProgress(currentUser);
+      if(prog.lastSaved){ currentMode=prog.lastSaved.mode; currentStage=prog.lastSaved.stage||1; await startGameSession(); }
+    });
+    document.getElementById('backHomeBtn').addEventListener('click',()=> show(document.getElementById('homeScreen')));
+
+    // HUD juego
+    document.getElementById('pauseBtn').addEventListener('click',()=>{ document.getElementById('pauseOverlay').style.display='flex'; stopTimer(); });
+    document.getElementById('resumeBtn').addEventListener('click',()=>{ document.getElementById('pauseOverlay').style.display='none'; startTimer(); });
+    document.getElementById('restartBtn').addEventListener('click',async()=>{ await startGameSession(); });
+    document.getElementById('restartFromPauseBtn').addEventListener('click',async()=>{ document.getElementById('pauseOverlay').style.display='none'; await startGameSession(); });
+    document.getElementById('exitBtn').addEventListener('click',()=>{ stopTimer(); show(document.getElementById('homeScreen')); });
+    document.getElementById('exitFromPauseBtn').addEventListener('click',()=>{ document.getElementById('pauseOverlay').style.display='none'; stopTimer(); show(document.getElementById('homeScreen')); });
+
+    document.getElementById('continueAfterCompleteBtn').addEventListener('click',async()=>{
+      document.getElementById('completeOverlay').style.display='none';
+      if(currentMode==='Endless'){ await startGameSession(); } else { show(document.getElementById('homeScreen')); }
+    });
+    document.getElementById('replayBtn').addEventListener('click',async()=>{ document.getElementById('completeOverlay').style.display='none'; await startGameSession(); });
+    document.getElementById('retryBtn').addEventListener('click',async()=>{ document.getElementById('gameOverOverlay').style.display='none'; lives=3; await saveHUD(); await startGameSession(); });
+    document.getElementById('goHomeBtn').addEventListener('click',()=>{ document.getElementById('gameOverOverlay').style.display='none'; show(document.getElementById('homeScreen')); });
+
+    // Tienda Premium
+    document.getElementById('buyPremiumBtn').addEventListener('click',()=> window.open(GUMROAD_URL,'_blank'));
+    document.getElementById('verifyLicenseBtn').addEventListener('click',async()=>{
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      const lic=document.getElementById('gumroadLicenseInput').value.trim();
+      const res=await verifyGumroadLicense(lic);
+      alert(res.msg); await refreshHome();
+    });
+
+    // Portabilidad
+    document.getElementById('exportBtn').addEventListener('click',async()=>{
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      const prog=await getProgress(currentUser); const meta=await getMeta(currentUser);
+      const payload={schema:'crossmath.local.v1', user:currentUser, progress:prog, meta:meta};
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a');
+      a.href=url; a.download=`crossmath_${currentUser}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+    document.getElementById('importInput').addEventListener('change',async(e)=>{
+      const f=e.target.files?.[0]; if(!f) return;
+      const txt=await f.text(); let data;
+      try{ data=JSON.parse(txt); }catch{ alert('Archivo inválido'); return; }
+      if(!data || data.schema!=='crossmath.local.v1'){ alert('Esquema desconocido'); return; }
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      if(data.user!==currentUser){ alert('Archivo de otro usuario'); return; }
+      await putProgress(Object.assign({},data.progress,{username:currentUser}));
+      await putMeta(Object.assign({},data.meta,{username:currentUser}));
+      alert('Importación exitosa'); await refreshHome(); e.target.value='';
+    });
+
+    // Ajustes
+    document.getElementById('toggleSoundBtn').addEventListener('click',async()=>{
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      const meta=await getMeta(currentUser); meta.sound=!meta.sound; await putMeta(meta);
+      document.getElementById('toggleSoundBtn').textContent=`Sonido: ${meta.sound?'ON':'OFF'}`;
+    });
+    document.getElementById('langSelect').addEventListener('change',async(e)=>{
+      if(!currentUser){document.getElementById('authBackdrop').style.display='flex';return;}
+      const meta=await getMeta(currentUser); meta.lang=e.target.value; await putMeta(meta);
+      // UI minimal: las etiquetas principales ya están en ES/EN; aquí podrías aplicar i18n ampliado si lo deseas.
+    });
 
     // Init
     (async function init(){
       await openDB();
-      // Precrear demo si no existe
-      const demo = await getUser('premium_demo@crossmath.com');
-      if(!demo){
-        const ph = await hashPassword('demo123');
-        await putUser({ username: 'premium_demo@crossmath.com', passHash: ph, createdAt: new Date().toISOString() });
-        await putProgress({ username: 'premium_demo@crossmath.com', dailyBest: 0, endlessBest: 0, expert:{}, lastSaved: null, scores: [] });
-        await putMeta({ username: 'premium_demo@crossmath.com', premium: true, coins: 999, lives: 5, sound: true, lang: (navigator.language||'es').slice(0,2) });
+      // Precrear demo premium
+      if(!(await getUser('premium_demo@crossmath.com'))){
+        const ph=await hashPassword('demo123');
+        await putUser({username:'premium_demo@crossmath.com',passHash:ph,createdAt:new Date().toISOString()});
+        await putProgress({username:'premium_demo@crossmath.com',dailyBest:0,endlessBest:0,expert:{},lastSaved:null,scores:[]});
+        await putMeta({username:'premium_demo@crossmath.com',premium:true,coins:999,lives:5,sound:true,lang:(navigator.language||'es').slice(0,2)});
       }
-      dailyDateEl.textContent = fmtDate(new Date());
+      document.getElementById('dailyDate').textContent=fmtDate(new Date());
       await refreshHome();
     })();
   </script>
 </body>
 </html>
-```
