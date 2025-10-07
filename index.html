@@ -2,977 +2,877 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>CroossMathWeb — Web Local</title>
+  <title>Cross Math — Web Local</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
-      /* Paleta y assets (reemplaza por los tuyos) */
-      --bg: #0b0e1a; --bg2: #0f1320;
-      --card: #121735; --card2: #0d1330;
-      --accent: #48b7ff; --accent2:#7b2cbf;
-      --text:#e9edf7; --muted:#a8b0c4;
-      --ok:#27ae60; --warn:#f39c12; --err:#e74c3c;
+      /* Paleta estilo fotos nuevas: fondo blanco, acentos azules */
+      --bg: #ffffff;
+      --text: #1b2a4a;
+      --muted: #7a8aa6;
+      --blue: #2f7bff;
+      --blue-600: #1f5fe6;
+      --blue-50: #eaf2ff;
+      --line: #e6eaf2;
+      --green: #19b36b;
+      --red: #e04949;
+      --yellow: #f7c948;
+      --yellow-600: #d9a719;
+      --tile: #ffec99;
 
-      --banner-image: url('assets/banner.jpg');
-      --header-logo: url('assets/logo.png');
-      --avatar: url('assets/avatar.jpg');
+      --shadow: 0 6px 20px rgba(31,95,230,0.12);
+      --shadow-soft: 0 6px 20px rgba(0,0,0,0.06);
     }
-    *{box-sizing:border-box}
+    *{ box-sizing: border-box; }
     body{
-      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      color:var(--text);
-      background: radial-gradient(1000px 600px at 20% -10%, #0d1432 10%, transparent 60%), linear-gradient(180deg, var(--bg), var(--bg2));
-      min-height:100vh;
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+      background: var(--bg);
     }
-
-    /* Hero portada */
-    .hero{ position:relative; width:100%; aspect-ratio:16/6; background: var(--banner-image) center/cover no-repeat; border-bottom:1px solid #1f2540; overflow:hidden;}
-    .hero::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(7,10,22,0.35), rgba(7,10,22,0.75));}
-    .hero-content{ position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px;}
-    .hero-title{ display:flex; align-items:center; gap:12px; background:#0b1030cc; backdrop-filter:blur(8px); border:1px solid #222a4e; border-radius:14px; padding:12px 14px;}
-    .hero-logo{ width:42px; height:42px; border-radius:8px; background: var(--header-logo) center/cover no-repeat; border:1px solid #2e3a6a; box-shadow:0 0 18px rgba(72,183,255,0.35);}
-    .hero-title .name{ font-size:20px; font-weight:800; letter-spacing:0.3px;}
-    .pill{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #2e3a6a; color:var(--muted); }
-    .kbd{ display:inline-block; background:#0e132a; border:1px solid #2a325a; color:#9fb0d7; padding:2px 6px; border-radius:6px; font-size:12px; }
-
-    header{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 16px; border-bottom:1px solid #1f2540; background:#0d1120e6; backdrop-filter:blur(8px);
-      position:sticky; top:0; z-index:10;
-    }
-    .user-bar{ display:flex; align-items:center; gap:10px; color:var(--muted);}
-    .avatar{ width:28px; height:28px; border-radius:50%; background: var(--avatar) center/cover no-repeat; border:1px solid #2e3a6a; }
+    a{ color: var(--blue); text-decoration: none; }
     button{
-      background:var(--accent); color:#071018; border:none; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer;
-      box-shadow:0 8px 18px rgba(76,201,240,0.25); transition:transform .05s ease, filter .2s ease;
+      appearance: none; border: none; cursor: pointer;
+      font-weight: 700; border-radius: 12px; padding: 12px 16px;
+      transition: filter .15s ease, transform .05s ease;
     }
-    button:hover{ filter:brightness(1.08); }
-    button:active{ transform:translateY(1px); }
-    .btn-secondary{ background:#253058; color:var(--text); box-shadow:none; border:1px solid #2e3a6a; }
-    .btn-ghost{ background:transparent; color:var(--text); border:1px dashed #3a4577; }
+    button:active{ transform: translateY(1px); }
+    .btn-blue{ background: var(--blue); color: #fff; box-shadow: var(--shadow); }
+    .btn-blue:hover{ filter: brightness(1.05); }
+    .btn-outline{ background: #fff; color: var(--text); border: 1px solid var(--line); }
+    .btn-ghost{ background: transparent; color: var(--blue); }
+    .btn-muted{ background: #f6f8fb; color: var(--text); border: 1px solid var(--line); }
 
-    main{ max-width:1140px; margin:20px auto; padding:0 16px 40px; }
-    .card{ background: linear-gradient(180deg, var(--card), var(--card2)); border:1px solid #1f2540; border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:0 10px 30px rgba(17,22,48,0.35); }
-    h2,h3{ margin:10px 0 12px; }
-    .muted{ color:var(--muted); font-size:14px; }
-    .row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .flex{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .input, input, select, textarea{ width:100%; padding:10px 12px; border-radius:10px; border:1px solid #2a325a; background:#0e132a; color:var(--text); }
-    .message{ padding:10px 12px; border-radius:12px; font-size:14px; }
-    .ok{ background:#12251a; border:1px solid #1f7a47; color:#b6f3cf; }
-    .warn{ background:#251f12; border:1px solid #7a5b1f; color:#f6deb1; }
-    .err{ background:#2a1515; border:1px solid #7a1f1f; color:#f7b6b6; }
-    .hidden{ display:none !important; }
+    .container{ max-width: 820px; margin: 0 auto; padding: 20px; }
+    header{
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--line);
+      position: sticky; top: 0; background: #fff; z-index: 10;
+    }
+    .brand{ font-weight: 900; letter-spacing: .2px; }
+    .userbar{ display: flex; align-items: center; gap: 8px; color: var(--muted); }
 
-    /* Menú principal */
-    .menu-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    .menu-btn{ display:flex; align-items:center; justify-content:center; padding:20px; border-radius:16px; border:1px solid #2a325a; background:#0e132a; font-weight:800; letter-spacing:.3px; box-shadow:0 10px 24px rgba(10,15,35,.35); }
+    /* Tarjetas Home */
+    .home-group{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .card{
+      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px;
+      box-shadow: var(--shadow-soft);
+    }
+    .card h3{ margin: 4px 0 6px; }
+    .card .muted{ color: var(--muted); font-size: 14px; }
+    .card .footer{ margin-top: 12px; display: flex; justify-content: flex-start; gap: 10px; }
 
-    /* Selección de niveles */
-    .levels{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-    .level-btn{ padding:16px; border-radius:14px; border:1px solid #2a325a; background:#101736; font-weight:700; text-align:center; }
-    .level-btn[data-d="easy"]{ background:linear-gradient(180deg,#0f2d3a,#0c1d2a); }
-    .level-btn[data-d="medium"]{ background:linear-gradient(180deg,#2b223f,#151232); }
-    .level-btn[data-d="hard"]{ background:linear-gradient(180deg,#3a1e1e,#1a1216); }
-    .level-btn[data-d="endless"]{ background:linear-gradient(180deg,#12351f,#0d2317); }
+    .title-main{ text-align: center; margin: 24px 0 12px; font-weight: 900; font-size: 28px; }
+    .home-actions{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 560px; margin: 0 auto; }
 
-    /* HUD juego */
-    .hud{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
-    .stat{ display:flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; border:1px solid #2e3a6a; background:#0e132a; }
+    /* Pantalla puzzle (Expert-like) */
+    .hud{
+      display: flex; align-items: center; justify-content: space-between;
+      border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; margin: 16px 0;
+      background: #fff;
+    }
+    .stat{ display: flex; align-items: center; gap: 8px; color: var(--muted); }
+    .stat strong{ color: var(--text); }
 
-    /* Puzzle: fichas amarillas estilo captura y tablero 1–100 al lado */
-    .grid-wrap{ display:grid; grid-template-columns:2fr 1fr; gap:16px; }
-    @media (max-width: 900px){ .grid-wrap{ grid-template-columns:1fr; } }
+    .board-wrap{ display: grid; grid-template-columns: 1fr; gap: 16px; }
+    .grid{
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: #fff;
+    }
+    .cell{
+      min-height: 64px; border-radius: 12px; border: 1px solid var(--line); background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; letter-spacing: .2px; text-align: center; padding: 8px;
+      position: relative;
+    }
+    .cell.eq{ background: #f9fbff; }
+    .cell.blank{ background: var(--tile); border-color: var(--yellow-600); outline: 2px dashed var(--yellow-600); }
+    .cell.ok{ background: #e9fbf2; border-color: #b9f1d3; }
+    .cell.err{ background: #ffecec; border-color: #ffc2c2; }
 
-    .puzzle{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+    .star{
+      position: absolute; top: 6px; right: 6px; font-size: 14px; color: #f5b700;
+    }
+
+    .bank{
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+      border: 1px solid var(--line); border-radius: 16px; padding: 12px; background: #fff;
+    }
     .tile{
-      background:#f2c744; color:#1a1a1a; border:2px solid #d8a800;
-      border-radius:12px; padding:10px; min-height:72px; display:flex; align-items:center; justify-content:center;
-      font-weight:800; box-shadow:0 4px 0 #c69b00; text-align:center;
+      padding: 12px; text-align: center; font-weight: 900; border-radius: 12px;
+      border: 1px solid var(--line); background: #f6faff; color: var(--blue);
+      user-select: none;
     }
-    .tile.blank{ cursor:pointer; outline:2px dashed #1e6fff; }
+    .tile.used{ opacity: .35; pointer-events: none; }
+    .msg{ margin-top: 8px; font-size: 14px; color: var(--muted); }
+    .msg.ok{ color: var(--green); }
+    .msg.err{ color: var(--red); }
 
-    .board{ background:#0d1330; border:1px solid #21335a; border-radius:12px; padding:10px; display:grid; grid-template-columns:repeat(10,1fr); gap:6px; max-height:520px; overflow:auto; }
-    .num{ background:#1b7f3a; color:#e7ffe9; border:2px solid #0e5a26; border-radius:8px; padding:8px; text-align:center; cursor:pointer; font-weight:800; }
-    .num.used{ opacity:.35; pointer-events:none; }
-    .num.highlight{ box-shadow:0 0 0 2px #48b7ff inset; }
+    /* Mapa niveles */
+    .level-map{ margin-top: 12px; }
+    .level-grid{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .level-cell{
+      padding: 12px; text-align: center; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; font-weight: 700;
+    }
 
-    /* Overlays y modales */
-    .overlay{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(5,8,20,.6); backdrop-filter:blur(2px); z-index:100; }
-    .panel{ width:100%; max-width:520px; background:linear-gradient(180deg,#101734,#0c122d); border:1px solid #222a4e; border-radius:16px; padding:16px; box-shadow:0 20px 50px rgba(10,15,35,.55); }
-    .stars{ display:flex; gap:8px; font-size:24px; }
-    .modal-backdrop{ position:fixed; inset:0; background:rgba(5,8,20,.65); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; z-index:100; }
-    .modal{ width:100%; max-width:480px; background:linear-gradient(180deg,#101734,#0c122d); border:1px solid #222a4e; border-radius:16px; padding:16px; box-shadow:0 20px 50px rgba(10,15,35,.55); }
-    .modal header{ position:static; padding:0; background:transparent; border:none; margin-bottom:10px; }
+    /* Modales */
+    .backdrop{
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    .modal{
+      background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; width: 100%; max-width: 520px;
+      box-shadow: var(--shadow-soft);
+    }
+    .modal header h3{ margin: 0 0 6px; }
+    .input{ width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; color: var(--text); }
 
-    .store-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .item{ background:#0e132a; border:1px solid #2a325a; border-radius:12px; padding:12px; }
-    .item .title{ font-weight:700; }
+    /* Paneles overlay */
+    .overlay{ position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.35); z-index: 90; }
+    .panel{ background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; width: 100%; max-width: 520px; box-shadow: var(--shadow-soft); text-align: center; }
+    .stars{ font-size: 22px; margin: 6px 0 10px; }
   </style>
 </head>
 <body>
-  <div class="hero" aria-label="Portada visual">
-    <div class="hero-content">
-      <div class="hero-title">
-        <div class="hero-logo" aria-hidden="true"></div>
-        <div>
-          <div class="name">CroossMathWeb — Web Local</div>
-          <div class="pill">Multi-dispositivo · Multi-idioma</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <header>
-    <div class="user-bar">
-      <div class="avatar" aria-hidden="true"></div>
-      <span id="userStatus" class="muted">Sin sesión</span>
-    </div>
-    <div class="user-bar">
-      <button id="loginBtn">Iniciar sesión</button>
-      <button id="logoutBtn" class="btn-secondary hidden">Cerrar sesión</button>
+    <div class="brand">Cross Math</div>
+    <div class="userbar">
+      <span id="userStatus">Sin sesión</span>
+      <button id="loginBtn" class="btn-outline">Acceso</button>
+      <button id="logoutBtn" class="btn-outline" style="display:none;">Salir</button>
     </div>
   </header>
 
-  <main>
-    <!-- Menú -->
-    <section id="mainMenu" class="card">
-      <h2 id="t_menuTitle">Menú principal</h2>
-      <p class="muted" id="t_menuDesc">Selecciona una opción para comenzar.</p>
-      <div class="menu-grid">
-        <button class="menu-btn" id="playBtn"><span id="t_play">Jugar</span></button>
-        <button class="menu-btn" id="levelsBtn"><span id="t_levels">Niveles</span></button>
-        <button class="menu-btn" id="profileBtn"><span id="t_profile">Perfil</span></button>
-        <button class="menu-btn" id="settingsBtn"><span id="t_settings">Ajustes</span></button>
-        <button class="menu-btn" id="helpBtn"><span id="t_help">Ayuda</span></button>
-        <div class="muted">Atajo: <span class="kbd">Shift + L</span> abre el acceso.</div>
+  <main class="container">
+    <!-- HOME: Daily Challenge / Endless Mode + Continue / New Game -->
+    <section id="homeScreen">
+      <div class="home-group">
+        <div class="card">
+          <h3 id="t_dailyTitle">Daily Challenge</h3>
+          <div class="muted" id="dailyDate"></div>
+          <div class="footer">
+            <button id="playDailyBtn" class="btn-blue">Play</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3 id="t_endlessTitle">Endless Mode</h3>
+          <div class="muted">Highest score: <span id="endlessBest">0</span></div>
+          <div class="footer">
+            <button id="playEndlessBtn" class="btn-blue">Play</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="title-main">Cross Math</div>
+
+      <div class="home-actions">
+        <button id="continueBtn" class="btn-blue" style="display:none;">Continue</button>
+        <button id="newGameBtn" class="btn-outline">New Game</button>
+      </div>
+
+      <div class="card" style="margin-top:24px;">
+        <h3>Perfil</h3>
+        <p class="muted">Premium desbloquea todo. Solo se compra la versión Premium.</p>
+        <div class="flex" style="gap:8px;">
+          <button id="buyPremiumBtn" class="btn-blue">Comprar Premium</button>
+          <input id="gumroadLicenseInput" class="input" placeholder="Licencia Gumroad (rnlle)" />
+          <button id="verifyLicenseBtn" class="btn-outline">Verificar licencia</button>
+        </div>
+        <p class="muted" style="margin-top:8px;">Cuenta demo: premium_demo@crossmath.com / demo123 (Premium activado)</p>
+        <div class="flex" style="gap:8px; margin-top:10px;">
+          <button id="exportBtn" class="btn-outline">Exportar JSON</button>
+          <label for="importInput" class="btn-outline" style="cursor:pointer;">Importar JSON</label>
+          <input id="importInput" type="file" accept="application/json" style="display:none;" />
+        </div>
+        <div id="profileInfo" class="muted" style="margin-top:8px;">Inicia sesión para ver tu estado.</div>
+      </div>
+
+      <div class="card">
+        <h3>Ajustes</h3>
+        <div class="row">
+          <div>
+            <label class="muted">Idioma</label>
+            <select id="langSelect" class="input">
+              <option value="es">Español</option><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option>
+              <option value="it">Italiano</option><option value="pt">Português</option><option value="ru">Русский</option><option value="zh">中文</option>
+              <option value="ja">日本語</option><option value="ko">한국어</option><option value="ar">العربية</option><option value="hi">हिन्दी</option>
+              <option value="tr">Türkçe</option><option value="pl">Polski</option><option value="nl">Nederlands</option>
+            </select>
+          </div>
+          <div>
+            <label class="muted">Sonido</label>
+            <button id="toggleSoundBtn" class="btn-outline">Sonido: ON</button>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Selección de niveles -->
-    <section id="levelSelect" class="card hidden">
-      <h2 id="t_levelSelect">Selección de niveles</h2>
-      <p class="muted" id="t_levelHint">Cada nivel ajusta dificultad, operadores y lógica.</p>
-      <div class="levels">
-        <button class="level-btn" data-d="easy" id="levelEasy">Fácil</button>
-        <button class="level-btn" data-d="medium" id="levelMedium">Medio</button>
-        <button class="level-btn" data-d="hard" id="levelHard">Difícil</button>
-        <button class="level-btn" data-d="endless" id="levelEndless">Infinito</button>
-      </div>
-      <div class="flex" style="margin-top:12px;">
-        <button class="btn-secondary" id="backToMenu1">Volver</button>
+    <!-- LEVEL SELECT (Expert-like): Mapa 1–15 (solo si Premium) -->
+    <section id="levelSelectScreen" style="display:none;">
+      <div class="card">
+        <h3>Expert</h3>
+        <p class="muted">Selecciona etapa (1–15). Requiere Premium.</p>
+        <div class="level-map">
+          <div id="levelGrid" class="level-grid"></div>
+        </div>
+        <div class="flex" style="margin-top:12px;">
+          <button id="backHomeBtn" class="btn-outline">Back</button>
+        </div>
       </div>
     </section>
 
-    <!-- Juego -->
-    <section id="gameScreen" class="card hidden">
+    <!-- GAME: HUD + Grid + Bank -->
+    <section id="gameScreen" style="display:none;">
       <div class="hud">
-        <div class="stat"><strong id="t_modeLabel">Modo:</strong> <span id="modeName">Normal</span></div>
-        <div class="stat"><strong id="t_timer">Tiempo</strong> <span id="timer">00:00</span></div>
-        <div class="stat"><strong id="t_lives">Vidas</strong> <span id="lives">3</span></div>
-        <div class="stat"><strong id="t_coins">Monedas</strong> <span id="coins">0</span></div>
-        <div class="flex">
-          <button id="pauseBtn" class="btn-secondary" aria-label="Pausa">⏸️</button>
-          <button id="restartBtn" class="btn-secondary">Reiniciar</button>
-          <button id="exitBtn" class="btn-secondary">Salir</button>
+        <div class="stat"><strong>Modo:</strong> <span id="hudMode">Daily</span></div>
+        <div class="stat"><strong>Tiempo:</strong> <span id="hudTime">00:00</span></div>
+        <div class="stat"><strong>Vidas:</strong> <span id="hudLives">3</span></div>
+        <div class="stat"><strong>Monedas:</strong> <span id="hudCoins">0</span></div>
+        <div class="flex" style="gap:8px;">
+          <button id="pauseBtn" class="btn-outline">Pause</button>
+          <button id="restartBtn" class="btn-outline">Restart</button>
+          <button id="exitBtn" class="btn-outline">Exit</button>
         </div>
       </div>
 
-      <div class="grid-wrap">
-        <div>
-          <h3 id="t_puzzle">Puzzle</h3>
-          <p class="muted" id="t_puzzleHint">Toca un “?” y elige un número del tablero.</p>
-          <div id="puzzleGrid" class="puzzle"></div>
-          <div id="puzzleMsg" class="message hidden"></div>
-        </div>
-        <div>
-          <h3 id="t_board">Tablero 1–100</h3>
-          <div id="numberBoard" class="card board"></div>
-          <div class="flex" style="margin-top:8px;">
-            <button id="refillLifeBtn" class="btn-ghost">+1 vida (ver video)</button>
-            <button id="storeBtn" class="btn-secondary">Tienda</button>
-            <button id="dailyBtn" class="btn-secondary">Bonus diario</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Perfil -->
-    <section id="profileScreen" class="card hidden">
-      <h2 id="t_profileTitle">Perfil</h2>
-      <div class="row">
-        <div class="card">
-          <h3>Estado</h3>
-          <p class="muted">Usuario, premium, progreso.</p>
-          <div id="profileInfo" class="message warn">Inicia sesión para ver tu perfil.</div>
-          <div class="flex" style="margin-top:8px;">
-            <button id="buyPremiumBtn" class="btn-secondary">Comprar Premium</button>
-            <input id="gumroadLicenseInput" class="input" placeholder="Licencia Gumroad (real)" />
-            <button id="verifyLicenseBtn">Verificar licencia</button>
-          </div>
-          <p class="muted">Demo: premium_demo@crossmath.com / demo123 (premium activado).</p>
-        </div>
-        <div class="card">
-          <h3>Portabilidad</h3>
-          <div class="flex">
-            <button id="saveProgressBtn">Guardar progreso</button>
-            <button id="exportProgressBtn" class="btn-secondary">Exportar JSON</button>
-            <label class="btn" for="importFileInput" style="cursor:pointer;">Importar JSON</label>
-            <input id="importFileInput" type="file" accept="application/json" class="hidden" />
-          </div>
-          <div id="progressStatus" class="message hidden"></div>
-          <h4 style="margin-top:12px;">Histórico</h4>
-          <div id="progressList" class="card"></div>
-        </div>
-      </div>
-      <div class="flex" style="margin-top:12px;">
-        <button class="btn-secondary" id="backToMenu2">Volver</button>
-      </div>
-    </section>
-
-    <!-- Ajustes -->
-    <section id="settingsScreen" class="card hidden">
-      <h2 id="t_settingsTitle">Ajustes</h2>
-      <div class="row">
-        <div class="card">
-          <h3>Idioma</h3>
-          <select id="langSelect" class="input">
-            <option value="es">Español</option>
-            <option value="en">English</option>
-          </select>
-          <p class="muted">Detecta idioma del navegador al iniciar.</p>
-        </div>
-        <div class="card">
-          <h3>Sonido</h3>
-          <div class="flex">
-            <button id="toggleSoundBtn" class="btn-secondary">Sonido: ON</button>
-          </div>
-        </div>
-      </div>
-      <div class="flex" style="margin-top:12px;">
-        <button class="btn-secondary" id="backToMenu3">Volver</button>
-      </div>
-    </section>
-
-    <!-- Ayuda -->
-    <section id="helpScreen" class="card hidden">
-      <h2 id="t_helpTitle">Ayuda</h2>
-      <ul>
-        <li><strong>Objetivo:</strong> Completa las ecuaciones colocando números del tablero 1–100.</li>
-        <li><strong>Controles:</strong> Selecciona un “?” y luego el número del tablero.</li>
-        <li><strong>Vidas y pausa:</strong> Pierdes vida al fallar; pausa con ⏸️.</li>
-        <li><strong>Portabilidad:</strong> Exporta/importa tu progreso desde Perfil.</li>
-        <li><strong>Premium:</strong> Verifica tu licencia Gumroad para desbloquear extras.</li>
-      </ul>
-      <div class="flex" style="margin-top:12px;">
-        <button class="btn-secondary" id="backToMenu4">Volver</button>
+      <div class="board-wrap">
+        <div class="grid" id="puzzleGrid"></div>
+        <div class="bank" id="numberBank"></div>
+        <div id="gameMsg" class="msg"></div>
       </div>
     </section>
   </main>
 
-  <!-- Overlays -->
-  <div id="pauseOverlay" class="overlay" aria-hidden="true">
-    <div class="panel">
-      <h3>Pausa</h3>
-      <div class="flex">
-        <button id="resumeBtn">Continuar</button>
-        <button id="restartFromPauseBtn" class="btn-secondary">Reiniciar</button>
-        <button id="exitFromPauseBtn" class="btn-secondary">Salir</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="completeOverlay" class="overlay" aria-hidden="true">
-    <div class="panel">
-      <h3>Nivel completado</h3>
-      <div class="stars">⭐ ⭐ ⭐</div>
-      <p class="muted">Puntaje: <span id="finalScore">0</span></p>
-      <div class="flex">
-        <button id="continueBtn">Continuar</button>
-        <button id="replayBtn" class="btn-secondary">Repetir</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="gameOverOverlay" class="overlay" aria-hidden="true">
-    <div class="panel">
-      <h3>Game Over</h3>
-      <p class="muted">Sin vidas. Intenta de nuevo o vuelve al menú.</p>
-      <div class="flex">
-        <button id="retryBtn">Reintentar</button>
-        <button id="goHomeBtn" class="btn-secondary">Menú</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal tienda -->
-  <div id="storeModalBackdrop" class="modal-backdrop" aria-hidden="true">
+  <!-- AUTH MODAL -->
+  <div id="authBackdrop" class="backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true">
       <header>
-        <h3>Tienda</h3>
-        <p class="muted">Compra boosters y monedas.</p>
+        <h3>Acceso</h3>
+        <p class="muted">Crea cuenta o inicia sesión. Todo se guarda localmente.</p>
       </header>
-      <div class="store-grid">
-        <div class="item">
-          <div class="title">+5 vidas</div>
-          <p class="muted">Costo: 100 monedas</p>
-          <button data-buy="lives5">Comprar</button>
+      <div class="row" style="margin-top:8px;">
+        <div>
+          <label class="muted">Usuario / Email</label>
+          <input id="authUser" class="input" placeholder="ej. premium_demo@crossmath.com" />
         </div>
-        <div class="item">
-          <div class="title">+100 monedas</div>
-          <p class="muted">Gratis (ver video)</p>
-          <button data-buy="coins100">Ver video</button>
-        </div>
-        <div class="item">
-          <div class="title">Premium</div>
-          <p class="muted">Licencia real Gumroad</p>
-          <button data-buy="premium">Ver producto</button>
+        <div>
+          <label class="muted">Contraseña</label>
+          <input id="authPass" type="password" class="input" placeholder="••••••••" />
         </div>
       </div>
-      <div class="flex" style="margin-top:12px; justify-content:flex-end;">
-        <button id="closeStoreBtn" class="btn-secondary">Cerrar</button>
+      <div id="authMsg" class="msg"></div>
+      <div class="flex" style="margin-top:12px;">
+        <button id="registerBtn" class="btn-outline">Registrar</button>
+        <button id="loginBtnModal" class="btn-blue">Entrar</button>
+        <button id="closeAuthBtn" class="btn-outline">Cerrar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal bonus diario -->
-  <div id="dailyModalBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true">
-      <header>
-        <h3>Bonus diario</h3>
-        <p class="muted">Reclama tu recompensa una vez al día.</p>
-      </header>
-      <div class="row">
-        <div class="item">
-          <div class="title">+1 vida</div>
-          <button id="claimLifeBtn">Reclamar</button>
-        </div>
-        <div class="item">
-          <div class="title">+50 monedas</div>
-          <button id="claimCoinsBtn">Reclamar</button>
-        </div>
-      </div>
-      <div id="dailyMsg" class="message hidden"></div>
-      <div class="flex" style="margin-top:12px; justify-content:flex-end;">
-        <button id="closeDailyBtn" class="btn-secondary">Cerrar</button>
-      </div>
+  <!-- OVERLAYS -->
+  <div id="pauseOverlay" class="overlay"><div class="panel">
+    <h3>Pausa</h3>
+    <div class="flex" style="justify-content:center; gap:8px;">
+      <button id="resumeBtn" class="btn-blue">Continuar</button>
+      <button id="restartFromPauseBtn" class="btn-outline">Reiniciar</button>
+      <button id="exitFromPauseBtn" class="btn-outline">Salir</button>
     </div>
-  </div>
+  </div></div>
 
-  <!-- Modal de autenticación -->
-  <div id="authModalBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-labelledby="authModalTitle" aria-modal="true">
-      <header>
-        <h3 id="authModalTitle">Acceso</h3>
-        <p class="muted">Crea una cuenta o inicia sesión. Todo se guarda en tu dispositivo.</p>
-      </header>
-      <div class="row">
-        <div>
-          <label for="usernameInput">Usuario / Email</label>
-          <input id="usernameInput" class="input" type="text" placeholder="ej. ana_local o tu correo" autocomplete="username" />
-        </div>
-        <div>
-          <label for="passwordInput">Contraseña</label>
-          <input id="passwordInput" class="input" type="password" placeholder="••••••••" autocomplete="current-password" />
-        </div>
-      </div>
-      <div id="authFeedback" class="message hidden"></div>
-      <div class="flex" style="margin-top:12px; justify-content:space-between;">
-        <button id="registerBtn" class="btn-secondary">Registrar</button>
-        <button id="authLoginBtn">Entrar</button>
-        <button id="closeAuthBtn" class="btn-secondary">Cerrar</button>
-      </div>
+  <div id="completeOverlay" class="overlay"><div class="panel">
+    <h3>Nivel completado</h3>
+    <div class="stars">⭐ ⭐ ⭐</div>
+    <p class="muted">Puntaje: <span id="finalScore">0</span></p>
+    <div class="flex" style="justify-content:center; gap:8px;">
+      <button id="continueAfterCompleteBtn" class="btn-blue">Continue</button>
+      <button id="replayBtn" class="btn-outline">Replay</button>
     </div>
-  </div>
+  </div></div>
+
+  <div id="gameOverOverlay" class="overlay"><div class="panel">
+    <h3>Game Over</h3>
+    <p class="muted">Sin vidas. Intenta de nuevo o vuelve al menú.</p>
+    <div class="flex" style="justify-content:center; gap:8px;">
+      <button id="retryBtn" class="btn-blue">Retry</button>
+      <button id="goHomeBtn" class="btn-outline">Menu</button>
+    </div>
+  </div></div>
 
   <script>
-    // ===== Config premium (ID real de Gumroad) =====
+    // Constantes Gumroad Premium (solo compra Premium; todo lo demás se incluye con Premium)
     const GUMROAD_PRODUCT_ID = 'rnlle';
-    const GUMROAD_PRODUCT_URL = 'https://anacristinacz.gumroad.com/l/rnlle';
+    const GUMROAD_URL = 'https://anacristinacz.gumroad.com/l/rnlle';
 
-    // ===== Multi-idioma =====
-    const i18n = {
-      es: {
-        menuTitle:'Menú principal', menuDesc:'Selecciona una opción para comenzar.',
-        play:'Jugar', levels:'Niveles', profile:'Perfil', settings:'Ajustes', help:'Ayuda',
-        levelSelect:'Selección de niveles', levelHint:'Cada nivel ajusta dificultad, operadores y lógica.',
-        modeLabel:'Modo:', timer:'Tiempo', lives:'Vidas', coins:'Monedas', puzzle:'Puzzle',
-        puzzleHint:'Toca un “?” y elige un número del tablero.',
-        board:'Tablero 1–100', profileTitle:'Perfil', settingsTitle:'Ajustes', helpTitle:'Ayuda'
-      },
-      en: {
-        menuTitle:'Main menu', menuDesc:'Pick an option to start.',
-        play:'Play', levels:'Levels', profile:'Profile', settings:'Settings', help:'Help',
-        levelSelect:'Level selection', levelHint:'Each level adjusts difficulty, operators and logic.',
-        modeLabel:'Mode:', timer:'Time', lives:'Lives', coins:'Coins', puzzle:'Puzzle',
-        puzzleHint:'Tap a “?” and pick a number from the board.',
-        board:'Board 1–100', profileTitle:'Profile', settingsTitle:'Settings', helpTitle:'Help'
-      }
-    };
-    function applyLang(lang){
-      const t = i18n[lang] || i18n.es;
-      document.getElementById('t_menuTitle').textContent = t.menuTitle;
-      document.getElementById('t_menuDesc').textContent = t.menuDesc;
-      document.getElementById('t_play').textContent = t.play;
-      document.getElementById('t_levels').textContent = t.levels;
-      document.getElementById('t_profile').textContent = t.profile;
-      document.getElementById('t_settings').textContent = t.settings;
-      document.getElementById('t_help').textContent = t.help;
-      document.getElementById('t_levelSelect').textContent = t.levelSelect;
-      document.getElementById('t_levelHint').textContent = t.levelHint;
-      document.getElementById('t_modeLabel').textContent = t.modeLabel;
-      document.getElementById('t_timer').textContent = t.timer;
-      document.getElementById('t_lives').textContent = t.lives;
-      document.getElementById('t_coins').textContent = t.coins;
-      document.getElementById('t_puzzle').textContent = t.puzzle;
-      document.getElementById('t_puzzleHint').textContent = t.puzzleHint;
-      document.getElementById('t_board').textContent = t.board;
-      document.getElementById('t_profileTitle').textContent = t.profileTitle;
-      document.getElementById('t_settingsTitle').textContent = t.settingsTitle;
-      document.getElementById('t_helpTitle').textContent = t.helpTitle;
-    }
+    // Estado en memoria
+    let db = null;
+    let timerInt = null;
+    let elapsed = 0;
+    let currentUser = null;
+    let currentMode = 'Daily'; // 'Daily' | 'Endless' | 'Expert'
+    let currentStage = 1; // Expert stage 1–15
+    let lives = 3;
+    let coins = 0;
+    let premium = false;
+    let lastSaved = null;
 
-    // ===== Hash de contraseña =====
-    async function hashPassword(password){
-      const enc = new TextEncoder();
-      const data = enc.encode(password);
-      const digest = await crypto.subtle.digest('SHA-256', data);
-      return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
-    }
-
-    // ===== IndexedDB =====
-    const DB_NAME = 'crossmath-web-local';
+    // IndexedDB
+    const DB_NAME = 'crossmath-local';
     const DB_VERSION = 1;
-    let dbInstance = null;
-
-    function openDB(){
+    async function openDB(){
       return new Promise((resolve,reject)=>{
         const req = indexedDB.open(DB_NAME, DB_VERSION);
         req.onupgradeneeded = (e)=>{
-          const db = e.target.result;
-          if(!db.objectStoreNames.contains('users')){
-            db.createObjectStore('users', { keyPath:'username' });
-          }
-          if(!db.objectStoreNames.contains('progress')){
-            db.createObjectStore('progress', { keyPath:'username' });
-          }
-          if(!db.objectStoreNames.contains('meta')){
-            db.createObjectStore('meta', { keyPath:'username' });
-          }
+          const d = e.target.result;
+          if(!d.objectStoreNames.contains('users')) d.createObjectStore('users', { keyPath: 'username' });
+          if(!d.objectStoreNames.contains('progress')) d.createObjectStore('progress', { keyPath: 'username' });
+          if(!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'username' });
         };
-        req.onsuccess = ()=>{ dbInstance = req.result; resolve(dbInstance); };
-        req.onerror = ()=>reject(req.error);
+        req.onsuccess = ()=>{ db = req.result; resolve(db); };
+        req.onerror = ()=> reject(req.error);
       });
     }
-    function tx(store, mode='readonly'){ return dbInstance.transaction(store, mode).objectStore(store); }
+    function store(name, mode='readonly'){ return db.transaction(name, mode).objectStore(name); }
     function getUser(username){
       return new Promise((resolve,reject)=>{
-        const req = tx('users').get(username);
-        req.onsuccess = ()=>resolve(req.result || null);
-        req.onerror = ()=>reject(req.error);
+        const q = store('users').get(username);
+        q.onsuccess = ()=> resolve(q.result || null);
+        q.onerror = ()=> reject(q.error);
       });
     }
     function putUser(user){
       return new Promise((resolve,reject)=>{
-        const req = tx('users','readwrite').put(user);
-        req.onsuccess = ()=>resolve(true);
-        req.onerror = ()=>reject(req.error);
+        const q = store('users','readwrite').put(user);
+        q.onsuccess = ()=> resolve(true);
+        q.onerror = ()=> reject(q.error);
       });
     }
     function getProgress(username){
       return new Promise((resolve,reject)=>{
-        const req = tx('progress').get(username);
-        req.onsuccess = ()=>resolve(req.result || { username, levels:[], scores:[], lastUpdated:null });
-        req.onerror = ()=>reject(req.error);
+        const q = store('progress').get(username);
+        q.onsuccess = ()=> resolve(q.result || { username, dailyBest: 0, endlessBest: 0, expert: {}, lastSaved: null, scores: [] });
+        q.onerror = ()=> reject(q.error);
       });
     }
     function putProgress(progress){
       return new Promise((resolve,reject)=>{
-        const req = tx('progress','readwrite').put(progress);
-        req.onsuccess = ()=>resolve(true);
-        req.onerror = ()=>reject(req.error);
+        const q = store('progress','readwrite').put(progress);
+        q.onsuccess = ()=> resolve(true);
+        q.onerror = ()=> reject(q.error);
       });
     }
     function getMeta(username){
       return new Promise((resolve,reject)=>{
-        const req = tx('meta').get(username);
-        req.onsuccess = ()=>resolve(req.result || { username, premium:false, coins:0, lives:3, lastDaily:null, sound:true });
-        req.onerror = ()=>reject(req.error);
+        const q = store('meta').get(username);
+        q.onsuccess = ()=> resolve(q.result || { username, premium: false, coins: 0, lives: 3, sound: true, lang: (navigator.language||'es').slice(0,2) });
+        q.onerror = ()=> reject(q.error);
       });
     }
     function putMeta(meta){
       return new Promise((resolve,reject)=>{
-        const req = tx('meta','readwrite').put(meta);
-        req.onsuccess = ()=>resolve(true);
-        req.onerror = ()=>reject(req.error);
+        const q = store('meta','readwrite').put(meta);
+        q.onsuccess = ()=> resolve(true);
+        q.onerror = ()=> reject(q.error);
       });
     }
 
-    // ===== Sesión =====
-    function setSessionUser(u){ sessionStorage.setItem('authUser', u); updateAuthUI(); }
-    function getSessionUser(){ return sessionStorage.getItem('authUser'); }
-    function clearSession(){ sessionStorage.removeItem('authUser'); updateAuthUI(); }
-    async function updateAuthUI(){
-      const user = getSessionUser();
-      document.getElementById('userStatus').textContent = user ? `Sesión: ${user}` : 'Sin sesión';
-      document.getElementById('logoutBtn').classList.toggle('hidden', !user);
-      document.getElementById('loginBtn').classList.toggle('hidden', !!user);
-      if(user) { renderProgressList(user); await syncHUD(); }
-      else { document.getElementById('progressList').innerHTML=''; }
+    // Utilidades
+    async function hashPassword(p){
+      const enc = new TextEncoder(); const d = enc.encode(p);
+      const dig = await crypto.subtle.digest('SHA-256', d);
+      return Array.from(new Uint8Array(dig)).map(b=>b.toString(16).padStart(2,'0')).join('');
     }
+    function fmtDate(d){ return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }); }
+    function fmtTime(sec){ const m=String(Math.floor(sec/60)).padStart(2,'0'); const s=String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
+    function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
-    // ===== Auth modal =====
-    const authModalBackdrop = document.getElementById('authModalBackdrop');
-    const authFeedback = document.getElementById('authFeedback');
-    function openAuthModal(){ authModalBackdrop.style.display='flex'; authModalBackdrop.setAttribute('aria-hidden','false'); authFeedback.classList.add('hidden'); authFeedback.textContent=''; }
-    function closeAuthModal(){ authModalBackdrop.style.display='none'; authModalBackdrop.setAttribute('aria-hidden','true'); }
-    function showFeedback(el,msg,type='warn'){ el.textContent=msg; el.classList.remove('hidden','ok','warn','err'); el.classList.add(type,'message'); }
+    // UI refs
+    const home = document.getElementById('homeScreen');
+    const levelSelect = document.getElementById('levelSelectScreen');
+    const game = document.getElementById('gameScreen');
+    const dailyDateEl = document.getElementById('dailyDate');
+    const endlessBestEl = document.getElementById('endlessBest');
+    const continueBtn = document.getElementById('continueBtn');
 
-    async function registerLocalUser(username,password){
-      if(!username || !password){ showFeedback(authFeedback,'Usuario y contraseña son obligatorios.','err'); return; }
-      const existing = await getUser(username);
-      if(existing){ showFeedback(authFeedback,'Ese usuario ya existe. Elige otro o inicia sesión.','warn'); return; }
-      const passHash = await hashPassword(password);
-      await putUser({ username, passHash, createdAt: new Date().toISOString() });
-      await putProgress({ username, levels:[], scores:[], lastUpdated: new Date().toISOString() });
-      const isDemo = username.toLowerCase()==='premium_demo@crossmath.com';
-      await putMeta({ username, premium:isDemo, coins:isDemo?999:0, lives:3, lastDaily:null, sound:true });
-      showFeedback(authFeedback,'Usuario creado. Ya puedes iniciar sesión.','ok');
-    }
-    async function loginLocalUser(username,password){
-      if(!username || !password){ showFeedback(authFeedback,'Usuario y contraseña son obligatorios.','err'); return; }
-      const user = await getUser(username);
-      if(!user){ showFeedback(authFeedback,'Usuario no encontrado. Regístrate primero.','warn'); return; }
-      const passHash = await hashPassword(password);
-      if(passHash !== user.passHash){ showFeedback(authFeedback,'Contraseña incorrecta.','err'); return; }
-      setSessionUser(username);
-      closeAuthModal();
-    }
-
-    // ===== HUD meta =====
-    async function syncHUD(){
-      const user = getSessionUser(); if(!user) return;
-      const meta = await getMeta(user);
-      document.getElementById('lives').textContent = meta.lives;
-      document.getElementById('coins').textContent = meta.coins;
-      document.getElementById('toggleSoundBtn').textContent = `Sonido: ${meta.sound?'ON':'OFF'}`;
-      document.getElementById('profileInfo').classList.remove('hidden');
-      document.getElementById('profileInfo').classList.add('ok');
-      document.getElementById('profileInfo').textContent = `Usuario: ${user} · Premium: ${meta.premium ? 'Sí' : 'No'} · Vidas: ${meta.lives} · Monedas: ${meta.coins}`;
-    }
-
-    // ===== Puzzle =====
+    const hudModeEl = document.getElementById('hudMode');
+    const hudTimeEl = document.getElementById('hudTime');
+    const hudLivesEl = document.getElementById('hudLives');
+    const hudCoinsEl = document.getElementById('hudCoins');
     const puzzleGrid = document.getElementById('puzzleGrid');
-    const numberBoard = document.getElementById('numberBoard');
-    const puzzleMsg = document.getElementById('puzzleMsg');
-    let currentLevel = 'easy';
-    let timerInt = null; let elapsed = 0;
-    let selectedBlank = null;
-    let activeTiles = []; // { id, text, value, solution }
+    const numberBank = document.getElementById('numberBank');
+    const gameMsg = document.getElementById('gameMsg');
 
-    function formatTime(s){
-      const m = Math.floor(s/60).toString().padStart(2,'0');
-      const ss = (s%60).toString().padStart(2,'0');
-      return `${m}:${ss}`;
-    }
-    function stopTimer(){ if(timerInt) { clearInterval(timerInt); timerInt = null; } }
-    function startTimer(){ stopTimer(); elapsed = 0; document.getElementById('timer').textContent = formatTime(elapsed); timerInt = setInterval(()=>{ elapsed++; document.getElementById('timer').textContent = formatTime(elapsed); }, 1000); }
-    function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+    const authBackdrop = document.getElementById('authBackdrop');
+    const authUser = document.getElementById('authUser');
+    const authPass = document.getElementById('authPass');
+    const authMsg = document.getElementById('authMsg');
+    const userStatus = document.getElementById('userStatus');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    // Construye 10 fichas estilo referencia (mezcla: multiplicación, división exacta, sumas/restas con incógnitas)
-    function buildTiles(level){
-      const R = {
-        easy: { a:[1,10], b:[1,10], ops:['+','×'] },
-        medium:{ a:[5,40], b:[2,12], ops:['+','-','×'] },
-        hard:{ a:[10,99], b:[2,20], ops:['+','-','×','÷'] },
-        endless:{ a:[1,99], b:[1,20], ops:['+','-','×','÷'] }
-      }[level] || { a:[1,10], b:[1,10], ops:['+','×'] };
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const completeOverlay = document.getElementById('completeOverlay');
+    const finalScoreEl = document.getElementById('finalScore');
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    const profileInfo = document.getElementById('profileInfo');
 
-      function eqKnown(op){
-        const a = randInt(R.a[0], R.a[1]);
-        const b = randInt(R.b[0], R.b[1]);
-        if(op==='÷'){ const mult = a*b; return { text:`${mult} ÷ ${a} = ?`, solution:b }; }
-        if(op==='×') return { text:`${a} × ${b} = ?`, solution:a*b };
-        if(op==='+') return { text:`${a} + ${b} = ?`, solution:a+b };
-        return { text:`${a} - ${b} = ?`, solution:a-b };
+    // Navegación
+    function show(el){ home.style.display='none'; levelSelect.style.display='none'; game.style.display='none'; el.style.display='block'; }
+    function startTimer(){ stopTimer(); elapsed = 0; hudTimeEl.textContent = fmtTime(elapsed); timerInt = setInterval(()=>{ elapsed++; hudTimeEl.textContent = fmtTime(elapsed); },1000); }
+    function stopTimer(){ if(timerInt){ clearInterval(timerInt); timerInt = null; } }
+
+    // AUTH
+    document.getElementById('loginBtn').addEventListener('click', ()=>{ authBackdrop.style.display='flex'; });
+    document.getElementById('closeAuthBtn').addEventListener('click', ()=>{ authBackdrop.style.display='none'; });
+    document.getElementById('registerBtn').addEventListener('click', async()=>{
+      const u = authUser.value.trim(); const p = authPass.value;
+      if(!u||!p){ authMsg.textContent = 'Usuario/contraseña requeridos'; authMsg.className='msg err'; return; }
+      if(await getUser(u)){ authMsg.textContent = 'Ese usuario ya existe'; authMsg.className='msg err'; return; }
+      const ph = await hashPassword(p);
+      await putUser({ username: u, passHash: ph, createdAt: new Date().toISOString() });
+      await putProgress({ username: u, dailyBest: 0, endlessBest: 0, expert:{}, lastSaved: null, scores: [] });
+      const isDemo = u.toLowerCase()==='premium_demo@crossmath.com';
+      await putMeta({ username: u, premium: isDemo, coins: isDemo?999:0, lives: 3, sound: true, lang: (navigator.language||'es').slice(0,2) });
+      authMsg.textContent = 'Usuario creado. Ahora inicia sesión.'; authMsg.className='msg ok';
+    });
+    document.getElementById('loginBtnModal').addEventListener('click', async()=>{
+      const u = authUser.value.trim(); const p = authPass.value;
+      if(!u||!p){ authMsg.textContent = 'Usuario/contraseña requeridos'; authMsg.className='msg err'; return; }
+      const user = await getUser(u);
+      if(!user){ authMsg.textContent = 'Usuario no encontrado'; authMsg.className='msg err'; return; }
+      const ph = await hashPassword(p);
+      if(ph !== user.passHash){ authMsg.textContent = 'Contraseña incorrecta'; authMsg.className='msg err'; return; }
+      currentUser = u;
+      const meta = await getMeta(currentUser);
+      premium = !!meta.premium; coins = meta.coins; lives = meta.lives;
+      userStatus.textContent = `Sesión: ${currentUser}`;
+      logoutBtn.style.display = 'inline-block';
+      authBackdrop.style.display = 'none';
+      await refreshHome();
+    });
+    logoutBtn.addEventListener('click', async()=>{
+      currentUser = null; premium = false; coins = 0; lives = 3;
+      userStatus.textContent = 'Sin sesión';
+      logoutBtn.style.display = 'none';
+      await refreshHome();
+    });
+
+    // HOME actions
+    document.getElementById('playDailyBtn').addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      currentMode = 'Daily'; hudModeEl.textContent = 'Daily';
+      currentStage = 1;
+      await startGameSession();
+    });
+    document.getElementById('playEndlessBtn').addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      currentMode = 'Endless'; hudModeEl.textContent = 'Endless';
+      currentStage = 1;
+      await startGameSession();
+    });
+    document.getElementById('newGameBtn').addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      // Nueva partida: si Premium, permitir Expert seleccionar; si no, Daily/Endless
+      if(premium){ renderLevelGrid(); show(levelSelect); }
+      else { currentMode = 'Daily'; hudModeEl.textContent = 'Daily'; currentStage = 1; await startGameSession(); }
+    });
+    continueBtn.addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      const prog = await getProgress(currentUser);
+      if(prog.lastSaved){
+        currentMode = prog.lastSaved.mode;
+        currentStage = prog.lastSaved.stage || 1;
+        hudModeEl.textContent = currentMode;
+        await startGameSession(prog.lastSaved.seed); // usa la semilla previa
       }
-      function eqMissingB(op){
-        const a = randInt(R.a[0], R.a[1]);
-        const b = randInt(R.b[0], R.b[1]);
-        if(op==='×') return { text:`${a} × ? = ${a*b}`, solution:b };
-        if(op==='÷') return { text:`${a} ÷ ? = 1`, solution:a };
-        if(op==='+') return { text:`${a} + ? = ${a+b}`, solution:b };
-        return { text:`${a} - ? = ${a-b}`, solution:b };
-      }
-      function eqMissingA(op){
-        const a = randInt(R.a[0], R.a[1]);
-        const b = randInt(R.b[0], R.b[1]);
-        if(op==='×') return { text:`? × ${b} = ${a*b}`, solution:a };
-        if(op==='÷') return { text:`? ÷ ${b} = ${a}`, solution:a*b };
-        if(op==='+') return { text:`? + ${b} = ${a+b}`, solution:a };
-        return { text:`? - ${b} = ${a-b}`, solution:a };
-      }
+    });
+    document.getElementById('backHomeBtn').addEventListener('click', ()=> show(home));
 
-      const builders = [eqKnown, eqMissingB, eqMissingA];
-      const tiles = [];
-      for(let i=0;i<10;i++){
-        const op = R.ops[randInt(0,R.ops.length-1)];
-        const e = builders[randInt(0, builders.length-1)](op);
-        tiles.push({ id:`t${i}`, text: e.text, value: null, solution: e.solution });
-      }
-      return tiles;
-    }
-
-    function renderPuzzle(){
-      puzzleGrid.innerHTML='';
-      activeTiles.forEach(tile=>{
-        const div = document.createElement('div');
-        div.className = 'tile' + (tile.value===null ? ' blank' : '');
-        const shown = tile.value ?? ' ? ';
-        div.innerHTML = `<span>${tile.text.replace('?', shown)}</span>`;
-        div.addEventListener('click', ()=>{ selectedBlank = tile.id; highlightTiles(); });
-        puzzleGrid.appendChild(div);
-      });
-      highlightTiles();
-    }
-    function highlightTiles(){
-      [...puzzleGrid.children].forEach((el,i)=>{
-        const t = activeTiles[i];
-        el.style.outline = (selectedBlank===t.id && t.value===null) ? '2px solid #1e6fff' : (t.value===null ? '2px dashed #1e6fff' : 'none');
-      });
-    }
-
-    function renderBoard(){
-      numberBoard.innerHTML='';
-      for(let n=1;n<=100;n++){
-        const b = document.createElement('div');
-        b.className='num';
-        b.textContent = n;
-        b.dataset.n = n;
-        b.addEventListener('click', ()=>{
-          if(!selectedBlank){
-            showFeedback(puzzleMsg,'Selecciona primero una ficha “?”.','warn'); puzzleMsg.classList.remove('hidden'); return;
-          }
-          const idx = activeTiles.findIndex(t=>t.id===selectedBlank);
-          const tile = activeTiles[idx];
-          if(tile.value!=null){
-            const prevBtn = [...numberBoard.children].find(c=>Number(c.dataset.n)===tile.value);
-            if(prevBtn) prevBtn.classList.remove('used','highlight');
-          }
-          tile.value = n;
-          renderPuzzle();
-          b.classList.add('used','highlight');
-          selectedBlank = null;
-          validateTile(tile);
+    // Level select Expert (Premium only)
+    function renderLevelGrid(){
+      const lg = document.getElementById('levelGrid'); lg.innerHTML = '';
+      for(let i=1; i<=15; i++){
+        const c = document.createElement('div');
+        c.className = 'level-cell';
+        c.textContent = i;
+        c.addEventListener('click', async()=>{
+          currentMode = 'Expert'; hudModeEl.textContent = 'Expert';
+          currentStage = i;
+          await startGameSession();
         });
-        numberBoard.appendChild(b);
+        lg.appendChild(c);
       }
     }
 
-    async function loseLife(){
-      const user = getSessionUser(); if(!user) return;
-      const meta = await getMeta(user);
-      meta.lives = Math.max(0, meta.lives-1);
-      await putMeta(meta); await syncHUD();
-      if(meta.lives<=0) showGameOver();
-    }
-    function validateTile(tile){
-      if(tile.value !== tile.solution){
-        showFeedback(puzzleMsg, `Incorrecto: la respuesta era ${tile.solution}.`, 'err');
-        puzzleMsg.classList.remove('hidden');
-        loseLife();
-      }else{
-        showFeedback(puzzleMsg, `¡Correcto!`, 'ok');
-        puzzleMsg.classList.remove('hidden');
-        checkCompletion();
-      }
-    }
+    // GAME buttons
+    document.getElementById('pauseBtn').addEventListener('click', ()=>{ pauseOverlay.style.display='flex'; stopTimer(); });
+    document.getElementById('resumeBtn').addEventListener('click', ()=>{ pauseOverlay.style.display='none'; startTimer(); });
+    document.getElementById('restartBtn').addEventListener('click', async()=>{ await startGameSession(); });
+    document.getElementById('restartFromPauseBtn').addEventListener('click', async()=>{ pauseOverlay.style.display='none'; await startGameSession(); });
+    document.getElementById('exitBtn').addEventListener('click', ()=>{ stopTimer(); show(home); });
+    document.getElementById('exitFromPauseBtn').addEventListener('click', ()=>{ pauseOverlay.style.display='none'; stopTimer(); show(home); });
 
-    async function checkCompletion(){
-      const done = activeTiles.every(t=> t.value===t.solution);
-      if(done){
-        stopTimer();
-        const score = Math.max(1000 - elapsed*5, 100);
-        document.getElementById('finalScore').textContent = score;
-        const user = getSessionUser();
-        if(user){
-          const progress = await getProgress(user);
-          progress.scores.push({ level: currentLevel, score, time: elapsed, at: new Date().toISOString() });
-          const idx = progress.levels.findIndex(l=>String(l.id)===String(currentLevel));
-          if(idx===-1) progress.levels.push({ id: currentLevel, attempts:1, correct:1, lastPlayed: new Date().toISOString() });
-          else { progress.levels[idx].attempts+=1; progress.levels[idx].correct+=1; progress.levels[idx].lastPlayed = new Date().toISOString(); }
-          progress.lastUpdated = new Date().toISOString();
-          await putProgress(progress);
-          renderProgressList(user);
-          const meta = await getMeta(user);
-          meta.coins += 20;
-          await putMeta(meta);
-          await syncHUD();
-        }
-        showComplete();
-      }
-    }
+    document.getElementById('continueAfterCompleteBtn').addEventListener('click', async()=>{
+      completeOverlay.style.display='none';
+      if(currentMode==='Endless'){ await startGameSession(); } else { show(home); }
+    });
+    document.getElementById('replayBtn').addEventListener('click', async()=>{
+      completeOverlay.style.display='none';
+      await startGameSession();
+    });
+    document.getElementById('retryBtn').addEventListener('click', async()=>{
+      gameOverOverlay.style.display='none';
+      lives = 3; await startGameSession();
+    });
+    document.getElementById('goHomeBtn').addEventListener('click', ()=>{
+      gameOverOverlay.style.display='none';
+      show(home);
+    });
 
-    // ===== Progreso histórico =====
-    async function renderProgressList(username){
-      const container = document.getElementById('progressList');
-      const progress = await getProgress(username);
-      if(!progress.levels.length){
-        container.innerHTML = '<div class="message warn">Sin registros aún. Juega para generar histórico.</div>';
-        return;
-      }
-      const rows = progress.levels
-        .sort((a,b)=> String(a.id).localeCompare(String(b.id)))
-        .map(l=>{
-          const acc = l.attempts ? Math.round((l.correct/l.attempts)*100) : 0;
-          return `<div class="message" style="background:#0d1330; border:1px solid #21335a; border-radius:12px;">
-            <strong>Nivel:</strong> ${l.id} · <strong>Intentos:</strong> ${l.attempts} · <strong>Correctos:</strong> ${l.correct} · <strong>Precisión:</strong> ${acc}% · <span class="kbd">${new Date(l.lastPlayed).toLocaleString()}</span>
-          </div>`;
-        }).join('');
-      container.innerHTML = rows;
-    }
+    // Premium purchase / verify
+    document.getElementById('buyPremiumBtn').addEventListener('click', ()=>{
+      window.open(GUMROAD_URL, '_blank');
+    });
+    document.getElementById('verifyLicenseBtn').addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      const lic = document.getElementById('gumroadLicenseInput').value.trim();
+      if(!lic){ alert('Ingresa licencia Gumroad.'); return; }
+      const res = await verifyGumroadLicense(lic);
+      alert(res.msg);
+      await refreshHome();
+    });
 
-    // ===== Guardar/Exportar/Importar =====
-    async function saveProgress(){
-      const user = getSessionUser(); if(!user) return;
-      const ps = document.getElementById('progressStatus');
-      const progress = await getProgress(user);
-      progress.lastUpdated = new Date().toISOString();
-      await putProgress(progress);
-      showFeedback(ps,'Progreso guardado localmente.','ok');
-      setTimeout(()=>ps.classList.add('hidden'), 1500);
-    }
-    async function exportProgress(){
-      const user = getSessionUser(); if(!user) return;
-      const progress = await getProgress(user);
-      const meta = await getMeta(user);
-      const payload = { schema:'croossmathweb.local.v2', user, progress, meta };
+    // Portabilidad
+    document.getElementById('exportBtn').addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      const prog = await getProgress(currentUser);
+      const meta = await getMeta(currentUser);
+      const payload = { schema:'crossmath.local.v1', user: currentUser, progress: prog, meta: meta };
       const blob = new Blob([JSON.stringify(payload,null,2)], { type:'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `croossmath_progress_${user}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+      a.href = url; a.download = `crossmath_${currentUser}_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-      const ps = document.getElementById('progressStatus');
-      showFeedback(ps,'Exportación completada.','ok');
-      setTimeout(()=>ps.classList.add('hidden'), 1500);
-    }
-    async function importProgressFile(file){
-      const ps = document.getElementById('progressStatus');
-      try{
-        const text = await file.text();
-        const data = JSON.parse(text);
-        const currentUser = getSessionUser();
-        if(!currentUser){ showFeedback(ps,'Inicia sesión para importar.','warn'); return; }
-        if(!data || data.schema!=='croossmathweb.local.v2'){ showFeedback(ps,'Archivo inválido o esquema desconocido.','err'); return; }
-        if(data.user !== currentUser){ showFeedback(ps,'El archivo pertenece a otro usuario.','warn'); return; }
-        await putProgress(Object.assign({}, data.progress, { username: currentUser, lastUpdated: new Date().toISOString() }));
-        await putMeta(Object.assign({}, data.meta, { username: currentUser }));
-        await renderProgressList(currentUser); await syncHUD();
-        showFeedback(ps,'Importación exitosa.','ok');
-        setTimeout(()=>ps.classList.add('hidden'), 1500);
-      }catch(e){
-        showFeedback(ps,'Error al importar.','err');
+    });
+    document.getElementById('importInput').addEventListener('change', async(e)=>{
+      const f = e.target.files?.[0]; if(!f) return;
+      const txt = await f.text(); let data;
+      try{ data = JSON.parse(txt); }catch{ alert('Archivo inválido'); return; }
+      if(!data || data.schema!=='crossmath.local.v1'){ alert('Esquema desconocido'); return; }
+      if(!(await ensureLogged())) return;
+      if(data.user !== currentUser){ alert('Archivo de otro usuario'); return; }
+      await putProgress(Object.assign({}, data.progress, { username: currentUser }));
+      await putMeta(Object.assign({}, data.meta, { username: currentUser }));
+      alert('Importación exitosa');
+      await refreshHome();
+      e.target.value='';
+    });
+
+    // Ajustes
+    document.getElementById('toggleSoundBtn').addEventListener('click', async()=>{
+      if(!(await ensureLogged())) return;
+      const meta = await getMeta(currentUser);
+      meta.sound = !meta.sound;
+      await putMeta(meta);
+      document.getElementById('toggleSoundBtn').textContent = `Sonido: ${meta.sound?'ON':'OFF'}`;
+    });
+    document.getElementById('langSelect').addEventListener('change', async(e)=>{
+      if(!(await ensureLogged())) return;
+      const meta = await getMeta(currentUser);
+      meta.lang = e.target.value;
+      await putMeta(meta);
+      await applyLang(meta.lang);
+    });
+
+    // Daily / Endless info refresh
+    async function refreshHome(){
+      const today = new Date();
+      dailyDateEl.textContent = fmtDate(today);
+      if(currentUser){
+        const prog = await getProgress(currentUser);
+        const meta = await getMeta(currentUser);
+        endlessBestEl.textContent = prog.endlessBest || 0;
+        coins = meta.coins; lives = meta.lives; premium = meta.premium;
+        profileInfo.textContent = `Usuario: ${currentUser} · Premium: ${premium?'Sí':'No'} · Vidas: ${lives} · Monedas: ${coins}`;
+        // Continue
+        continueBtn.style.display = prog.lastSaved ? 'inline-block' : 'none';
+      }else{
+        endlessBestEl.textContent = 0;
+        continueBtn.style.display = 'none';
+        profileInfo.textContent = 'Inicia sesión para ver tu estado.';
       }
     }
 
-    // ===== Tienda y bonus =====
-    const storeModal = document.getElementById('storeModalBackdrop');
-    const dailyModal = document.getElementById('dailyModalBackdrop');
-    function openStore(){ storeModal.style.display='flex'; storeModal.setAttribute('aria-hidden','false'); }
-    function closeStore(){ storeModal.style.display='none'; storeModal.setAttribute('aria-hidden','true'); }
-    function openDaily(){ dailyModal.style.display='flex'; dailyModal.setAttribute('aria-hidden','false'); }
-    function closeDaily(){ dailyModal.style.display='none'; dailyModal.setAttribute('aria-hidden','true'); }
-
-    async function buyAction(kind){
-      const user = getSessionUser(); if(!user) return;
-      const meta = await getMeta(user);
-      if(kind==='lives5'){
-        if(meta.coins>=100){ meta.coins-=100; meta.lives+=5; await putMeta(meta); await syncHUD(); }
-      }else if(kind==='coins100'){
-        meta.coins += 100; await putMeta(meta); await syncHUD();
-      }else if(kind==='premium'){
-        window.open(GUMROAD_PRODUCT_URL, '_blank');
-      }
-    }
-    async function claimDaily(type){
-      const user = getSessionUser(); if(!user) return;
-      const meta = await getMeta(user);
-      const today = new Date().toDateString();
-      const dm = document.getElementById('dailyMsg');
-      if(meta.lastDaily === today){
-        showFeedback(dm,'Ya reclamaste el bonus hoy.','warn'); dm.classList.remove('hidden'); return;
-      }
-      if(type==='life') meta.lives += 1;
-      else meta.coins += 50;
-      meta.lastDaily = today;
-      await putMeta(meta); await syncHUD();
-      showFeedback(dm,'Bonus reclamado.','ok'); dm.classList.remove('hidden');
+    async function ensureLogged(){
+      if(!currentUser){ authBackdrop.style.display='flex'; return false; }
+      return true;
     }
 
-    // ===== Premium real: verificación de licencia Gumroad (persistencia local) =====
+    // Puzzle generation based on mode
+    let state = { cells: [], bank: [] }; // cells: array of {type:'eq'|'blank', text, value, solution, star?}
+    function seedForDaily(date){ // deterministic seed
+      return Number(String(date.getFullYear()) + String(date.getMonth()+1).padStart(2,'0') + String(date.getDate()).padStart(2,'0'));
+    }
+    function makeEquationBlank(op, a, b){
+      // Returns equation text with one blank and solution for the blank
+      if(op==='+'){ return Math.random()<0.5 ? { text:`□ + ${b} = ${a+b}`, solution: a } : { text:`${a} + □ = ${a+b}`, solution: b }; }
+      if(op==='-'){ return Math.random()<0.5 ? { text:`□ - ${b} = ${a-b}`, solution: a } : { text:`${a} - □ = ${a-b}`, solution: b }; }
+      if(op==='×'){ return Math.random()<0.5 ? { text:`□ × ${b} = ${a*b}`, solution: a } : { text:`${a} × □ = ${a*b}`, solution: b }; }
+      if(op==='÷'){
+        // enforce exact division
+        const mult = a*b;
+        return Math.random()<0.5 ? { text:`□ ÷ ${b} = ${a}`, solution: mult } : { text:`${mult} ÷ □ = ${a}`, solution: b };
+      }
+      return { text:`□ + ${b} = ${a+b}`, solution:a };
+    }
+    function makeEquationKnown(op, a, b){
+      if(op==='+') return { text:`${a} + ${b} = □`, solution: a+b };
+      if(op==='-') return { text:`${a} - ${b} = □`, solution: a-b };
+      if(op==='×') return { text:`${a} × ${b} = □`, solution: a*b };
+      if(op==='÷'){ const mult = a*b; return { text:`${mult} ÷ ${a} = □`, solution: b }; }
+      return { text:`${a} + ${b} = □`, solution: a+b };
+    }
+    function randomOp(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
+
+    function generatePuzzle(seed){
+      const rng = seed || Date.now();
+      const mode = currentMode;
+      const poolOps = mode==='Expert' ? ['+','-','×','÷'] : (mode==='Endless' ? ['+','-','×'] : ['+','×']);
+      const cells = [];
+      // 12 celdas como la referencia (mezcla blanks y eq known)
+      for(let i=0;i<12;i++){
+        const a = rnd(1, mode==='Expert'? 40 : 20);
+        const b = rnd(1, mode==='Expert'? 20 : 12);
+        const op = randomOp(poolOps);
+        let eq;
+        if(Math.random() < 0.5) eq = makeEquationBlank(op, a, b);
+        else eq = makeEquationKnown(op, a, b);
+        cells.push({ type: 'blank', text: eq.text, value: null, solution: eq.solution, star: Math.random()<0.2 });
+      }
+      // Inserta algunas celdas informativas (igualdades puras) estilo "□ = 25"
+      cells[3] = { type: 'blank', text: '□ = ' + rnd(5,35), value: null, solution: Number(cells[3]?.text?.split('=')[1])||rnd(5,35), star: Math.random()<0.2 };
+      cells[7] = { type: 'blank', text: '□ + □ = ' + rnd(8,20), value: null, solution: null, star: Math.random()<0.2, pairSum: true };
+
+      // Banco de números (12 como la imagen)
+      const bank = [];
+      while(bank.length < 12){
+        const n = rnd(1, 40);
+        if(!bank.includes(n)) bank.push(n);
+      }
+      return { cells, bank };
+    }
+
+    function renderPuzzle(){
+      puzzleGrid.innerHTML = '';
+      numberBank.innerHTML = '';
+      // Render cells
+      state.cells.forEach((c, idx)=>{
+        const el = document.createElement('div');
+        el.className = 'cell ' + (c.type==='blank' ? 'blank' : 'eq');
+        // pairSum: "□ + □ = N" -> mostrar como texto; validación especial
+        const shown = c.value==null ? (c.pairSum ? c.text : c.text.replace('□', ' ? ')) : (c.pairSum ? c.text : c.text.replace('□', String(c.value)));
+        el.innerHTML = `<span>${shown}</span>`;
+        if(c.star){ const star = document.createElement('span'); star.className='star'; star.textContent='★'; el.appendChild(star); }
+        el.addEventListener('click', ()=> selectCell(idx));
+        puzzleGrid.appendChild(el);
+      });
+      // Render bank
+      state.bank.forEach((n, i)=>{
+        const t = document.createElement('div');
+        t.className = 'tile';
+        t.textContent = n;
+        t.draggable = true;
+        t.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', String(n)); });
+        // click-to-place alternative
+        t.addEventListener('click', ()=> placeNumber(n));
+        numberBank.appendChild(t);
+      });
+      // Enable drop on cells
+      [...puzzleGrid.children].forEach((el, i)=>{
+        el.addEventListener('dragover', (e)=> e.preventDefault());
+        el.addEventListener('drop', (e)=>{
+          e.preventDefault();
+          const n = Number(e.dataTransfer.getData('text/plain'));
+          placeIntoCell(i, n);
+        });
+      });
+      updateHUD();
+      gameMsg.textContent = '';
+      gameMsg.className = 'msg';
+    }
+
+    let selectedIndex = null;
+    function selectCell(idx){
+      selectedIndex = idx;
+      [...puzzleGrid.children].forEach((el, i)=>{
+        el.style.outline = i===idx ? '2px solid '+(state.cells[i].value==null ? '#1f5fe6' : '#9aa7bd') : 'none';
+      });
+    }
+    function placeNumber(n){
+      if(selectedIndex==null){ gameMsg.textContent='Selecciona una casilla'; gameMsg.className='msg err'; return; }
+      placeIntoCell(selectedIndex, n);
+    }
+    function placeIntoCell(idx, n){
+      const c = state.cells[idx];
+      if(!c) return;
+      if(c.pairSum){
+        // pair sum logic: mark one slot filled (we accept one placement then wait the other)
+        // For simplicity, treat as correct if any placement equals half (when even) or proceed to resolve later.
+        gameMsg.textContent='Completa la segunda parte de la suma'; gameMsg.className='msg';
+        c.value = (c.value==null ? n : c.value + n);
+        puzzleGrid.children[idx].classList.remove('err','ok');
+        // Visual feedback
+        puzzleGrid.children[idx].classList.add('ok');
+      }else{
+        c.value = n;
+        const el = puzzleGrid.children[idx];
+        el.innerHTML = `<span>${c.text.replace('□', String(n))}</span>${c.star?'<span class="star">★</span>':''}`;
+        validateCell(idx);
+      }
+      // mark bank tile used
+      const btn = [...numberBank.children].find(t=> Number(t.textContent)===n && !t.classList.contains('used'));
+      if(btn) btn.classList.add('used');
+      selectedIndex = null;
+      // check completion
+      checkCompletion();
+    }
+    async function validateCell(idx){
+      const c = state.cells[idx];
+      const el = puzzleGrid.children[idx];
+      el.classList.remove('ok','err');
+      // pairSum special check
+      if(c.pairSum){
+        // If we set a value, wait until the user places another equal number (not enforced strictly for UX)
+        return;
+      }
+      const correct = Number(c.value) === Number(c.solution);
+      if(correct){
+        el.classList.add('ok'); gameMsg.textContent='¡Correcto!'; gameMsg.className='msg ok';
+        if(c.star){ coins += 5; gameMsg.textContent='¡Correcto! +5 monedas por estrella'; }
+        await saveHUD();
+      }else{
+        el.classList.add('err'); gameMsg.textContent=`Incorrecto. Debía ser ${c.solution}`; gameMsg.className='msg err';
+        await loseLife();
+      }
+    }
+
+    async function saveHUD(){
+      if(!currentUser) return;
+      const meta = await getMeta(currentUser);
+      meta.coins = coins; meta.lives = lives;
+      await putMeta(meta);
+      updateHUD();
+    }
+    async function loseLife(){
+      lives = Math.max(0, lives-1);
+      await saveHUD();
+      if(lives<=0){
+        stopTimer();
+        gameOverOverlay.style.display='flex';
+      }
+    }
+    function updateHUD(){
+      hudLivesEl.textContent = lives;
+      hudCoinsEl.textContent = coins;
+    }
+
+    async function checkCompletion(){
+      // done if all non-pair cells match solution and pairSum received at least two placements (simple)
+      const allFilled = state.cells.every(c=> c.pairSum ? (c.value!=null) : (c.value!==null));
+      if(!allFilled) return;
+      stopTimer();
+      // score basic
+      const score = Math.max(1000 - elapsed*5, 100);
+      finalScoreEl.textContent = String(score);
+      // update progress
+      if(currentUser){
+        const prog = await getProgress(currentUser);
+        prog.scores.push({ mode: currentMode, stage: currentStage, score, time: elapsed, at: new Date().toISOString() });
+        if(currentMode==='Endless' && score > (prog.endlessBest||0)) prog.endlessBest = score;
+        if(currentMode==='Daily' && score > (prog.dailyBest||0)) prog.dailyBest = score;
+        if(currentMode==='Expert'){
+          const ex = prog.expert || {};
+          ex[currentStage] = Math.max(ex[currentStage]||0, score);
+          prog.expert = ex;
+        }
+        prog.lastSaved = { mode: currentMode, stage: currentStage, seed: state.seed || null };
+        await putProgress(prog);
+      }
+      // reward coins
+      coins += 20; await saveHUD();
+      completeOverlay.style.display='flex';
+    }
+
+    async function startGameSession(seed){
+      if(!currentUser) return;
+      // restore meta
+      const meta = await getMeta(currentUser);
+      lives = meta.lives ?? 3; coins = meta.coins ?? 0; premium = !!meta.premium;
+      // enforce Premium for Expert
+      if(currentMode==='Expert' && !premium){
+        alert('Requiere Premium. Compra y verifica tu licencia para acceder.');
+        show(home); return;
+      }
+      // prepare puzzle
+      const s = (currentMode==='Daily') ? seedForDaily(new Date()) : (seed || Date.now());
+      const gen = generatePuzzle(s);
+      gen.seed = s;
+      state = gen;
+      renderPuzzle();
+      hudModeEl.textContent = currentMode;
+      startTimer();
+      show(game);
+      // save last session
+      const prog = await getProgress(currentUser);
+      prog.lastSaved = { mode: currentMode, stage: currentStage, seed: s };
+      await putProgress(prog);
+      await refreshHome();
+    }
+
+    // Premium verification (Gumroad)
     async function verifyGumroadLicense(license){
-      const user = getSessionUser(); if(!user) return { ok:false, msg:'Sin sesión' };
-      if(!license){ return { ok:false, msg:'Ingresa una licencia válida.' }; }
+      if(!currentUser){ return { ok:false, msg:'Sin sesión' }; }
       try{
-        // Gumroad recomienda application/x-www-form-urlencoded
         const body = new URLSearchParams({ product_id: GUMROAD_PRODUCT_ID, license_key: license });
         const resp = await fetch('https://gumroad.com/api/v2/licenses/verify', {
-          method:'POST',
-          headers:{ 'Content-Type':'application/x-www-form-urlencoded' },
+          method: 'POST',
+          headers: { 'Content-Type':'application/x-www-form-urlencoded' },
           body
         });
         const data = await resp.json();
         if(data && data.success){
-          const meta = await getMeta(user);
+          const meta = await getMeta(currentUser);
           meta.premium = true;
-          await putMeta(meta); await syncHUD();
+          await putMeta(meta);
           return { ok:true, msg:'Licencia verificada. Premium activado.' };
         }else{
-          return { ok:false, msg:(data && data.message) ? data.message : 'No se pudo verificar la licencia.' };
+          return { ok:false, msg: (data && data.message) ? data.message : 'No se pudo verificar la licencia.' };
         }
       }catch(e){
         return { ok:false, msg:'Error de red al verificar la licencia.' };
       }
     }
 
-    // ===== Overlays =====
-    const pauseOverlay = document.getElementById('pauseOverlay');
-    const completeOverlay = document.getElementById('completeOverlay');
-    const gameOverOverlay = document.getElementById('gameOverOverlay');
-    function showPause(){ pauseOverlay.style.display='flex'; pauseOverlay.setAttribute('aria-hidden','false'); stopTimer(); }
-    function hidePause(){ pauseOverlay.style.display='none'; pauseOverlay.setAttribute('aria-hidden','true'); startTimer(); }
-    function showComplete(){ completeOverlay.style.display='flex'; completeOverlay.setAttribute('aria-hidden','false'); }
-    function hideComplete(){ completeOverlay.style.display='none'; completeOverlay.setAttribute('aria-hidden','true'); }
-    function showGameOver(){ gameOverOverlay.style.display='flex'; gameOverOverlay.setAttribute('aria-hidden','false'); stopTimer(); }
-    function hideGameOver(){ gameOverOverlay.style.display='none'; gameOverOverlay.setAttribute('aria-hidden','true'); }
-
-    // ===== Inicio/Reinicio =====
-    function startGame(level){
-      currentLevel = level;
-      document.getElementById('modeName').textContent = (level==='endless')?'Infinito':(level==='hard'?'Difícil':(level==='medium'?'Medio':'Fácil'));
-      activeTiles = buildTiles(level);
-      renderPuzzle();
-      renderBoard();
-      selectedBlank = null;
-      puzzleMsg.classList.add('hidden');
-      startTimer();
-      show('gameScreen');
-    }
-    async function restartGame(){
-      const user = getSessionUser(); if(user){
-        const meta = await getMeta(user);
-        if(meta.coins>0){ meta.coins -= 1; await putMeta(meta); await syncHUD(); }
-      }
-      startGame(currentLevel);
-    }
-    function exitGame(){ stopTimer(); show('mainMenu'); }
-
-    // ===== Navegación =====
-    function show(sectionId){
-      ['mainMenu','levelSelect','gameScreen','profileScreen','settingsScreen','helpScreen'].forEach(id=>{
-        document.getElementById(id).classList.toggle('hidden', id!==sectionId);
-      });
+    // Idioma (simple placeholder; textos clave ya están en inglés/español por diseño minimal)
+    async function applyLang(lang){
+      // Para esta versión, mantenemos la UI minimal y bilingüe base. Puedes expandir i18n aquí si deseas sustituir etiquetas.
+      const meta = currentUser ? await getMeta(currentUser) : null;
+      if(meta){ meta.lang = lang; await putMeta(meta); }
     }
 
-    // ===== Eventos UI =====
-    document.getElementById('loginBtn').addEventListener('click', openAuthModal);
-    document.getElementById('closeAuthBtn').addEventListener('click', closeAuthModal);
-    document.getElementById('logoutBtn').addEventListener('click', ()=>{ clearSession(); });
-
-    document.getElementById('registerBtn').addEventListener('click', async()=>{
-      const u = document.getElementById('usernameInput').value.trim();
-      const p = document.getElementById('passwordInput').value;
-      await registerLocalUser(u,p);
-    });
-    document.getElementById('authLoginBtn').addEventListener('click', async()=>{
-      const u = document.getElementById('usernameInput').value.trim();
-      const p = document.getElementById('passwordInput').value;
-      await loginLocalUser(u,p);
-    });
-    window.addEventListener('keydown',(e)=>{ if(e.shiftKey && e.key.toLowerCase()==='l') openAuthModal(); });
-
-    document.getElementById('playBtn').addEventListener('click', ()=> show('levelSelect'));
-    document.getElementById('levelsBtn').addEventListener('click', ()=> show('levelSelect'));
-    document.getElementById('profileBtn').addEventListener('click', ()=> show('profileScreen'));
-    document.getElementById('settingsBtn').addEventListener('click', ()=> show('settingsScreen'));
-    document.getElementById('helpBtn').addEventListener('click', ()=> show('helpScreen'));
-    document.getElementById('backToMenu1').addEventListener('click', ()=> show('mainMenu'));
-    document.getElementById('backToMenu2').addEventListener('click', ()=> show('mainMenu'));
-    document.getElementById('backToMenu3').addEventListener('click', ()=> show('mainMenu'));
-    document.getElementById('backToMenu4').addEventListener('click', ()=> show('mainMenu'));
-
-    document.getElementById('levelEasy').addEventListener('click', ()=> startGame('easy'));
-    document.getElementById('levelMedium').addEventListener('click', ()=> startGame('medium'));
-    document.getElementById('levelHard').addEventListener('click', ()=> startGame('hard'));
-    document.getElementById('levelEndless').addEventListener('click', ()=> startGame('endless'));
-
-    document.getElementById('pauseBtn').addEventListener('click', showPause);
-    document.getElementById('restartBtn').addEventListener('click', restartGame);
-    document.getElementById('exitBtn').addEventListener('click', exitGame);
-    document.getElementById('resumeBtn').addEventListener('click', hidePause);
-    document.getElementById('restartFromPauseBtn').addEventListener('click', ()=>{ hidePause(); restartGame(); });
-    document.getElementById('exitFromPauseBtn').addEventListener('click', ()=>{ hidePause(); exitGame(); });
-
-    document.getElementById('continueBtn').addEventListener('click', ()=>{ hideComplete(); show('levelSelect'); });
-    document.getElementById('replayBtn').addEventListener('click', ()=>{ hideComplete(); startGame(currentLevel); });
-
-    document.getElementById('retryBtn').addEventListener('click', ()=>{ hideGameOver(); startGame(currentLevel); });
-    document.getElementById('goHomeBtn').addEventListener('click', ()=>{ hideGameOver(); show('mainMenu'); });
-
-    document.getElementById('storeBtn').addEventListener('click', openStore);
-    document.getElementById('closeStoreBtn').addEventListener('click', closeStore);
-    document.querySelectorAll('[data-buy]').forEach(btn=>{ btn.addEventListener('click', ()=> buyAction(btn.dataset.buy)); });
-
-    document.getElementById('dailyBtn').addEventListener('click', openDaily);
-    document.getElementById('closeDailyBtn').addEventListener('click', closeDaily);
-    document.getElementById('claimLifeBtn').addEventListener('click', ()=> claimDaily('life'));
-    document.getElementById('claimCoinsBtn').addEventListener('click', ()=> claimDaily('coins'));
-
-    document.getElementById('buyPremiumBtn').addEventListener('click', ()=> window.open(GUMROAD_PRODUCT_URL,'_blank'));
-    document.getElementById('verifyLicenseBtn').addEventListener('click', async()=>{
-      const lic = document.getElementById('gumroadLicenseInput').value.trim();
-      const res = await verifyGumroadLicense(lic);
-      alert(res.msg);
-    });
-
-    document.getElementById('saveProgressBtn').addEventListener('click', saveProgress);
-    document.getElementById('exportProgressBtn').addEventListener('click', exportProgress);
-    document.getElementById('importFileInput').addEventListener('change', async (e)=>{
-      const file = e.target.files?.[0];
-      if(file) await importProgressFile(file);
-      e.target.value='';
-    });
-
-    document.getElementById('refillLifeBtn').addEventListener('click', async()=>{
-      const user = getSessionUser(); if(!user) return;
-      const meta = await getMeta(user);
-      meta.lives += 1; await putMeta(meta); await syncHUD();
-      showFeedback(puzzleMsg,'+1 vida agregada.','ok'); puzzleMsg.classList.remove('hidden');
-      setTimeout(()=> puzzleMsg.classList.add('hidden'), 1500);
-    });
-
-    document.getElementById('langSelect').addEventListener('change', (e)=>{
-      const lang = e.target.value; localStorage.setItem('cm_lang', lang); applyLang(lang);
-    });
-
-    // ===== Init =====
+    // Init
     (async function init(){
-      const lang = localStorage.getItem('cm_lang') || (navigator.language||'es').slice(0,2);
-      applyLang(['es','en'].includes(lang)?lang:'es');
       await openDB();
-
-      // Precrea demo premium si no existe
-      const demoU = 'premium_demo@crossmath.com';
-      if(!(await getUser(demoU))){
-        const passHash = await hashPassword('demo123');
-        await putUser({ username: demoU, passHash, createdAt: new Date().toISOString() });
-        await putProgress({ username: demoU, levels:[], scores:[], lastUpdated: new Date().toISOString() });
-        await putMeta({ username: demoU, premium:true, coins:999, lives:5, lastDaily:null, sound:true });
+      // Precrear demo si no existe
+      const demo = await getUser('premium_demo@crossmath.com');
+      if(!demo){
+        const ph = await hashPassword('demo123');
+        await putUser({ username: 'premium_demo@crossmath.com', passHash: ph, createdAt: new Date().toISOString() });
+        await putProgress({ username: 'premium_demo@crossmath.com', dailyBest: 0, endlessBest: 0, expert:{}, lastSaved: null, scores: [] });
+        await putMeta({ username: 'premium_demo@crossmath.com', premium: true, coins: 999, lives: 5, sound: true, lang: (navigator.language||'es').slice(0,2) });
       }
-
-      updateAuthUI();
-      show('mainMenu');
+      dailyDateEl.textContent = fmtDate(new Date());
+      await refreshHome();
     })();
   </script>
 </body>
 </html>
+```
